@@ -82,6 +82,20 @@ Two executable flows exist:
 
 Both are useful today; maintainers should keep them aligned as interfaces evolve.
 
+### Verified invocation status
+
+- `python3 scripts/test_training_loop.py` runs successfully in a standard checkout
+- `python3 scripts/run_training_session.py` currently fails with:
+  - `ImportError: attempted relative import beyond top-level package`
+  - root cause: mixed `src` path injection + package import style (`avatars...`)
+    versus internal relative imports (`..core...`)
+
+Operational guidance:
+
+- use `scripts/test_training_loop.py` as the primary runnable training entrypoint
+- treat `scripts/run_training_session.py` as a legacy/demo path until import
+  conventions are unified
+
 ## 5) Persistence model
 
 ### Optional Supabase integration
@@ -114,7 +128,35 @@ Tracked entities include avatars, aides, training sessions, task results, coachi
 - `tests/test_fusion/test_exports.py`
   - fusion package export wiring
 
-## 7) Known implementation gaps
+## 7) Developer runbook (validated commands)
+
+### Preferred local workflow
+
+```bash
+# 1) install deps
+pip install -r requirements.txt
+
+# 2) create local folders/config templates
+python3 scripts/setup_environment.py
+
+# 3) run tests
+pytest
+
+# 4) run primary training flow
+python3 scripts/test_training_loop.py
+```
+
+### Optional Supabase path
+
+```bash
+export VITE_SUPABASE_URL="https://<project>.supabase.co"
+export VITE_SUPABASE_SUPABASE_ANON_KEY="<anon-key>"
+```
+
+If `supabase` package or env vars are missing, writes are skipped and
+training continues locally.
+
+## 8) Known implementation gaps
 
 1. **Dual event abstractions**
    - `src/core/events.py` and `src/simulation/environment/world_engine.py` define different event models
@@ -123,7 +165,7 @@ Tracked entities include avatars, aides, training sessions, task results, coachi
 3. **Documentation drift risk**
    - high-level docs can drift quickly because both orchestrator and legacy training-session paths are active
 
-## 8) Recommended next engineering focus
+## 9) Recommended next engineering focus
 
 1. converge on one primary training runtime path (or document explicit responsibilities of both)
 2. unify event contracts between core signal bus and world-engine events
