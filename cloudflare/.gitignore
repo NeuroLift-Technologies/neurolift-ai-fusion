@@ -1,0 +1,73 @@
+# NeuroLift Solutions - Cloudflare .gitignore
+# ============================================
+# Prevent sensitive files from being committed
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Cloudflare secrets
+.cloudflare/
+
+# Wrangler
+.wrangler/
+wrangler.toml.lock
+
+# Worker build outputs
+dist/
+worker/
+
+# Node modules (if using npm packages in workers)
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Test files
+*.test.js
+*.test.py
+test/
+tests/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+*.min.js
+*.min.css
+
+# Secrets and credentials
+secrets.json
+credentials.json
+api-keys.txt
+
+# Local testing
+.dev.vars
+
+# Documentation builds
+docs/_build/
+site/

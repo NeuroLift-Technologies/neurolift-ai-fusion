@@ -1,0 +1,216 @@
+# NeuroLift Solutions - Cloudflare Pages Configuration
+# =====================================================
+# Configuration for Cloudflare Pages deployment
+#
+# Cloudflare Pages is great for:
+# - Static sites
+# - JAMstack applications
+# - Frontend frameworks (React, Vue, Next.js, etc.)
+# - Documentation sites
+#
+# Note: Since neuroliftsolutions.com is WordPress, Pages might be used for:
+# - Documentation subdomain (docs.neuroliftsolutions.com)
+# - Landing pages
+# - App frontend (app.neuroliftsolutions.com)
+# - TOI-OTOI framework interface
+
+# Project Configuration
+project:
+  name: "neurolift-solutions"
+  production_branch: "main"
+  preview_branches:
+    - "staging"
+    - "develop"
+    - "claude/*"
+
+# Build Configuration
+build:
+  # For static HTML
+  command: ""
+  output_directory: "public"
+  root_directory: ""
+
+  # For React/Next.js (future use)
+  # command: "npm run build"
+  # output_directory: "build"  # or "out" for Next.js
+
+  # For Vue.js (future use)
+  # command: "npm run build"
+  # output_directory: "dist"
+
+  # Environment variables during build
+  environment_variables:
+    NODE_VERSION: "18"
+    PYTHON_VERSION: "3.9"
+    NEUROLIFT_ENV: "production"
+
+# Custom Domains
+domains:
+  production:
+    - "neuroliftsolutions.com"
+    - "www.neuroliftsolutions.com"
+
+  preview:
+    - "staging.neuroliftsolutions.com"
+
+  # Future subdomains
+  future:
+    - "docs.neuroliftsolutions.com"  # Documentation
+    - "app.neuroliftsolutions.com"   # TOI-OTOI App Interface
+    - "portal.neuroliftsolutions.com"  # Customer Portal
+    - "api.neuroliftsolutions.com"   # API Gateway
+
+# Functions Configuration (Serverless Functions)
+functions:
+  # Pages Functions are stored in /functions directory
+  directory: "functions"
+
+  # Example functions structure:
+  # /functions/api/users.js -> https://domain.com/api/users
+  # /functions/api/auth.js -> https://domain.com/api/auth
+
+  # Bindings (KV, Durable Objects, R2, etc.)
+  bindings:
+    kv_namespaces:
+      - binding: "CACHE"
+        # id: "your-kv-namespace-id"
+
+      - binding: "SESSIONS"
+        # id: "your-sessions-kv-id"
+
+    durable_objects:
+      - binding: "RATE_LIMITER"
+        # class_name: "RateLimiter"
+
+    r2_buckets:
+      - binding: "ASSETS"
+        # bucket_name: "neurolift-assets"
+
+    d1_databases:
+      - binding: "DB"
+        # database_id: "your-d1-database-id"
+
+# Headers Configuration
+headers:
+  global:
+    # Security headers
+    - key: "X-Content-Type-Options"
+      value: "nosniff"
+
+    - key: "X-Frame-Options"
+      value: "SAMEORIGIN"
+
+    - key: "X-XSS-Protection"
+      value: "1; mode=block"
+
+    - key: "Referrer-Policy"
+      value: "strict-origin-when-cross-origin"
+
+    - key: "Permissions-Policy"
+      value: "geolocation=(), microphone=(), camera=()"
+
+  # Path-specific headers
+  paths:
+    - path: "/api/*"
+      headers:
+        - key: "Access-Control-Allow-Origin"
+          value: "*"
+
+        - key: "Access-Control-Allow-Methods"
+          value: "GET, POST, PUT, DELETE, OPTIONS"
+
+# Redirects Configuration
+redirects:
+  - source: "/old-page"
+    destination: "/new-page"
+    status: 301
+
+  - source: "/blog/:slug"
+    destination: "/articles/:slug"
+    status: 301
+
+  # Force HTTPS
+  - source: "http://neuroliftsolutions.com/*"
+    destination: "https://neuroliftsolutions.com/*"
+    status: 301
+
+# Preview Deployments
+preview_deployments:
+  enabled: true
+  environment_variables:
+    NEUROLIFT_ENV: "preview"
+
+  # Preview deployment comments on PRs
+  github_comments: true
+
+# Deployment Configuration
+deployment:
+  # Automatic deployments on git push
+  auto_deploy: true
+
+  # Production branch protection
+  production_branch: "main"
+  require_review: false  # Set true for production safety
+
+  # Build timeout (in minutes)
+  build_timeout: 15
+
+  # Deployment notifications
+  notifications:
+    - type: "email"
+      address: "neuro.edge24@gmail.com"
+      events: ["deploy_success", "deploy_failure"]
+
+# Analytics
+analytics:
+  web_analytics: true
+
+# Access Control
+access:
+  # Restrict preview deployments
+  preview_authentication: false
+
+  # IP allowlist (optional)
+  # ip_allowlist:
+  #   - "1.2.3.4"
+  #   - "5.6.7.8"
+
+# Custom Error Pages
+error_pages:
+  404: "/404.html"
+  500: "/500.html"
+
+# Compatibility
+compatibility:
+  date: "2024-01-01"
+  flags: []
+
+# Usage Scenarios for NeuroLift Solutions
+# ========================================
+
+# Scenario 1: WordPress + Pages Hybrid
+# -------------------------------------
+# - Main site: WordPress on neuroliftsolutions.com (via Workers)
+# - Docs: Static site on docs.neuroliftsolutions.com (via Pages)
+# - App: React/Vue app on app.neuroliftsolutions.com (via Pages)
+
+# Scenario 2: TOI-OTOI Framework Interface
+# ----------------------------------------
+# - Interactive Avatar/Aide/Advocate dashboard
+# - Real-time AI interaction interface
+# - Community portal for neurodivergent users
+
+# Scenario 3: Business Operations
+# -------------------------------
+# - Client portal: portal.neuroliftsolutions.com
+# - API documentation: docs.neuroliftsolutions.com/api
+# - Status page: status.neuroliftsolutions.com
+
+# Migration Notes
+# ===============
+# If migrating from WordPress to Pages:
+# 1. Export WordPress content
+# 2. Convert to static site (Jekyll, Hugo, etc.)
+# 3. Deploy to Pages
+# 4. Update DNS records
+# 5. Set up redirects for SEO preservation

@@ -1,0 +1,82 @@
+# NeuroLift Solutions - Cloudflare Workers Configuration
+# =======================================================
+# Wrangler configuration for deploying Cloudflare Workers
+#
+# Setup:
+#   1. Install Wrangler: npm install -g wrangler
+#   2. Login: wrangler login
+#   3. Deploy: wrangler publish
+#
+# Documentation: https://developers.cloudflare.com/workers/wrangler/
+
+name = "neurolift-solutions"
+main = "../workers/main-worker.js"
+compatibility_date = "2024-01-01"
+
+# Account configuration (replace with your values)
+# account_id = "your-account-id-here"
+
+# Workers configuration
+workers_dev = true
+route = ""
+zone_id = ""
+
+# Environment variables
+[env.production]
+name = "neurolift-solutions-prod"
+route = "neuroliftsolutions.com/*"
+# zone_id = "your-zone-id-here"
+
+[env.staging]
+name = "neurolift-solutions-staging"
+route = "staging.neuroliftsolutions.com/*"
+
+# Worker-specific configurations
+[[kv_namespaces]]
+binding = "CACHE"
+id = ""
+preview_id = ""
+
+# WordPress Optimizer Worker
+[env.wordpress]
+name = "neurolift-wordpress-optimizer"
+main = "../workers/wordpress-optimizer.js"
+route = "neuroliftsolutions.com/*"
+
+# Security Worker
+[env.security]
+name = "neurolift-security-worker"
+main = "../workers/security-worker.js"
+route = "neuroliftsolutions.com/*"
+
+# Build configuration
+[build]
+command = ""
+cwd = "./"
+watch_dirs = ["../workers"]
+
+# Durable Objects (for advanced features)
+# [[durable_objects.bindings]]
+# name = "RATE_LIMITER"
+# class_name = "RateLimiter"
+# script_name = "rate-limiter"
+
+# R2 Buckets (for file storage)
+# [[r2_buckets]]
+# binding = "ASSETS"
+# bucket_name = "neurolift-assets"
+# preview_bucket_name = "neurolift-assets-preview"
+
+# Analytics Engine
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+
+# Service bindings (for worker-to-worker communication)
+# [[services]]
+# binding = "AUTH_SERVICE"
+# service = "auth-worker"
+# environment = "production"
+
+# Compatibility flags
+[compatibility_flags]
+# nodejs_compat = true

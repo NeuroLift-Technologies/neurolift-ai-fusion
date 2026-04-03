@@ -9,6 +9,14 @@ Avatar→Aide→Advocate Architecture.
 
 Repository: https://github.com/JDUB1216/neurolift-ai-fusion
 Notion Project: https://www.notion.so/273555e42dea81af9736d835b955ad20
+
+IMPORTANT TERMINOLOGY NOTE (Updated: November 23, 2025):
+TOI-OTOI = Terms of Interaction - Orchestrated Terms of Interaction
+This framework defines how AI agents interact with users and each other through
+structured, orchestrated interaction patterns ensuring privacy, human control, and
+ethical alignment.
+
+Author: Joshua Dorsey (via GitHub Copilot)
 """
 
 import os
@@ -39,13 +47,13 @@ REPOSITORY_INFO = {
 # ============================================================================
 
 TOI_OTOI_FRAMEWORK = {
-    "name": "Theory of Intelligence - Optimization Through Organized Intelligence",
+    "name": "Terms of Interaction - Orchestrated Terms of Interaction",
     "description": "Revolutionary framework that powers the Avatar→Aide→Advocate architecture",
     "formula": "Avatar (Specialized Intelligence) + Aide (Contextual Support) + TOI-OTOI Framework = Advocate (Integrated Intelligence)",
     "core_principles": [
-        "Theory of Intelligence: Understanding how Avatar-Aide pairs can best serve users",
-        "Optimization Process: Streamlining and enhancing combined capabilities",
-        "Organized Intelligence: Structuring fused systems for maximum effectiveness"
+        "Terms of Interaction: Understanding how Avatar-Aide pairs can best serve users through defined interaction patterns",
+        "Orchestrated Process: Streamlining and enhancing combined capabilities through organized interaction flow",
+        "Structured Intelligence: Organizing fused systems for maximum effectiveness through orchestrated terms"
     ],
     "fusion_mechanics": [
         "Intelligence Synthesis: Avatar and Aide capabilities combined",
@@ -65,15 +73,12 @@ DIRECTORY_STRUCTURE = {
         "description": "Repository root directory",
         "files": [
             "README.md",
-            "GEMINI_TOPOGRAPHY.py",
             ".gitignore",
             "requirements.txt",
-            "setup.py",
-            "LICENSE",
-            "ARCHITECTURE.md",
-            "BUSINESS_MODEL.md"
+            "pytest.ini",
+            "LICENSE"
         ],
-        "subdirectories": ["src", "docs", "config", "assets", "tests", "scripts"]
+        "subdirectories": ["src", "docs", "configs", "data", "assets", "tests", "scripts"]
     },
     "src": {
         "path": "/src/",
@@ -197,16 +202,32 @@ DIRECTORY_STRUCTURE = {
             "Advocate creation protocols"
         ],
         "fusion_parameters": [
-            "Theory of Intelligence: Understanding how Avatar-Aide pairs can best serve users",
-            "Optimization Process: Streamlining and enhancing combined capabilities",
-            "Organized Intelligence: Structuring fused systems for maximum effectiveness"
+            "Terms of Interaction: Understanding how Avatar-Aide pairs can best serve users through defined interaction patterns",
+            "Orchestration Process: Streamlining and enhancing combined capabilities through coordinated interaction flow",
+            "Structured Interaction Intelligence: Organizing fused systems for maximum effectiveness through orchestrated terms"
         ]
     },
     "docs": {
         "path": "/docs/",
         "description": "Comprehensive documentation for the NeuroLift AI Fusion system",
-        "subdirectories": ["framework", "architecture", "business"],
+        "subdirectories": ["ai-guidance", "framework", "architecture", "business", "handoffs"],
         "purpose": "Complete documentation ecosystem"
+    },
+    "docs/ai-guidance": {
+        "path": "/docs/ai-guidance/",
+        "description": "AI assistant guidance and repository navigation documentation",
+        "expected_files": [
+            "GEMINI_TOPOGRAPHY.py",
+            "README.md"
+        ],
+        "data_content": [
+            "Repository structure mappings",
+            "TOI-OTOI framework specifications",
+            "Avatar-Aide-Advocate architecture details",
+            "Development phases and roadmap",
+            "AI assistant utility functions"
+        ],
+        "purpose": "Comprehensive guidance for AI assistants working on the project"
     },
     "docs/framework": {
         "path": "/docs/framework/",
@@ -262,8 +283,8 @@ DIRECTORY_STRUCTURE = {
             "Marketing strategies"
         ]
     },
-    "config": {
-        "path": "/config/",
+    "configs": {
+        "path": "/configs/",
         "description": "Configuration files for system components",
         "expected_files": [
             "avatars.yaml",
@@ -664,14 +685,24 @@ def get_integration_targets() -> Dict[str, Dict[str, Any]]:
     return INTEGRATION_POINTS
 
 def validate_avatar_implementation(avatar_type: AvatarType) -> bool:
-    """Validate Avatar implementation against specifications."""
-    # Implementation would check actual Avatar code against specifications
-    pass
+    """Validate Avatar implementation against specifications.
+    
+    Note: This is a placeholder function for future implementation.
+    When implemented, it will check actual Avatar code against specifications.
+    """
+    raise NotImplementedError(
+        "Avatar implementation validation against TOI-OTOI specifications not yet implemented"
+    )
 
 def generate_fusion_parameters(avatar_type: AvatarType, aide_type: str) -> Dict[str, Any]:
-    """Generate TOI-OTOI fusion parameters for specific Avatar/Aide pairs."""
-    # Implementation would generate fusion configuration
-    pass
+    """Generate TOI-OTOI fusion parameters for specific Avatar/Aide pairs.
+    
+    Note: This is a placeholder function for future implementation.
+    When implemented, it will generate fusion configuration based on Avatar/Aide pairing.
+    """
+    raise NotImplementedError(
+        "TOI-OTOI fusion parameter generation for Avatar/Aide pairs not yet implemented"
+    )
 
 # ============================================================================
 # MAIN EXECUTION GUIDANCE
@@ -688,8 +719,11 @@ if __name__ == "__main__":
     print(f"Formula: {TOI_OTOI_FRAMEWORK['formula']}")
     print("\nAvatar Types:")
     for avatar_type in AvatarType:
-        spec = AVATAR_SPECIFICATIONS[avatar_type]
-        print(f"  {spec['name']}: {spec['description']}")
+        spec = AVATAR_SPECIFICATIONS.get(avatar_type)
+        if spec:
+            print(f"  {spec['name']}: {spec['description']}")
+        else:
+            print(f"  {avatar_type.value}: (Specification pending)")
     print("\nDevelopment Phases:")
     for phase, details in DEVELOPMENT_PHASES.items():
         print(f"  {phase}: {details['status']}")

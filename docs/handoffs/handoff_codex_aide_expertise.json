@@ -1,0 +1,28 @@
+{
+  "handoff_type": "implementation",
+  "from": "claude_code",
+  "to": "codex",
+  "priority": "high",
+  "title": "Implement Remaining Aide Expertise Modules",
+  "description": "Implement concrete Aide subclasses for each executive function coaching area. Each must implement get_expertise_strategies() and get_real_world_insights() following the AttentionCoaching pattern.",
+  "deliverables": [
+    "src/aides/executive_function_expertise/impulse_management.py",
+    "src/aides/executive_function_expertise/working_memory_strategies.py",
+    "src/aides/executive_function_expertise/time_management.py",
+    "src/aides/executive_function_expertise/emotional_regulation.py",
+    "src/aides/executive_function_expertise/focus_techniques.py",
+    "src/aides/executive_function_expertise/task_initiation_support.py",
+    "src/aides/executive_function_expertise/frustration_management.py",
+    "src/aides/executive_function_expertise/planning_support.py",
+    "src/aides/executive_function_expertise/transition_coaching.py",
+    "src/aides/executive_function_expertise/self_awareness.py"
+  ],
+  "pattern_to_follow": "src/aides/executive_function_expertise/attention_coaching.py",
+  "base_class": "src/aides/base_aide.py (BaseAide)",
+  "key_architecture_notes": [
+    "CoachingContext now has an 'observation' field (ObservationReport) — access avatar state through that, NOT through context.avatar",
+    "Strategy dicts MUST include a 'strategy' key (the name), 'techniques' list, and 'effectiveness' float",
+    "Real-world insights should include context_match, stress_reduction, emotional_boost, focus_restoration, independence_building",
+    "Aide constructor accepts optional event_bus kwarg for shared event bus"
+  ]
+}
