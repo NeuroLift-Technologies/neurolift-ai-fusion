@@ -91,18 +91,20 @@ This simulation approach addresses both gaps through authentic experiential lear
 git clone <repository-url>
 cd neurolift-ai-fusion
 pip install -r requirements.txt
-python scripts/setup_environment.py
+python3 scripts/setup_environment.py
 ```
 
 ### Run the current training stacks
 
 ```bash
-# Scripted demo flow (config-driven AttentionDeficit + AttentionCoaching)
-python scripts/run_training_session.py
-
-# Scenario-library flow (StayAlertAvatar + StayAlertAide + optional Supabase writes)
-python scripts/test_training_loop.py
+# Primary runnable flow (StayAlertAvatar + StayAlertAide + optional Supabase writes)
+python3 scripts/test_training_loop.py
 ```
+
+`scripts/run_training_session.py` is currently a legacy/demo path that imports
+modules via a different package style and may fail in a standard repo checkout.
+Use `scripts/test_training_loop.py` for reliable local execution until the
+legacy path is aligned.
 
 ### Optional Supabase persistence
 
@@ -158,12 +160,11 @@ This structure is designed for a two-person team (CEO + COO) to orchestrate a co
 
 1. Install dependencies and run setup:
    - `pip install -r requirements.txt`
-   - `python scripts/setup_environment.py`
+   - `python3 scripts/setup_environment.py`
 2. Run tests:
    - `pytest`
-3. Run one of the training entrypoints:
-   - `python scripts/run_training_session.py`
-   - `python scripts/test_training_loop.py`
+3. Run the primary training entrypoint:
+   - `python3 scripts/test_training_loop.py`
 4. Inspect architecture and implementation docs before extending core components:
    - `docs/architecture.md`
    - `docs/implementation_summary.md`

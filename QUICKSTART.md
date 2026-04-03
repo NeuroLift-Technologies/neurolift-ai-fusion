@@ -12,12 +12,21 @@ cd /path/to/neurolift
 pip install -r requirements.txt
 ```
 
+### Use Python 3 explicitly
+
+The codebase and scripts assume Python 3.10+. On environments where `python`
+is not mapped, run commands with `python3`.
+
 ### Run a Training Session
 
 ```bash
 # Execute the complete training demonstration
 python3 scripts/test_training_loop.py
 ```
+
+`scripts/test_training_loop.py` is the primary verified runtime path.
+`scripts/run_training_session.py` is a legacy/demo script and may fail in a
+standard checkout due to import-path style differences.
 
 That's it! The system will:
 1. Create a StayAlert Avatar (experiences attention deficit)
@@ -213,6 +222,7 @@ Training runs locally without database - no setup required!
 ### Run All Verifications
 
 ```bash
+pytest
 python3 scripts/test_training_loop.py
 ```
 
@@ -238,6 +248,15 @@ print(db._is_available())  # True if connected, False otherwise
 
 ## 🆘 Troubleshooting
 
+### `python: command not found`
+
+Use `python3` for all commands:
+
+```bash
+python3 scripts/setup_environment.py
+python3 scripts/test_training_loop.py
+```
+
 ### ImportError: No module named 'supabase'
 
 This is fine! The system works without Supabase. Data stays local.
@@ -255,6 +274,12 @@ Verify `src/simulation/environment/scenarios.py` exists and contains ScenarioLib
 ### Database warnings
 
 Warnings about database are informational only - training continues successfully without database.
+
+### `ImportError: attempted relative import beyond top-level package`
+
+If this appears when running `scripts/run_training_session.py`, switch to
+`python3 scripts/test_training_loop.py`. The former is currently a legacy
+entrypoint using a different package import style.
 
 ---
 

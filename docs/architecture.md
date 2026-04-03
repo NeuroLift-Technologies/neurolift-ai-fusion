@@ -223,3 +223,48 @@ When adding a new Avatar/Aide pair:
    - session outcomes and readiness scoring
 
 Keep interfaces event-driven and prefer extending existing docs instead of creating parallel architecture pages.
+
+---
+
+## 10) Operator runbook (training flows)
+
+### Recommended local command path
+
+Use Python 3 explicitly:
+
+```bash
+python3 scripts/setup_environment.py
+python3 scripts/test_training_loop.py
+```
+
+`scripts/test_training_loop.py` currently reflects the runnable end-to-end path
+in a standard checkout (`StayAlertAvatar` + `StayAlertAide` + `TrainingSession`).
+
+### Legacy path caveat
+
+`scripts/run_training_session.py` currently imports modules via a package style
+that can fail with:
+
+`ImportError: attempted relative import beyond top-level package`
+
+Treat that script as a legacy/demo path until imports are aligned with the
+`src.*` package structure used by the scenario-library flow.
+
+### Expected runtime behavior without Supabase
+
+- `SupabaseClient` is optional and no-ops when unavailable
+- session execution continues locally
+- scripts may print warnings such as partial/failed DB save, but training results
+  and metrics still complete
+
+### Common pitfalls and constraints
+
+1. **`python` command not present**
+   - Some environments ship only `python3`; use `python3 ...` commands in docs
+     and local workflows.
+2. **Mixing orchestration stacks**
+   - `SessionOrchestrator` and `TrainingSession` have different loop contracts and
+     output models; avoid combining their assumptions in one script.
+3. **Burnout abort tuning**
+   - For orchestrator-based runs, `SessionConfig.burnout_abort_threshold` controls
+     early abort behavior. Too-low thresholds can prevent useful retries.
