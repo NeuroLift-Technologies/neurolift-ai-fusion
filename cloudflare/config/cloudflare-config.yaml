@@ -1,0 +1,218 @@
+# NeuroLift Solutions - Cloudflare Configuration
+# ================================================
+# Main configuration for Cloudflare services
+#
+# Website: neuroliftsolutions.com
+# Registered: Northwest Registered Agent
+# Platform: WordPress
+
+# Account Information
+account:
+  name: "NeuroLift Solutions"
+  email: "neuro.edge24@gmail.com"
+  # account_id: "your-account-id"  # Add after account setup
+
+# Zone Configuration
+zones:
+  - domain: "neuroliftsolutions.com"
+    # zone_id: "your-zone-id"  # Add after domain is added
+    plan: "free"  # or "pro", "business", "enterprise"
+
+    # DNS Settings
+    dns_records:
+      - type: "A"
+        name: "@"
+        content: "your-origin-ip"  # Replace with your hosting IP
+        proxied: true
+        ttl: 1  # Auto
+
+      - type: "A"
+        name: "www"
+        content: "your-origin-ip"
+        proxied: true
+        ttl: 1
+
+      - type: "CNAME"
+        name: "staging"
+        content: "neuroliftsolutions.com"
+        proxied: true
+        ttl: 1
+
+    # SSL/TLS Configuration
+    ssl:
+      mode: "flexible"  # Options: off, flexible, full, strict
+      min_tls_version: "1.2"
+      tls_1_3: "on"
+      automatic_https_rewrites: true
+      always_use_https: true
+
+    # Security Settings
+    security:
+      level: "medium"  # Options: off, essentially_off, low, medium, high, under_attack
+      waf: true
+      rate_limiting: true
+      ddos_protection: true
+      bot_fight_mode: true
+
+      # Firewall Rules
+      firewall_rules:
+        - description: "Block bad bots"
+          expression: '(cf.client.bot) and not (cf.verified_bot_category in {"Search Engine Crawler"})'
+          action: "block"
+
+        - description: "Rate limit API"
+          expression: '(http.request.uri.path contains "/api/")'
+          action: "challenge"
+          rate_limit:
+            period: 60
+            requests: 100
+
+    # Performance Settings
+    performance:
+      cache_level: "standard"  # Options: basic, simplified, aggressive, standard
+      browser_cache_ttl: 14400  # 4 hours
+      development_mode: false
+
+      # Auto Minify
+      auto_minify:
+        html: true
+        css: true
+        javascript: true
+
+      # Optimization
+      rocket_loader: false  # May conflict with some WordPress themes
+      mirage: true  # Lazy loading for images
+      polish: "lossy"  # Image optimization
+      webp: true
+      brotli: true
+      http2_to_origin: true
+      http3: true
+
+    # Caching Rules
+    page_rules:
+      - url: "neuroliftsolutions.com/wp-admin*"
+        priority: 1
+        settings:
+          cache_level: "bypass"
+          security_level: "high"
+
+      - url: "neuroliftsolutions.com/wp-content/*"
+        priority: 2
+        settings:
+          cache_level: "cache_everything"
+          edge_cache_ttl: 86400  # 24 hours
+
+      - url: "neuroliftsolutions.com/*"
+        priority: 3
+        settings:
+          cache_level: "standard"
+          browser_cache_ttl: 3600  # 1 hour
+
+    # WordPress-Specific Settings
+    wordpress:
+      bypass_cache_patterns:
+        - "/wp-admin"
+        - "/wp-login.php"
+        - "/wp-cron.php"
+        - "/xmlrpc.php"
+        - "wp-comments-post.php"
+        - "/cart"
+        - "/checkout"
+        - "/my-account"
+
+      cache_everything_patterns:
+        - "/wp-content/uploads/*"
+        - "/wp-content/themes/*"
+        - "/wp-content/plugins/*"
+        - "*.jpg"
+        - "*.jpeg"
+        - "*.png"
+        - "*.gif"
+        - "*.css"
+        - "*.js"
+
+# Workers Configuration
+workers:
+  - name: "main-worker"
+    script: "workers/main-worker.js"
+    route: "neuroliftsolutions.com/*"
+    enabled: true
+
+  - name: "wordpress-optimizer"
+    script: "workers/wordpress-optimizer.js"
+    route: "neuroliftsolutions.com/*"
+    enabled: true
+
+  - name: "security-worker"
+    script: "workers/security-worker.js"
+    route: "neuroliftsolutions.com/*"
+    enabled: true
+
+# Pages Configuration
+pages:
+  project_name: "neurolift-solutions"
+  production_branch: "main"
+  build_command: ""  # Not needed for WordPress
+  build_output_directory: ""
+
+  # Environment Variables (for Pages Functions)
+  environment_variables:
+    NODE_ENV: "production"
+    NEUROLIFT_VERSION: "1.0.0"
+
+# Analytics & Monitoring
+analytics:
+  web_analytics: true
+
+  # Custom Analytics (optional)
+  analytics_engine: false
+
+# Access (for team management)
+access:
+  enabled: false
+  # Configure when needed for team access
+
+# Load Balancing (for enterprise)
+load_balancing:
+  enabled: false
+
+# Rate Limiting
+rate_limiting:
+  enabled: true
+  rules:
+    - description: "API Rate Limit"
+      path: "/api/*"
+      requests: 100
+      period: 60  # seconds
+      action: "challenge"
+
+    - description: "Login Protection"
+      path: "/wp-login.php"
+      requests: 5
+      period: 60
+      action: "block"
+
+# Stream (for video hosting - future)
+stream:
+  enabled: false
+
+# Images (for image optimization)
+images:
+  enabled: true
+  flexible_variants: true
+
+# Email Routing (optional)
+email_routing:
+  enabled: false
+  # Configure if you want email@neuroliftsolutions.com
+
+# Notifications
+notifications:
+  email: "neuro.edge24@gmail.com"
+  alerts:
+    - type: "ddos_attack"
+      enabled: true
+    - type: "ssl_expiring"
+      enabled: true
+    - type: "health_check_failing"
+      enabled: true

@@ -1,0 +1,26 @@
+{
+  "handoff_type": "research",
+  "from": "claude_code",
+  "to": ["mistral", "grok", "notion_ai"],
+  "priority": "medium",
+  "title": "Fusion Quality Validation Framework Design",
+  "description": "The FusionEngine is built and working. Need validation criteria for ensuring fused Advocates are high quality. Research needed on how to validate that an AI combining experiential knowledge with expert knowledge is producing genuinely useful support.",
+  "current_fusion_dimensions": [
+    "EXPERIENTIAL_DEPTH — volume and variety of lived experiences",
+    "COACHING_EFFECTIVENESS — Aide's coaching success rate",
+    "INDEPENDENCE_LEVEL — Avatar's ability to manage without Aide",
+    "EMOTIONAL_RESILIENCE — Recovery from negative emotional states",
+    "STRATEGY_INTERNALISATION — Avatar adopting coached strategies independently",
+    "BURNOUT_MANAGEMENT — Pair's ability to manage burnout risk"
+  ],
+  "research_questions": [
+    "What additional dimensions should we assess for fusion readiness?",
+    "How do we validate that empathic understanding is genuine vs. performative?",
+    "What benchmarks exist for evaluating AI coaching quality?",
+    "How should we weight the different fusion dimensions?",
+    "What does a 'failed fusion' look like and how do we detect it?",
+    "How do we ensure the Advocate doesn't lose empathy over many interactions?",
+    "What clinical validation approaches are appropriate for ADHD support AI?"
+  ],
+  "deliverable_format": "Structured document with proposed validation criteria, thresholds, and testing methodology"
+}
