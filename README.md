@@ -88,22 +88,33 @@ This simulation approach addresses both gaps through authentic experiential lear
 
 ### Installation
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd neurolift-ai-fusion
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Run initial setup
 python scripts/setup_environment.py
 ```
 
-### Running Your First Training Session
+### Run the current training stacks
+
 ```bash
-# Start a training session with StayAlert Avatar
-python scripts/run_training_session.py --avatar stay_alert --scenarios workplace.meeting_dynamics
+# Scripted demo flow (config-driven AttentionDeficit + AttentionCoaching)
+python scripts/run_training_session.py
+
+# Scenario-library flow (StayAlertAvatar + StayAlertAide + optional Supabase writes)
+python scripts/test_training_loop.py
 ```
+
+### Optional Supabase persistence
+
+Database writes are optional and fail open (local run continues if DB is unavailable).
+To enable persistence for `TrainingSession`, set:
+
+```bash
+export VITE_SUPABASE_URL="https://<project>.supabase.co"
+export VITE_SUPABASE_SUPABASE_ANON_KEY="<anon-key>"
+```
+
+See schema in `supabase/migrations/20251123045907_create_neuroLift_tables.sql`.
 
 ## 📂 Business Structure
 
@@ -143,20 +154,26 @@ This structure is designed for a two-person team (CEO + COO) to orchestrate a co
 - **Performance Monitoring** - Real-time tracking of agent effectiveness
 - **Scalable Architecture** - Modular design for easy expansion and customization
 
-## Getting Started
+## Developer workflow
 
-1. **Phase 1**: Foundation setup (Weeks 1-2)
-2. **Phase 2**: Executive layer deployment (Weeks 3-4)  
-3. **Phase 3**: Department layer deployment (Weeks 5-8)
-4. **Phase 4**: Optimization and tuning (Weeks 9-12)
-
-See `docs/playbooks/implementation-guide.md` for detailed instructions.
+1. Install dependencies and run setup:
+   - `pip install -r requirements.txt`
+   - `python scripts/setup_environment.py`
+2. Run tests:
+   - `pytest`
+3. Run one of the training entrypoints:
+   - `python scripts/run_training_session.py`
+   - `python scripts/test_training_loop.py`
+4. Inspect architecture and implementation docs before extending core components:
+   - `docs/architecture.md`
+   - `docs/implementation_summary.md`
 
 ## Support
 
-- **Architecture**: See `docs/architecture/`
-- **Playbooks**: See `docs/playbooks/`
-- **Training**: See `docs/training/`
+- **Architecture**: `docs/architecture.md`
+- **Implementation status**: `docs/implementation_summary.md`
+- **Cloudflare setup**: `docs/cloudflare/CLOUDFLARE_SETUP.md`
+- **AI guidance materials**: `docs/ai-guidance/README.md`
 
 ---
 
@@ -287,18 +304,15 @@ This project follows "Nothing About Us Without Us" principles. We welcome contri
 - AI/ML researchers interested in experiential learning
 - Anyone committed to authentic representation
 
-See [CONTRIBUTING.md](docs/contributing.md) for detailed guidelines.
+Contribution guidelines are evolving; open an issue/PR with context and test evidence.
 
 ## 📚 Documentation
 
 - [Architecture Overview](docs/architecture.md)
-- [Avatar-Aide-Advocate Process](docs/avatar-aide-advocate-process.md)
-- [Executive Functions Theory](docs/executive-functions.md)
-- [Simulation Scenarios](docs/simulation-scenarios.md)
-- [Training Metrics](docs/training-metrics.md)
-- [RRT Foundation](docs/rrt-foundation.md)
 - [TOI-OTOI Integration](TOI-OTOI-INTEGRATION.md)
 - [Implementation Summary](docs/implementation_summary.md)
+- [Cloudflare Setup Guide](docs/cloudflare/CLOUDFLARE_SETUP.md)
+- [AI Guidance Index](docs/ai-guidance/README.md)
 
 ## Infrastructure & Deployment
 
@@ -359,9 +373,9 @@ We'll know we've succeeded when:
 
 ## 🎯 Current Status
 
-**Development Phase:** Foundation (Phase 1)
-**Last Updated:** January 2026
-**Next Milestone:** Complete base classes and first Avatar-Aide pair prototype
+**Development Phase:** Core runtime + orchestration in active iteration
+**Last Updated:** April 2026
+**Current focus:** Improving session orchestration, readiness scoring, and docs alignment with code
 
 ---
 
