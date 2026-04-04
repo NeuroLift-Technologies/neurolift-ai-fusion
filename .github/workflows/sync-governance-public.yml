@@ -1,0 +1,159 @@
+# Sync Governance Public Workflow
+#
+# This workflow receives governance document updates dispatched from
+# NeuroLift-Technologies/.github-private and applies them to this repository.
+#
+# Trigger sources:
+#   - repository_dispatch (type: governance-sync) — sent by the private repo
+#   - workflow_dispatch — manual run by maintainers
+#   - schedule — weekly validation that governance docs are present
+
+name: Sync Governance (Public)
+
+on:
+  repository_dispatch:
+    types: [governance-sync]
+
+  workflow_dispatch:
+    inputs:
+      validate_only:
+        description: "Only validate existing governance docs (no content update)"
+        required: false
+        default: "true"
+        type: boolean
+
+  schedule:
+    # Every Monday at 08:00 UTC — validation-only run
+    - cron: "0 8 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-governance:
+    name: Sync Governance Documents
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Use full history so we can create a meaningful PR branch
+          fetch-depth: 0
+
+      # ---------------------------------------------------------------
+      # repository_dispatch path: receive content from private repo
+      # ---------------------------------------------------------------
+      - name: Apply synced governance document
+        if: github.event_name == 'repository_dispatch'
+        env:
+          DOCUMENT_NAME: ${{ github.event.client_payload.document_name }}
+          DOCUMENT_CONTENT: ${{ github.event.client_payload.content }}
+          DOCUMENT_VERSION: ${{ github.event.client_payload.version }}
+          DOCUMENT_CHECKSUM: ${{ github.event.client_payload.checksum }}
+        run: |
+          if [ -z "$DOCUMENT_NAME" ] || [ -z "$DOCUMENT_CONTENT" ]; then
+            echo "::error::repository_dispatch payload is missing required fields (document_name, content)"
+            exit 1
+          fi
+
+          # Restrict allowed filenames to governance-prefixed root docs or the docs/governance/ directory
+          case "$DOCUMENT_NAME" in
+            NLT-*.md | docs/governance/NLT-*.md) ;;
+            *)
+              echo "::error::Disallowed document name: $DOCUMENT_NAME (must match NLT-*.md or docs/governance/NLT-*.md)"
+              exit 1
+              ;;
+          esac
+
+          echo "Applying governance document: $DOCUMENT_NAME (version: $DOCUMENT_VERSION)"
+
+          # Ensure parent directory exists
+          mkdir -p "$(dirname "$DOCUMENT_NAME")"
+
+          # The content is base64-encoded to survive JSON transport safely
+          echo "$DOCUMENT_CONTENT" | base64 --decode > "$DOCUMENT_NAME"
+
+          if [ -n "$DOCUMENT_CHECKSUM" ]; then
+            ALGO="${DOCUMENT_CHECKSUM%%:*}"
+            EXPECTED="${DOCUMENT_CHECKSUM##*:}"
+            case "$ALGO" in
+              sha256)
+                ACTUAL=$(sha256sum "$DOCUMENT_NAME" | awk '{print $1}')
+                if [ "$ACTUAL" != "$EXPECTED" ]; then
+                  echo "::error::Checksum mismatch for $DOCUMENT_NAME (expected $EXPECTED, got $ACTUAL)"
+                  exit 1
+                fi
+                echo "Checksum verified (sha256): $ACTUAL"
+                ;;
+              *)
+                echo "::warning::Unsupported checksum algorithm '$ALGO' — skipping verification"
+                ;;
+            esac
+          fi
+
+      # ---------------------------------------------------------------
+      # Validation: ensure the primary governance document is present
+      # ---------------------------------------------------------------
+      - name: Validate governance documents
+        run: |
+          MISSING=0
+          for doc in NLT-DEV-OTOI.md; do
+            if [ ! -f "$doc" ]; then
+              echo "::warning::Governance document missing: $doc"
+              MISSING=$((MISSING + 1))
+            else
+              echo "Governance document present: $doc"
+            fi
+          done
+
+          if [ "$MISSING" -gt 0 ]; then
+            echo "::warning::$MISSING governance document(s) are missing. Run this workflow via repository_dispatch to sync them."
+          fi
+
+      # ---------------------------------------------------------------
+      # Commit & PR: only when content was actually written
+      # ---------------------------------------------------------------
+      - name: Check for changes
+        id: changes
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create pull request for governance update
+        if: github.event_name == 'repository_dispatch' && steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENT_NAME: ${{ github.event.client_payload.document_name }}
+          DOCUMENT_VERSION: ${{ github.event.client_payload.version }}
+        run: |
+          BRANCH="governance-sync/$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$DOCUMENT_NAME"
+
+          COMMIT_MSG="chore(governance): sync ${DOCUMENT_NAME} from .github-private"$'\n\n'
+          COMMIT_MSG+="Version: ${DOCUMENT_VERSION:-unspecified}"$'\n'
+          COMMIT_MSG+="Source:  NeuroLift-Technologies/.github-private"$'\n'
+          COMMIT_MSG+="Trigger: repository_dispatch / governance-sync"
+          git commit -m "$COMMIT_MSG"
+
+          git push origin "$BRANCH"
+
+          PR_BODY="Automated governance document sync from \`NeuroLift-Technologies/.github-private\`."$'\n\n'
+          PR_BODY+="**Document:** \`${DOCUMENT_NAME}\`"$'\n'
+          PR_BODY+="**Version:** \`${DOCUMENT_VERSION:-unspecified}\`"$'\n'
+          PR_BODY+="**Governance standard:** ORG-DEV-OTOI-1.0.0"$'\n\n'
+          PR_BODY+="> Please review the updated governance document before merging."
+
+          gh pr create \
+            --title "chore(governance): sync ${DOCUMENT_NAME} (${DOCUMENT_VERSION:-unspecified})" \
+            --body "$PR_BODY" \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$BRANCH"
