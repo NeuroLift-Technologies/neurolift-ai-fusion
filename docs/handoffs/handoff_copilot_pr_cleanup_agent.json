@@ -17,7 +17,7 @@
     "org_github_repo_workflows": [
       "reusable-ci.yml — Org-level reusable CI"
     ],
-    "github_private_repo": "Inaccessible (private / 404) — templates could not be retrieved",
+    "github_private_repo_status": "Inaccessible (private / 404) — templates could not be retrieved",
     "pr_cleanup_agent_found": false
   },
   "artifacts_created": [

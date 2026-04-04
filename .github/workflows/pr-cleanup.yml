@@ -75,7 +75,7 @@ jobs:
             );
 
             // Fetch actually protected branches from the GitHub API
-            let protected_branches = new Set(['master', 'main', 'develop', 'dev', 'release']);
+            const protectedBranches = new Set(['master', 'main', 'develop', 'dev', 'release']);
             try {
               const { data: branches } = await github.rest.repos.listBranches({
                 owner: context.repo.owner,
@@ -83,7 +83,7 @@ jobs:
                 protected: true,
                 per_page: 100,
               });
-              branches.forEach(b => protected_branches.add(b.name));
+              branches.forEach(b => protectedBranches.add(b.name));
             } catch (err) {
               console.warn(`Could not fetch protected branches, using default list: ${err.message}`);
             }
@@ -92,7 +92,7 @@ jobs:
               const branch = pr.head.ref;
 
               // Skip protected branches
-              if (protected_branches.has(branch)) {
+              if (protectedBranches.has(branch)) {
                 console.log(`Skipping protected branch: ${branch}`);
                 continue;
               }
