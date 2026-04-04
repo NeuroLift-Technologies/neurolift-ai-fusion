@@ -113,11 +113,11 @@ python3 scripts/test_training_loop.py
 
 `test_training_loop.py` currently reaches scenario execution, then fails during coaching context construction (see troubleshooting below). This is useful for validating the setup path and reproducing current integration behavior.
 
-## 🔁 GitHub Workflows (CI + Repository Hygiene)
+## 🔁 CI and Repository Automation Workflows (GitHub Actions)
 
 ### Intent and architecture
 
-This repository currently has three workflows in `.github/workflows/`:
+This repository currently has three automation workflows in `.github/workflows/`:
 
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
@@ -146,7 +146,10 @@ Important constraints:
 
 - A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
 - Because both CI workflows subscribe to the same events, a PR to `master` runs both pipelines.
-- PR Cleanup only acts on pull requests (issues are explicitly excluded).
+- PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
+- Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
+- PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
+- Branch deletion only applies to branches merged from this repository (not forks), and skips protected/default branches.
 
 ### Agent automation definitions (`.github/agents/*.agent.md`)
 
@@ -190,6 +193,12 @@ From GitHub UI:
 3. Click **Run workflow**.
 4. Choose the branch and (for PR Cleanup) optionally override stale/close thresholds.
 
+For manual PR cleanup tuning (`PR Cleanup` only):
+
+1. Open **Actions** -> **PR Cleanup** -> **Run workflow**.
+2. Set `days_before_stale` (default `30`) and `days_before_close` (default `7`) if needed.
+3. Run and inspect logs for the `stale-prs` and `delete-merged-branches` jobs.
+
 To reproduce `python-app.yml` locally:
 
 ```bash
@@ -209,6 +218,10 @@ pytest
 - **Keep branch trigger filters aligned** in both CI files when changing branch policy.
 - **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
 - **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
+- **When changing PR retention policy, update both code and docs together**:
+  - `.github/workflows/pr-cleanup.yml` (`days-before-stale`, `days-before-close`)
+  - this README section (trigger behavior + runbook defaults)
+- **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
 - **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
 - **Keep cleanup intent aligned in two places** when requirements change:
   - `.github/workflows/pr-cleanup.yml` (enforced behavior)
@@ -220,7 +233,8 @@ pytest
 - **`Shared CI` fails before local tests run:** inspect reusable workflow logs from `.github-private`; failures there can occur without changes in this repository.
 - **Security/test ordering confusion:** in `shared-ci.yml`, both `test` and `security` depend on `lint` and can run in parallel after lint passes.
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
-- **Merged branch not deleted:** verify the PR was merged from a same-repo branch, not forked, and that the branch is not protected.
+- **PR branch was not deleted after merge:** check whether the PR came from a fork, whether the branch is protected, or whether it was already deleted (422 is treated as non-fatal in workflow logs).
+- **PR expected to stay open got marked stale:** add any activity (comment/commit/review) or convert to draft if it is actively in progress but intentionally paused.
 
 ### Local runtime troubleshooting (scripts)
 

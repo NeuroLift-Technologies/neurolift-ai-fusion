@@ -299,6 +299,43 @@ print(db._is_available())  # True if connected, False otherwise
 
 ---
 
+## 🧹 Repository Maintenance Automation (PR Cleanup)
+
+Use this when you need to reproduce or validate pull-request hygiene behavior in GitHub Actions.
+
+### What the workflow does
+
+- Workflow file: `.github/workflows/pr-cleanup.yml`
+- Actions UI name: **PR Cleanup**
+- Runs daily at `06:00 UTC` (`cron: 0 6 * * *`) and supports manual dispatch
+- Marks inactive PRs as `stale` after 30 days, then auto-closes after 7 more days
+- Deletes branches for merged PRs when the branch belongs to this repository
+
+### Safety constraints (from workflow logic)
+
+- Draft PRs are exempt from stale marking (`exempt-draft-pr: true`)
+- Issues are never marked stale/closed by this workflow
+- Branch cleanup skips protected branches and common default branch names
+- Branches from fork-based PRs are not deleted by the cleanup job
+
+### Manual run (Actions UI)
+
+1. Go to **Actions** -> **PR Cleanup** -> **Run workflow**
+2. Select the branch/ref
+3. Optionally override:
+   - `days_before_stale` (default `30`)
+   - `days_before_close` (default `7`)
+4. Review logs from:
+   - `stale-prs` (stale/close decisions)
+   - `delete-merged-branches` (branch cleanup actions)
+
+### Common pitfalls
+
+- **Merged branch not deleted:** branch may already be removed, protected, or from a fork PR.
+- **Unexpected stale label:** any new activity (comment/commit/review) keeps an active PR from closure.
+
+---
+
 ## 📊 Next Steps
 
 1. **Run the baseline checks** - `compileall` + `test_session_orchestrator.py`
