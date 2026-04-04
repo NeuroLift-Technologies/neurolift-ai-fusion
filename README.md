@@ -105,6 +105,57 @@ python scripts/setup_environment.py
 python scripts/run_training_session.py --avatar stay_alert --scenarios workplace.meeting_dynamics
 ```
 
+## 🔁 CI Workflows (GitHub Actions)
+
+### Intent and architecture
+
+This repository currently has two CI workflows in `.github/workflows/`:
+
+- **`shared-ci.yml`** (primary org-standard pipeline): calls reusable workflows from `NeuroLift-Technologies/.github-private`.
+  - `lint` -> runs first
+  - `test` -> runs after `lint` (`needs: lint`)
+  - `security` -> runs after `lint` (`needs: lint`)
+- **`python-app.yml`** (standalone local pipeline): runs checkout, dependency install, flake8, and pytest directly in this repository.
+
+Both workflows currently target **Python 3.10**.
+
+### Trigger constraints
+
+Both workflows run on:
+
+- `push` to `master`
+- `pull_request` targeting `master`
+- `workflow_dispatch` (manual run from Actions tab)
+
+If work is pushed to a non-`master` branch without a PR to `master`, CI will not auto-trigger unless run manually.
+
+### Manual usage
+
+From GitHub UI:
+
+1. Open **Actions**
+2. Select **Shared CI** or **Python application**
+3. Click **Run workflow**
+4. Choose the target branch and run
+
+To reproduce the standalone pipeline locally (`python-app.yml` behavior):
+
+```bash
+python -m pip install --upgrade pip
+pip install flake8 pytest
+if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+pytest
+```
+
+### Troubleshooting and common pitfalls
+
+- **CI did not run for a branch push:** verify the event targets `master` or use `workflow_dispatch`.
+- **`shared-ci.yml` fails in reusable workflow calls:** inspect the called workflow logs in the job output; source workflows are referenced in `.github-private` under `.github/workflows/`.
+- **Unexpected Python-version differences between pipelines:** keep `python-version` aligned in both workflow files.
+- **Security scan timing confusion:** in `shared-ci.yml`, `security` depends on `lint` (not on `test`), so `test` and `security` can run in parallel after lint passes.
+
 ## 📂 Business Structure
 
 ### 1-Person Structure (Sole Proprietorship)
