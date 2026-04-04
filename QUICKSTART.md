@@ -187,16 +187,37 @@ choice = scenarios[1]  # Select Report Writing instead
 ### Run Multiple Sessions
 
 ```python
-from src.simulation.training_session import TrainingSession
+from src.core.events import EventBus
+from src.avatars.base_avatar import BaseAvatar
+from src.aides.base_aide import BaseAide
+from src.simulation.session_orchestrator import SessionOrchestrator, SessionConfig
 
-avatar = StayAlertAvatar("avatar1", config)
-aide = StayAlertAide("aide1", config)
+class DemoAvatar(BaseAvatar):
+    def get_adhd_trait_impact(self, task_context):
+        return {"difficulty_modifier": 1.1, "quality_modifier": 0.05, "time_modifier": 1.0, "cognitive_load_modifier": 0.1}
+    def simulate_struggle(self, task_context):
+        return ["mild_struggle"]
 
-for i in range(5):
-    scenario = ScenarioLibrary.get_scenario_by_id(f"wp_{i % 5 + 1}")
-    session = TrainingSession(avatar, aide, scenario)
-    results = session.run()
-    print(f"Session {i+1} complete")
+class DemoAide(BaseAide):
+    def get_expertise_strategies(self, context):
+        return [{"strategy": "Chunk tasks", "techniques": ["break work into chunks"], "expected_outcomes": ["higher completion"], "effectiveness": 0.7, "context_match": 0.7}]
+    def get_real_world_insights(self, context):
+        return [{"source": "real_world", "strategy": "Use accountability", "techniques": ["pair work"], "expected_outcomes": ["more consistency"], "effectiveness": 0.8, "context_match": 0.8}]
+
+bus = EventBus()
+avatar = DemoAvatar("avatar_demo", {"trait_name": "demo"}, event_bus=bus)
+aide = DemoAide("aide_demo", {"expertise_area": "demo_coaching"}, event_bus=bus)
+orchestrator = SessionOrchestrator(
+    avatar,
+    aide,
+    SessionConfig(max_attempts_per_scenario=2, max_coaching_per_attempt=1, check_fusion_readiness=False),
+)
+
+for i in range(3):
+    result = orchestrator.run_session([
+        {"name": f"Focus Task {i+1}", "task_type": "focus", "base_success_rate": 0.8, "cognitive_demand": 0.4}
+    ])
+    print(result.phase.name, result.total_attempts, len(result.scenario_results))
 ```
 
 ---
@@ -258,6 +279,13 @@ Training runs locally without database - no setup required!
 ### Run All Verifications
 
 ```bash
+# 1) Syntax smoke check
+python3 -m compileall src scripts
+
+# 2) Current orchestration contract (stable test target)
+pytest tests/test_simulation/test_session_orchestrator.py
+
+# 3) Optional integration diagnostic (expected known failure point)
 python3 scripts/test_training_loop.py
 ```
 
@@ -273,11 +301,11 @@ print(db._is_available())  # True if connected, False otherwise
 
 ## 📊 Next Steps
 
-1. **Run the test** - Execute `test_training_loop.py`
-2. **Explore results** - Examine the output metrics
-3. **Try other scenarios** - Modify the script to use different scenarios
-4. **Create custom Avatars** - Implement your own Avatar trait
-5. **Build an interface** - Create a web UI for visualization
+1. **Run the baseline checks** - `compileall` + `test_session_orchestrator.py`
+2. **Use `test_training_loop.py` as a diagnostic** - Reproduce and inspect current integration mismatch
+3. **Try other scenarios** - Modify scenario selection in `scripts/test_training_loop.py`
+4. **Create custom Avatars/Aides** - Prototype against `SessionOrchestrator` contracts
+5. **Build an interface** - Add a UI layer once script/runtime interfaces are reconciled
 
 ---
 
@@ -309,6 +337,12 @@ If you see `ImportError: attempted relative import beyond top-level package`, th
 
 If you see `TypeError: CoachingContext.__init__() got an unexpected keyword argument 'avatar'`, the script is using an outdated coaching context shape compared to `src/aides/base_aide.py`.
 
+### `CoachingContext` TypeError in `src/simulation/training_session.py`
+
+If `TrainingSession.run()` fails at coaching construction, the same mismatch exists in
+`src/simulation/training_session.py` (`CoachingContext` is instantiated with legacy fields).
+Prefer `src/simulation/session_orchestrator.py` for current interface validation.
+
 ---
 
 ## 📞 Support
@@ -319,16 +353,16 @@ If you see `TypeError: CoachingContext.__init__() got an unexpected keyword argu
 
 ---
 
-## 🎉 Success!
+## ✅ Validation Complete (Current Baseline)
 
-You've successfully:
+You have successfully:
 - ✓ Installed NeuroLift Technologies
-- ✓ Run a complete Avatar-Aide training session
-- ✓ Observed authentic ADHD trait simulation
-- ✓ Seen evidence-based coaching in action
+- ✓ Verified code syntax across `src/` and `scripts/`
+- ✓ Confirmed the current orchestrator contract via targeted tests
+- ✓ Reproduced known script-level integration mismatches for debugging
 
-Congratulations! You're now running an advanced AI experiential learning system.
+You now have a reliable baseline for local development and troubleshooting.
 
 ---
 
-**Ready to explore? Run: `python3 scripts/test_training_loop.py`**
+**Ready to explore? Start with: `pytest tests/test_simulation/test_session_orchestrator.py`**
