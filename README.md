@@ -100,10 +100,18 @@ python scripts/setup_environment.py
 ```
 
 ### Running Your First Training Session
+
+Use this verified sequence to confirm your local setup before deeper development:
+
 ```bash
-# Start a training session with StayAlert Avatar
-python scripts/run_training_session.py --avatar stay_alert --scenarios workplace.meeting_dynamics
+# 1) Syntax smoke check for core modules and scripts
+python3 -m compileall src scripts
+
+# 2) Run the interactive training loop demo
+python3 scripts/test_training_loop.py
 ```
+
+`test_training_loop.py` currently reaches scenario execution, then fails during coaching context construction (see troubleshooting below). This is useful for validating the setup path and reproducing current integration behavior.
 
 ## 🔁 GitHub Workflows (CI + Repository Hygiene)
 
@@ -198,6 +206,15 @@ pytest
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
 - **Merged branch not deleted:** verify the PR was merged from a same-repo branch, not forked, and that the branch is not protected.
 
+### Local runtime troubleshooting (scripts)
+
+- **`ImportError: attempted relative import beyond top-level package` from `scripts/run_training_session.py`:**
+  `run_training_session.py` imports `avatars.*` after modifying `sys.path`, but modules under `src/avatars` use package-relative imports (`..core`), so direct execution currently fails.
+- **`TypeError: CoachingContext.__init__() got an unexpected keyword argument 'avatar'` from `scripts/test_training_loop.py`:**
+  this script still uses an older `CoachingContext` call pattern that no longer matches `src/aides/base_aide.py`.
+- **Need a deterministic smoke path while those scripts are being reconciled:**
+  run `python3 -m compileall src scripts`, then use `tests/test_simulation/test_session_orchestrator.py` as the reference for current orchestration interfaces.
+
 ## 📂 Business Structure
 
 ### 1-Person Structure (Sole Proprietorship)
@@ -243,13 +260,13 @@ This structure is designed for a two-person team (CEO + COO) to orchestrate a co
 3. **Phase 3**: Department layer deployment (Weeks 5-8)
 4. **Phase 4**: Optimization and tuning (Weeks 9-12)
 
-See `docs/playbooks/implementation-guide.md` for detailed instructions.
+See `nlt-business-agents/implementation-guide.md` for detailed instructions.
 
 ## Support
 
-- **Architecture**: See `docs/architecture/`
-- **Playbooks**: See `docs/playbooks/`
-- **Training**: See `docs/training/`
+- **Architecture**: See `docs/architecture.md`
+- **Implementation summary**: See `docs/implementation_summary.md`
+- **Cloudflare setup**: See `docs/cloudflare/CLOUDFLARE_SETUP.md`
 
 ---
 
@@ -380,18 +397,15 @@ This project follows "Nothing About Us Without Us" principles. We welcome contri
 - AI/ML researchers interested in experiential learning
 - Anyone committed to authentic representation
 
-See [CONTRIBUTING.md](docs/contributing.md) for detailed guidelines.
+Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workflow and documentation standards in this README.
 
 ## 📚 Documentation
 
 - [Architecture Overview](docs/architecture.md)
-- [Avatar-Aide-Advocate Process](docs/avatar-aide-advocate-process.md)
-- [Executive Functions Theory](docs/executive-functions.md)
-- [Simulation Scenarios](docs/simulation-scenarios.md)
-- [Training Metrics](docs/training-metrics.md)
-- [RRT Foundation](docs/rrt-foundation.md)
+- [Quick Start Guide](QUICKSTART.md)
 - [TOI-OTOI Integration](TOI-OTOI-INTEGRATION.md)
 - [Implementation Summary](docs/implementation_summary.md)
+- [Cloudflare Setup Guide](docs/cloudflare/CLOUDFLARE_SETUP.md)
 
 ## Infrastructure & Deployment
 
