@@ -15,12 +15,6 @@ on:
     types: [governance-sync]
 
   workflow_dispatch:
-    inputs:
-      validate_only:
-        description: "Only validate existing governance docs (no content update)"
-        required: false
-        default: "true"
-        type: boolean
 
   schedule:
     # Every Monday at 08:00 UTC — validation-only run
