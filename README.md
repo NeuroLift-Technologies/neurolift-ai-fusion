@@ -113,40 +113,56 @@ python3 scripts/test_training_loop.py
 
 `test_training_loop.py` currently reaches scenario execution, then fails during coaching context construction (see troubleshooting below). This is useful for validating the setup path and reproducing current integration behavior.
 
-## 🔁 CI Workflows (GitHub Actions)
+## 🔁 CI and Repository Automation Workflows (GitHub Actions)
 
 ### Intent and architecture
 
-This repository has two CI workflows in `.github/workflows/`:
+This repository currently has three automation workflows in `.github/workflows/`:
 
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
 | `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
+| `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene automation for stale pull requests and branch cleanup | `stale-prs` + `delete-merged-branches` |
 
-Both workflows currently use **Python 3.10**.
+Both CI workflows currently use **Python 3.10**.
 
 ### Trigger behavior and constraints
 
-Both workflows run on:
+`shared-ci.yml` and `python-app.yml` run on:
 
 - `push` to `master`
 - `pull_request` targeting `master`
+- `workflow_dispatch` (manual run from the Actions tab)
+
+`pr-cleanup.yml` runs on:
+
+- `schedule` at `0 6 * * *` (daily, 06:00 UTC)
 - `workflow_dispatch` (manual run from the Actions tab)
 
 Important constraints:
 
 - A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
 - Because both workflows subscribe to the same events, a PR to `master` will run both pipelines.
+- PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
+- Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
+- PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
+- Branch deletion only applies to branches merged from this repository (not forks), and skips protected/default branches.
 
 ### Manual usage
 
 From GitHub UI:
 
 1. Open **Actions**.
-2. Select **Shared CI** or **Python application**.
+2. Select **Shared CI**, **Python application**, or **PR Cleanup**.
 3. Click **Run workflow**.
 4. Choose the branch and run.
+
+For manual PR cleanup tuning (`PR Cleanup` only):
+
+1. Open **Actions** -> **PR Cleanup** -> **Run workflow**.
+2. Set `days_before_stale` (default `30`) and `days_before_close` (default `7`) if needed.
+3. Run and inspect logs for the `stale-prs` and `delete-merged-branches` jobs.
 
 To reproduce `python-app.yml` locally:
 
@@ -167,6 +183,10 @@ pytest
 - **Keep branch trigger filters aligned** in both files when changing branch policy.
 - **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
 - **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
+- **When changing PR retention policy, update both code and docs together**:
+  - `.github/workflows/pr-cleanup.yml` (`days-before-stale`, `days-before-close`)
+  - this README section (trigger behavior + runbook defaults)
+- **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
 
 ### Troubleshooting and common pitfalls
 
@@ -174,6 +194,8 @@ pytest
 - **`Shared CI` fails before local tests run:** inspect reusable workflow logs from `.github-private`; failures there can occur without changes in this repository.
 - **Security/test ordering confusion:** in `shared-ci.yml`, both `test` and `security` depend on `lint` and can run in parallel after lint passes.
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
+- **PR branch was not deleted after merge:** check whether the PR came from a fork, whether the branch is protected, or whether it was already deleted (422 is treated as non-fatal in workflow logs).
+- **PR expected to stay open got marked stale:** add any activity (comment/commit/review) or convert to draft if it is actively in progress but intentionally paused.
 
 ### Local runtime troubleshooting (scripts)
 
