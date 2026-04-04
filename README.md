@@ -109,36 +109,38 @@ python scripts/run_training_session.py --avatar stay_alert --scenarios workplace
 
 ### Intent and architecture
 
-This repository currently has two CI workflows in `.github/workflows/`:
+This repository has two CI workflows in `.github/workflows/`:
 
-- **`shared-ci.yml`** (primary org-standard pipeline): calls reusable workflows from `NeuroLift-Technologies/.github-private`.
-  - `lint` -> runs first
-  - `test` -> runs after `lint` (`needs: lint`)
-  - `security` -> runs after `lint` (`needs: lint`)
-- **`python-app.yml`** (standalone local pipeline): runs checkout, dependency install, flake8, and pytest directly in this repository.
+| Workflow file | Actions UI name | Role | Job flow |
+| --- | --- | --- | --- |
+| `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
+| `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
 
-Both workflows currently target **Python 3.10**.
+Both workflows currently use **Python 3.10**.
 
-### Trigger constraints
+### Trigger behavior and constraints
 
 Both workflows run on:
 
 - `push` to `master`
 - `pull_request` targeting `master`
-- `workflow_dispatch` (manual run from Actions tab)
+- `workflow_dispatch` (manual run from the Actions tab)
 
-If work is pushed to a non-`master` branch without a PR to `master`, CI will not auto-trigger unless run manually.
+Important constraints:
+
+- A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
+- Because both workflows subscribe to the same events, a PR to `master` will run both pipelines.
 
 ### Manual usage
 
 From GitHub UI:
 
-1. Open **Actions**
-2. Select **Shared CI** or **Python application**
-3. Click **Run workflow**
-4. Choose the target branch and run
+1. Open **Actions**.
+2. Select **Shared CI** or **Python application**.
+3. Click **Run workflow**.
+4. Choose the branch and run.
 
-To reproduce the standalone pipeline locally (`python-app.yml` behavior):
+To reproduce `python-app.yml` locally:
 
 ```bash
 python -m pip install --upgrade pip
@@ -149,12 +151,21 @@ flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statist
 pytest
 ```
 
+### Maintenance checklist
+
+- **Update Python version in both workflows together** to avoid drift:
+  - `.github/workflows/shared-ci.yml` -> `with.python-version`
+  - `.github/workflows/python-app.yml` -> `with.python-version`
+- **Keep branch trigger filters aligned** in both files when changing branch policy.
+- **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
+- **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
+
 ### Troubleshooting and common pitfalls
 
-- **CI did not run for a branch push:** verify the event targets `master` or use `workflow_dispatch`.
-- **`shared-ci.yml` fails in reusable workflow calls:** inspect the called workflow logs in the job output; source workflows are referenced in `.github-private` under `.github/workflows/`.
-- **Unexpected Python-version differences between pipelines:** keep `python-version` aligned in both workflow files.
-- **Security scan timing confusion:** in `shared-ci.yml`, `security` depends on `lint` (not on `test`), so `test` and `security` can run in parallel after lint passes.
+- **CI did not run:** confirm the event targets `master`, or run with `workflow_dispatch`.
+- **`Shared CI` fails before local tests run:** inspect reusable workflow logs from `.github-private`; failures there can occur without changes in this repository.
+- **Security/test ordering confusion:** in `shared-ci.yml`, both `test` and `security` depend on `lint` and can run in parallel after lint passes.
+- **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
 
 ## 📂 Business Structure
 
