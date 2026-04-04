@@ -177,6 +177,17 @@ Important constraint:
    - Skips protected/default branches (`master`, `main`, `develop`, `dev`, `release`) and any branch returned by `repos.listBranches(protected: true)`.
    - Deletes `refs/heads/<branch>` and treats HTTP 422 as "already deleted."
 
+**Codepath map (source-verified):**
+
+| Behavior | Workflow codepath | Notes |
+| --- | --- | --- |
+| Stale threshold input | `github.event.inputs.days_before_stale \|\| 30` | Manual dispatch can override default `30`. |
+| Close threshold input | `github.event.inputs.days_before_close \|\| 7` | Manual dispatch can override default `7`. |
+| PR-only scope | `days-before-issue-stale: -1`, `days-before-issue-close: -1` | Issues are explicitly excluded. |
+| Merged PR branch filter | `pr.merged_at !== null` + `pr.head.repo.full_name === <current repo>` | Excludes fork-origin branches. |
+| Protected branch skip | static set + `repos.listBranches(protected: true)` | Includes both default names and API-protected branches. |
+| Branch deletion API call | `github.rest.git.deleteRef({ ref: "heads/<branch>" })` | HTTP 422 is logged as already deleted and not fatal. |
+
 **Operational constraints and pitfalls:**
 
 - Branch deletion requires `contents: write`; stale/close operations require `pull-requests: write` and `issues: write`.
@@ -198,6 +209,13 @@ For manual PR cleanup tuning (`PR Cleanup` only):
 1. Open **Actions** -> **PR Cleanup** -> **Run workflow**.
 2. Set `days_before_stale` (default `30`) and `days_before_close` (default `7`) if needed.
 3. Run and inspect logs for the `stale-prs` and `delete-merged-branches` jobs.
+
+PR cleanup verification checklist:
+
+1. Confirm the run used the expected `days_before_stale` and `days_before_close` values.
+2. In `stale-prs` logs, verify labels/actions align with the current policy (`stale`, `auto-closed`, draft PR exemption).
+3. In `delete-merged-branches` logs, verify each skip/delete outcome is expected (fork PR, protected branch, or already deleted branch).
+4. If merged branches remain, check whether the relevant PRs fall outside the current `per_page: 100` query window.
 
 To reproduce `python-app.yml` locally:
 
