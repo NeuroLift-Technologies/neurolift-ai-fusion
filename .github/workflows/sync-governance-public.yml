@@ -21,13 +21,15 @@ on:
     - cron: "0 8 * * 1"
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   sync-governance:
     name: Sync Governance Documents
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
