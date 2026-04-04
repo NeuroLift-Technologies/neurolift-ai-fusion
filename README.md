@@ -148,6 +148,19 @@ Important constraints:
 - Because both CI workflows subscribe to the same events, a PR to `master` runs both pipelines.
 - PR Cleanup only acts on pull requests (issues are explicitly excluded).
 
+### Agent automation definitions (`.github/agents/*.agent.md`)
+
+This repository also includes agent prompt definitions under `.github/agents/`:
+
+| Agent file | Purpose | Current status |
+| --- | --- | --- |
+| `.github/agents/pr-cleanup.agent.md` | Prompt/spec for PR cleanup reporting behavior (stale PR + merged branch hygiene context) | Active prompt asset |
+| `.github/agents/my-agent.agent.md` | Generic starter template for defining additional custom agents | Template only |
+
+Important constraint:
+
+- No workflow in `.github/workflows/` currently imports or executes `.agent.md` files directly. Runtime automation behavior is defined by workflow YAML (plus external automation tooling), while `.agent.md` files define prompt/behavior expectations.
+
 ### PR Cleanup runbook (`.github/workflows/pr-cleanup.yml`)
 
 **Subsystems covered:**
@@ -197,6 +210,9 @@ pytest
 - **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
 - **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
 - **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
+- **Keep cleanup intent aligned in two places** when requirements change:
+  - `.github/workflows/pr-cleanup.yml` (enforced behavior)
+  - `.github/agents/pr-cleanup.agent.md` (agent runbook + reporting expectations)
 
 ### Troubleshooting and common pitfalls
 
@@ -281,7 +297,7 @@ business-agents-repo/
 ├── TOI-OTOI-INTEGRATION.md            # TOI-OTOI framework documentation
 ├── HUMAN-OVERSIGHT-PROTOCOLS.md       # Human control and oversight guidelines
 ├── AGENT-ORCHESTRATION-GUIDE.md       # How agents coordinate and communicate
-├── .github/                           # GitHub workflows and automation
+├── .github/                           # GitHub workflows + custom agent prompt definitions
 ├── config/                            # Global configuration files
 ├── business-structure/
 │   ├── 1-person-structure/
