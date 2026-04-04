@@ -1,0 +1,114 @@
+# PR Cleanup Workflow
+# Closes stale pull requests and deletes branches for merged PRs.
+# Runs on a daily schedule and can be triggered manually.
+
+name: PR Cleanup
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # Daily at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      days_before_stale:
+        description: "Days of inactivity before a PR is marked stale"
+        required: false
+        default: "30"
+      days_before_close:
+        description: "Days after stale label before closing"
+        required: false
+        default: "7"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  stale-prs:
+    name: Mark and close stale PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark stale pull requests
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: ${{ github.event.inputs.days_before_stale || 30 }}
+          days-before-close: ${{ github.event.inputs.days_before_close || 7 }}
+          stale-pr-label: "stale"
+          close-pr-label: "auto-closed"
+          stale-pr-message: >
+            This pull request has had no activity for ${{ github.event.inputs.days_before_stale || 30 }} days
+            and has been marked as stale. It will be closed in ${{ github.event.inputs.days_before_close || 7 }}
+            days unless there is new activity. If this PR is still relevant, please add a comment or push
+            a new commit to keep it open.
+          close-pr-message: >
+            This pull request was automatically closed due to inactivity. If you would like to continue
+            this work, please reopen the PR or open a new one.
+          # Do not stale draft PRs — they are works in progress
+          exempt-draft-pr: true
+          # Only operate on pull requests, not issues
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
+
+  delete-merged-branches:
+    name: Delete branches for merged PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged PR branches
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              per_page: 100,
+            });
+
+            // Only include PRs that were merged from branches in this repository (not forks)
+            const repoFullName = context.repo.owner + '/' + context.repo.repo;
+            const merged = pulls.filter(
+              pr => pr.merged_at !== null &&
+                    pr.head.repo !== null &&
+                    pr.head.repo.full_name === repoFullName
+            );
+
+            // Fetch actually protected branches from the GitHub API
+            let protected_branches = new Set(['master', 'main', 'develop', 'dev', 'release']);
+            try {
+              const { data: branches } = await github.rest.repos.listBranches({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                protected: true,
+                per_page: 100,
+              });
+              branches.forEach(b => protected_branches.add(b.name));
+            } catch (err) {
+              console.warn(`Could not fetch protected branches, using default list: ${err.message}`);
+            }
+
+            for (const pr of merged) {
+              const branch = pr.head.ref;
+
+              // Skip protected branches
+              if (protected_branches.has(branch)) {
+                console.log(`Skipping protected branch: ${branch}`);
+                continue;
+              }
+
+              try {
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${branch}`,
+                });
+                console.log(`Deleted branch: ${branch} (merged via PR #${pr.number})`);
+              } catch (err) {
+                if (err.status === 422) {
+                  console.log(`Branch already deleted: ${branch}`);
+                } else {
+                  console.warn(`Could not delete branch ${branch}: ${err.message}`);
+                }
+              }
+            }
