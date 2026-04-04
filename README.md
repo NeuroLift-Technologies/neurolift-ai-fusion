@@ -123,7 +123,7 @@ This repository currently has three automation workflows in `.github/workflows/`
 | --- | --- | --- | --- |
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
 | `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
-| `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene automation for stale pull requests and branch cleanup | `stale-prs` + `delete-merged-branches` |
+| `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
 
 Both CI workflows currently use **Python 3.10**.
 
@@ -137,17 +137,39 @@ Both CI workflows currently use **Python 3.10**.
 
 `pr-cleanup.yml` runs on:
 
-- `schedule` at `0 6 * * *` (daily, 06:00 UTC)
-- `workflow_dispatch` (manual run from the Actions tab)
+- a daily schedule (`cron: 0 6 * * *`, 06:00 UTC)
+- `workflow_dispatch` with optional inputs:
+  - `days_before_stale` (default `30`)
+  - `days_before_close` (default `7`)
 
 Important constraints:
 
 - A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
-- Because both workflows subscribe to the same events, a PR to `master` will run both pipelines.
+- Because both CI workflows subscribe to the same events, a PR to `master` runs both pipelines.
 - PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
 - Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
 - PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
 - Branch deletion only applies to branches merged from this repository (not forks), and skips protected/default branches.
+
+### PR Cleanup runbook (`.github/workflows/pr-cleanup.yml`)
+
+**Subsystems covered:**
+
+1. **Stale PR lifecycle** (`actions/stale@v9`)
+   - Marks inactive PRs with `stale` after configured inactivity.
+   - Closes stale PRs after configured grace period with `auto-closed` label.
+   - Exempts draft PRs (`exempt-draft-pr: true`).
+2. **Merged branch deletion** (`actions/github-script@v7`)
+   - Scans closed PRs and keeps only merged PRs from this repository (not forks).
+   - Skips protected/default branches (`master`, `main`, `develop`, `dev`, `release`) and any branch returned by `repos.listBranches(protected: true)`.
+   - Deletes `refs/heads/<branch>` and treats HTTP 422 as "already deleted."
+
+**Operational constraints and pitfalls:**
+
+- Branch deletion requires `contents: write`; stale/close operations require `pull-requests: write` and `issues: write`.
+- The merged-branch cleanup loop reads up to `per_page: 100` closed PRs per run.
+- Fork-origin PR branches are not deleted by design.
+- Schedule times are UTC; if cleanup appears "late", verify timezone conversion before changing cron.
 
 ### Manual usage
 
@@ -156,7 +178,7 @@ From GitHub UI:
 1. Open **Actions**.
 2. Select **Shared CI**, **Python application**, or **PR Cleanup**.
 3. Click **Run workflow**.
-4. Choose the branch and run.
+4. Choose the branch and (for PR Cleanup) optionally override stale/close thresholds.
 
 For manual PR cleanup tuning (`PR Cleanup` only):
 
@@ -177,16 +199,17 @@ pytest
 
 ### Maintenance checklist
 
-- **Update Python version in both workflows together** to avoid drift:
+- **Update Python version in both CI workflows together** to avoid drift:
   - `.github/workflows/shared-ci.yml` -> `with.python-version`
   - `.github/workflows/python-app.yml` -> `with.python-version`
-- **Keep branch trigger filters aligned** in both files when changing branch policy.
+- **Keep branch trigger filters aligned** in both CI files when changing branch policy.
 - **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
 - **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
 - **When changing PR retention policy, update both code and docs together**:
   - `.github/workflows/pr-cleanup.yml` (`days-before-stale`, `days-before-close`)
   - this README section (trigger behavior + runbook defaults)
 - **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
+- **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
 
 ### Troubleshooting and common pitfalls
 
