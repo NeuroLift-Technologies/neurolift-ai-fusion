@@ -117,13 +117,14 @@ python3 scripts/test_training_loop.py
 
 ### Intent and architecture
 
-This repository currently has three automation workflows in `.github/workflows/`:
+This repository currently has four automation workflows in `.github/workflows/`:
 
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
 | `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
+| `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Syncs governance documents (for example `NLT-DEV-OTOI.md`) from `NeuroLift-Technologies/.github-private` via `repository_dispatch`, and runs weekly presence validation | single `sync-governance` job (checkout -> apply payload doc -> validate -> optional commit/PR) |
 
 Both CI workflows currently use **Python 3.10**.
 
@@ -142,6 +143,12 @@ Both CI workflows currently use **Python 3.10**.
   - `days_before_stale` (default `30`)
   - `days_before_close` (default `7`)
 
+`sync-governance-public.yml` runs on:
+
+- `repository_dispatch` with type `governance-sync` (content sync path)
+- `workflow_dispatch` (manual validation/sync testing)
+- weekly schedule (`cron: 0 8 * * 1`, Monday 08:00 UTC) for validation-only runs
+
 Important constraints:
 
 - A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
@@ -150,6 +157,8 @@ Important constraints:
 - Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
 - PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
 - Branch deletion only applies to branches merged from this repository (not forks), and skips protected/default branches.
+- Governance sync only accepts document names matching `NLT-*.md` at repo root or `docs/governance/NLT-*.md`; other filenames are rejected.
+- Governance sync weekly/manual validation warns when `NLT-DEV-OTOI.md` is missing; repository-dispatch runs can open a PR only when synced content actually changed.
 
 ### Agent automation definitions (`.github/agents/*.agent.md`)
 
@@ -195,12 +204,44 @@ Important constraint:
 - Fork-origin PR branches are not deleted by design.
 - Schedule times are UTC; if cleanup appears "late", verify timezone conversion before changing cron.
 
+### Governance Sync runbook (`.github/workflows/sync-governance-public.yml`)
+
+**Subsystems covered:**
+
+1. **Inbound governance payload application** (`repository_dispatch`)
+   - Reads `github.event.client_payload.document_name`, `content`, `version`, and optional `checksum`.
+   - Restricts allowed targets to `NLT-*.md` or `docs/governance/NLT-*.md`.
+   - Decodes base64 content and writes the document to the requested path.
+2. **Governance presence validation**
+   - Verifies `NLT-DEV-OTOI.md` is present and emits warnings (not hard failure) when missing.
+3. **Conditional commit and PR creation**
+   - Runs only for `repository_dispatch` events with real file changes.
+   - Creates branch `governance-sync/<timestamp>`, commits synced document, and opens a PR with governance metadata.
+
+**Codepath map (source-verified):**
+
+| Behavior | Workflow codepath | Notes |
+| --- | --- | --- |
+| Trigger type gate | `if: github.event_name == 'repository_dispatch'` | Content-writing steps are skipped for schedule/manual validation-only runs. |
+| Allowed filename filter | `case "$DOCUMENT_NAME" in NLT-*.md \| docs/governance/NLT-*.md)` | Rejects non-governance paths to prevent arbitrary writes. |
+| Base64 payload decode | `echo "$DOCUMENT_CONTENT" \| base64 --decode > "$DOCUMENT_NAME"` | Keeps transport safe for multiline markdown. |
+| Optional checksum verification | `sha256sum` block when `DOCUMENT_CHECKSUM` is set | Fails run on checksum mismatch. |
+| Weekly validation target | `for doc in NLT-DEV-OTOI.md` | Ensures required constitutional doc presence in this repo. |
+| PR creation condition | `steps.changes.outputs.changed == 'true'` | Avoids no-op governance sync PRs. |
+
+**Operational constraints and pitfalls:**
+
+- The workflow uses `gh pr create` and requires `pull-requests: write` + `contents: write` in the job permission block.
+- Validation-only runs can succeed with warnings when governance docs are absent; they are observability checks, not strict enforcement gates.
+- If dispatch payload omits `document_name` or `content`, the sync step exits with an explicit error.
+- Filename allow-list is intentionally strict; if governance scope expands, update both workflow code and this runbook together.
+
 ### Manual usage
 
 From GitHub UI:
 
 1. Open **Actions**.
-2. Select **Shared CI**, **Python application**, or **PR Cleanup**.
+2. Select **Shared CI**, **Python application**, **PR Cleanup**, or **Sync Governance (Public)**.
 3. Click **Run workflow**.
 4. Choose the branch and (for PR Cleanup) optionally override stale/close thresholds.
 
@@ -209,6 +250,14 @@ For manual PR cleanup tuning (`PR Cleanup` only):
 1. Open **Actions** -> **PR Cleanup** -> **Run workflow**.
 2. Set `days_before_stale` (default `30`) and `days_before_close` (default `7`) if needed.
 3. Run and inspect logs for the `stale-prs` and `delete-merged-branches` jobs.
+
+For governance validation (`Sync Governance (Public)`):
+
+1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
+2. Run on the target branch (normally `master`).
+3. Inspect logs for:
+   - `Validate governance documents` (presence/warnings)
+   - `Apply synced governance document` and `Create pull request for governance update` on repository-dispatch runs.
 
 PR cleanup verification checklist:
 
@@ -239,11 +288,17 @@ pytest
 - **When changing PR retention policy, update both code and docs together**:
   - `.github/workflows/pr-cleanup.yml` (`days-before-stale`, `days-before-close`)
   - this README section (trigger behavior + runbook defaults)
+- **When changing governance sync scope, update both code and docs together**:
+  - `.github/workflows/sync-governance-public.yml` (allow-list, validation targets, PR behavior)
+  - this README section (trigger behavior + governance runbook)
 - **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
 - **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
 - **Keep cleanup intent aligned in two places** when requirements change:
   - `.github/workflows/pr-cleanup.yml` (enforced behavior)
   - `.github/agents/pr-cleanup.agent.md` (agent runbook + reporting expectations)
+- **Keep governance source-of-truth explicit**:
+  - upstream governance authoring lives in `NeuroLift-Technologies/.github-private`
+  - this repository consumes synced copies (for example `NLT-DEV-OTOI.md`) via `Sync Governance (Public)`
 
 ### Troubleshooting and common pitfalls
 
@@ -253,6 +308,9 @@ pytest
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
 - **PR branch was not deleted after merge:** check whether the PR came from a fork, whether the branch is protected, or whether it was already deleted (422 is treated as non-fatal in workflow logs).
 - **PR expected to stay open got marked stale:** add any activity (comment/commit/review) or convert to draft if it is actively in progress but intentionally paused.
+- **Governance sync did not write a file:** verify the event was `repository_dispatch` with `governance-sync`, and that payload included both `document_name` and base64 `content`.
+- **Governance sync rejected the file path:** ensure the payload target matches `NLT-*.md` or `docs/governance/NLT-*.md`.
+- **No governance sync PR was created:** check whether there were actual file changes (`Check for changes` may evaluate to `false` on identical content).
 
 ### Local runtime troubleshooting (scripts)
 

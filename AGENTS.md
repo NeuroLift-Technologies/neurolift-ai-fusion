@@ -91,7 +91,8 @@ Escalate **immediately** (do not proceed) if the task involves any of:
 
 | File | Purpose |
 |------|---------|
-| `.github-private/NLT-DEV-OTOI.md` | Constitutional document — the OTOI contract |
+| `NLT-DEV-OTOI.md` (repo root, synced copy) | Constitutional document — the OTOI contract used by this repository |
+| `.github-private/NLT-DEV-OTOI.md` (source repo) | Upstream governance source used by sync automation |
 | `AGENTS.md` | This file — coordination gateway |
 | `CLAUDE.md` | Repo-specific context for this repository |
 | `docs/active-threads.md` | Active work tracking |
@@ -106,7 +107,7 @@ Escalate **immediately** (do not proceed) if the task involves any of:
 
 New agents must complete all 8 steps of **SOP-NLT-001** before writing code:
 
-1. Read `NLT-DEV-OTOI.md` (in `.github-private`)
+1. Read `NLT-DEV-OTOI.md` (repo root). If unavailable, request a governance sync from `.github-private`.
 2. Read `AGENTS.md` ← **you are here**
 3. Read `CLAUDE.md`
 4. Read `docs/active-threads.md`
