@@ -107,6 +107,45 @@ Scenario dictionaries are expected to include at least:
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## Source-Verified Runtime Contracts (Apr 2026)
+
+The sections below provide conceptual architecture. For implementation-facing work,
+use this contract map first so docs and code stay aligned.
+
+### Canonical orchestration path
+
+| Contract | Source |
+| --- | --- |
+| Main runtime loop is `SessionOrchestrator.run_session(scenarios)` | `src/simulation/session_orchestrator.py` |
+| Stable interface verification tests | `tests/test_simulation/test_session_orchestrator.py` |
+| Scenario input keys expected by orchestrator loop | `name`, `task_type`, `base_success_rate`, `cognitive_demand` |
+| Session tuning knobs | `SessionConfig` (`max_attempts_per_scenario`, `max_coaching_per_attempt`, `min_attempts_for_success_check`, `success_rate_target`, `burnout_abort_threshold`, `check_fusion_readiness`) |
+
+### Avatar-Aide runtime interaction (current implementation)
+
+1. `SessionOrchestrator` binds `BaseAide` to `BaseAvatar` via `bind_to_avatar(...)`.
+2. Avatar and Aide share one `EventBus` (`src/core/events.py`) for signal-driven coordination.
+3. Per attempt, Avatar executes `attempt_task(...)`; on failures, Aide runs `observe_and_coach(...)`.
+4. Coaching effectiveness is always tracked after retries (including failed retries) through `track_intervention_effectiveness(...)`.
+5. Session completion emits `SESSION_COMPLETED` and serializes results through `SessionResult.to_dict()`.
+
+### Legacy/diagnostic path (not canonical)
+
+`src/simulation/training_session.py` is a legacy manager that still drives database-oriented
+session flow. It currently builds `CoachingContext` with an older shape (`avatar=...`,
+`current_struggle=...`), while `src/aides/base_aide.py` now defines `CoachingContext`
+as `avatar_id + observation + task_context (+ optional summary/timestamp)`.
+
+Use `SessionOrchestrator` for current integration work and treat `TrainingSession` as a
+diagnostic compatibility path until that interface mismatch is reconciled.
+
+### Persistence behavior constraints
+
+- Supabase is optional at runtime.
+- `SupabaseClient` only initializes a live client when both `VITE_SUPABASE_URL` and
+  `VITE_SUPABASE_SUPABASE_ANON_KEY` are present and the `supabase` package is installed.
+- When unavailable, DB methods return `None`/`[]` and simulation components continue in local mode.
+
 ## Core Components
 
 ### 1. Avatar System
