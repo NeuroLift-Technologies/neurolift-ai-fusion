@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0  
-**Last updated:** 2026-04-24  
+**Last updated:** 2026-04-24 (updated by CODEX docs automation)  
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -20,6 +20,7 @@
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-001 | Add required governance files (AGENTS.md, CLAUDE.md, active-threads.md, agent-log dirs) | Joshua W. Dorsey Sr. | GitHub Copilot | copilot/add-required-files | 🟡 In Progress | 2026-04-05 |
 | TH-002 | Cloudflare API access probe + CI workflow | Joshua W. Dorsey Sr. | GitHub Copilot | copilot/test-cloudflare-api-access | ✅ Complete | 2026-04-24 |
+| TH-003 | Document Cloudflare API probe workflow and troubleshooting | Joshua W. Dorsey Sr. | Codex | cursor/documentation-automation-system-307c | ✅ Complete | 2026-04-24 |
 
 ---
 
@@ -39,6 +40,7 @@ _No blocked threads at this time._
 | — | Avatar cursor remaining traits | Cursor | — | `docs/handoffs/handoff_cursor_remaining_traits.json` |
 | — | Fusion validation advisory | Advisory | — | `docs/handoffs/handoff_advisory_fusion_validation.json` |
 | — | Codex AIDE expertise | Codex | — | `docs/handoffs/handoff_codex_aide_expertise.json` |
+| TH-003 | Cloudflare API probe documentation update | Codex | 2026-04-24 | `docs/agent-log/handoffs/CODEX-2026-04-24-cloudflare-docs-automation-handoff.json` |
 
 ---
 

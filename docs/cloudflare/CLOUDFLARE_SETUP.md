@@ -9,15 +9,16 @@
 1. [Overview](#overview)
 2. [Prerequisites](#prerequisites)
 3. [Initial Setup](#initial-setup)
-4. [Cloudflare Workers](#cloudflare-workers)
-5. [Cloudflare Pages](#cloudflare-pages)
-6. [WordPress Integration](#wordpress-integration)
-7. [DNS Configuration](#dns-configuration)
-8. [Security Settings](#security-settings)
-9. [Performance Optimization](#performance-optimization)
-10. [Deployment](#deployment)
-11. [Monitoring & Maintenance](#monitoring--maintenance)
-12. [Troubleshooting](#troubleshooting)
+4. [Cloudflare API Access Probe (Local + CI)](#cloudflare-api-access-probe-local--ci)
+5. [Cloudflare Workers](#cloudflare-workers)
+6. [Cloudflare Pages](#cloudflare-pages)
+7. [WordPress Integration](#wordpress-integration)
+8. [DNS Configuration](#dns-configuration)
+9. [Security Settings](#security-settings)
+10. [Performance Optimization](#performance-optimization)
+11. [Deployment](#deployment)
+12. [Monitoring & Maintenance](#monitoring--maintenance)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -138,6 +139,98 @@ cp cloudflare/.env.example cloudflare/.env
 - Go to your domain in Cloudflare
 - Scroll down in Overview page
 - Copy "Zone ID" from API section
+
+---
+
+## Cloudflare API Access Probe (Local + CI)
+
+Use the repository probe to validate Cloudflare API connectivity and token scope
+before running deployment scripts or worker changes.
+
+### Codepaths
+
+- Probe script: `scripts/test_cloudflare_access.py`
+- GitHub Actions workflow: `.github/workflows/test-cloudflare.yml`
+
+### Intent
+
+The probe performs read-only Cloudflare API checks and prints a per-check report:
+
+- `PASS`: API call succeeded with current credentials.
+- `FAIL`: API call failed (invalid token, missing permission, etc.).
+- `WARN`: partial success (for example, analytics endpoint unavailable on some plans).
+- `SKIP`: check intentionally skipped because an optional ID is not configured.
+
+### Required and optional secrets
+
+| Secret | Required | Purpose |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | Yes | Authenticates all probe requests |
+| `CLOUDFLARE_ACCOUNT_ID` | No | Enables account-level Workers checks |
+| `CLOUDFLARE_ZONE_ID` | No | Enables deterministic zone-level checks |
+
+If `CLOUDFLARE_ZONE_ID` is omitted, the probe auto-discovers the first accessible
+zone from `GET /zones` and uses it for zone checks.
+
+### Local usage
+
+```bash
+# from repository root
+export CLOUDFLARE_API_TOKEN="your-token"
+export CLOUDFLARE_ACCOUNT_ID="your-account-id"   # optional but recommended
+export CLOUDFLARE_ZONE_ID="your-zone-id"         # optional
+
+python scripts/test_cloudflare_access.py
+
+# Print permissions/setup guidance only
+python scripts/test_cloudflare_access.py --guide
+```
+
+Exit codes:
+
+- `0`: probes completed successfully
+- `1`: one or more checks failed
+- `2`: token was not provided (no API checks executed)
+
+### GitHub Actions usage
+
+Workflow name: **Test Cloudflare API Access**
+
+- Manual run: GitHub -> Actions -> "Test Cloudflare API Access" -> Run workflow
+- Automatic run on push is currently scoped to
+  `copilot/test-cloudflare-api-access` changes for:
+  - `scripts/test_cloudflare_access.py`
+  - `.github/workflows/test-cloudflare.yml`
+
+If a probe step fails, the workflow runs `--guide` automatically so permission
+remediation is visible directly in job logs.
+
+### Permission map (source-verified)
+
+The probe checks the following Cloudflare endpoints:
+
+| Endpoint | Purpose | Expected permission |
+|---|---|---|
+| `GET /user/tokens/verify` | Validate token status | Valid token |
+| `GET /zones` | List domains / discover zone id | Zone -> Zone -> Read |
+| `GET /zones/{id}` | Zone metadata | Zone -> Zone -> Read |
+| `GET /zones/{id}/dns_records` | DNS read access | Zone -> DNS -> Read (or Edit) |
+| `GET /zones/{id}/pagerules` | Page rules access | Zone -> Page Rules -> Read (or Edit) |
+| `GET /zones/{id}/settings` | Zone settings visibility | Zone -> Zone Settings -> Read (or Edit) |
+| `GET /zones/{id}/settings/security_level` | Security mode visibility | Zone -> Zone Settings -> Read (or Edit) |
+| `GET /zones/{id}/settings/ssl` | SSL mode visibility | Zone -> Zone Settings -> Read (or Edit) |
+| `GET /zones/{id}/analytics/dashboard` | Analytics access | Zone -> Analytics -> Read |
+| `GET /accounts/{id}/workers/scripts` | Workers scripts access | Account -> Workers Scripts -> Read (or Edit) |
+| `GET /zones/{id}/workers/routes` | Workers route visibility | Account -> Workers Scripts -> Read (or Edit) |
+
+Constraints:
+
+- The probe is intentionally read-only (HTTP GET only); it does not mutate zone
+  settings, DNS, or worker code.
+- Each request uses a 15 second timeout; transient network failures surface as
+  failed checks with transport error details.
+- Account-level checks require `CLOUDFLARE_ACCOUNT_ID`; without it, Workers
+  checks are skipped by design.
 
 ---
 
@@ -635,6 +728,42 @@ Set up notifications:
    wrangler tail neurolift-main-worker
    ```
 
+#### Issue 6: Probe fails with "401 Unauthorized" in Token Validity
+
+**Symptoms:** `GET /user/tokens/verify` returns 401.
+
+**Solutions:**
+1. Regenerate token in Cloudflare API Tokens page.
+2. Replace the secret value in GitHub (`CLOUDFLARE_API_TOKEN`).
+3. Re-run `python scripts/test_cloudflare_access.py` or the Actions workflow.
+
+#### Issue 7: Probe fails with "403 Forbidden" for DNS/Page Rules/Workers
+
+**Symptoms:** One or more probe rows fail with missing permission guidance.
+
+**Solutions:**
+1. Add the exact permission group shown in the probe output.
+2. Confirm token resource scope includes the correct account/zone.
+3. Re-run the probe and verify each row transitions to `PASS`.
+
+#### Issue 8: Zone checks are skipped unexpectedly
+
+**Symptoms:** Probe output reports `SKIP` for zone-level sections.
+
+**Solutions:**
+1. Ensure token can read at least one zone (`Zone -> Zone -> Read`).
+2. Provide `CLOUDFLARE_ZONE_ID` explicitly to avoid ambiguous auto-discovery.
+3. Verify the selected zone belongs to the intended account.
+
+#### Issue 9: Workflow shows token not set
+
+**Symptoms:** GitHub Actions report exits early with missing token error.
+
+**Solutions:**
+1. Confirm `CLOUDFLARE_API_TOKEN` exists in org or repo secrets.
+2. Confirm secret repository access includes this repository.
+3. Re-run workflow manually from Actions after updating secret visibility.
+
 ### Getting Help
 
 **Cloudflare Support:**
@@ -681,7 +810,7 @@ After completing setup:
 
 ---
 
-**Document Version:** 1.0.0
-**Last Updated:** 2024
+**Document Version:** 1.1.0
+**Last Updated:** 2026-04-24
 **Author:** Joshua Dorsey
 **Website:** neuroliftsolutions.com
