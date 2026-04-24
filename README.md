@@ -116,17 +116,18 @@ python3 scripts/test_training_loop.py
 
 `test_training_loop.py` currently reaches scenario execution, then fails during coaching context construction (see troubleshooting below). This is useful for validating the setup path and reproducing current integration behavior.
 
-## 🔁 GitHub Workflows (CI + Repository Hygiene)
+## 🔁 CI and Repository Automation Workflows (GitHub Actions)
 
 ### Intent and architecture
 
-This repository currently has three workflows in `.github/workflows/`:
+This repository currently has four automation workflows in `.github/workflows/`:
 
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
 | `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
+| `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Receives governance documents from `NeuroLift-Technologies/.github-private`, validates payload/file safety constraints, and opens a PR when updates are detected | single `sync-governance` job |
 
 Both CI workflows currently use **Python 3.10**.
 
@@ -145,11 +146,24 @@ Both CI workflows currently use **Python 3.10**.
   - `days_before_stale` (default `30`)
   - `days_before_close` (default `7`)
 
+`sync-governance-public.yml` runs on:
+
+- `repository_dispatch` with type `governance-sync` (document sync path)
+- `workflow_dispatch` (manual validation-only run)
+- weekly schedule (`cron: 0 8 * * 1`, Monday 08:00 UTC validation-only run)
+
 Important constraints:
 
 - A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
 - Because both CI workflows subscribe to the same events, a PR to `master` runs both pipelines.
-- PR Cleanup only acts on pull requests (issues are explicitly excluded).
+- PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
+- Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
+- PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
+- Branch deletion only applies to branches merged from this repository (not forks), and skips protected/default branches.
+- Governance sync requires `document_name` and base64-encoded `content` in `repository_dispatch.client_payload`; optional fields are `version` and `checksum`.
+- Governance sync only writes documents matching `NLT-*.md` or `docs/governance/NLT-*.md`; other paths are rejected.
+- Governance sync checksum verification currently supports only `sha256:<hex>` values; unsupported checksum algorithms are warned and skipped.
+- Governance sync creates a PR only on `repository_dispatch` runs that produce an actual file diff; scheduled/manual validation runs do not commit or open PRs.
 
 ### Agent automation definitions (`.github/agents/*.agent.md`)
 
@@ -177,6 +191,17 @@ Important constraint:
    - Skips protected/default branches (`master`, `main`, `develop`, `dev`, `release`) and any branch returned by `repos.listBranches(protected: true)`.
    - Deletes `refs/heads/<branch>` and treats HTTP 422 as "already deleted."
 
+**Codepath map (source-verified):**
+
+| Behavior | Workflow codepath | Notes |
+| --- | --- | --- |
+| Stale threshold input | `github.event.inputs.days_before_stale \|\| 30` | Manual dispatch can override default `30`. |
+| Close threshold input | `github.event.inputs.days_before_close \|\| 7` | Manual dispatch can override default `7`. |
+| PR-only scope | `days-before-issue-stale: -1`, `days-before-issue-close: -1` | Issues are explicitly excluded. |
+| Merged PR branch filter | `pr.merged_at !== null` + `pr.head.repo.full_name === <current repo>` | Excludes fork-origin branches. |
+| Protected branch skip | static set + `repos.listBranches(protected: true)` | Includes both default names and API-protected branches. |
+| Branch deletion API call | `github.rest.git.deleteRef({ ref: "heads/<branch>" })` | HTTP 422 is logged as already deleted and not fatal. |
+
 **Operational constraints and pitfalls:**
 
 - Branch deletion requires `contents: write`; stale/close operations require `pull-requests: write` and `issues: write`.
@@ -184,14 +209,83 @@ Important constraint:
 - Fork-origin PR branches are not deleted by design.
 - Schedule times are UTC; if cleanup appears "late", verify timezone conversion before changing cron.
 
+### Governance sync runbook (`.github/workflows/sync-governance-public.yml`)
+
+**Subsystems covered:**
+
+1. **Inbound sync ingestion** (`repository_dispatch`)
+   - Reads `document_name`, `content` (base64), `version`, and `checksum` from `github.event.client_payload`.
+   - Rejects requests that do not include required fields (`document_name`, `content`).
+   - Restricts writable targets to `NLT-*.md` and `docs/governance/NLT-*.md`.
+2. **Content verification and validation**
+   - Decodes payload content from base64 and writes to the requested file.
+   - Optionally verifies checksum when `checksum` is provided.
+   - Weekly/manual validation checks presence of `NLT-DEV-OTOI.md` and emits warnings if missing.
+3. **Automated PR creation**
+   - Runs only for `repository_dispatch` events with actual file changes.
+   - Creates branch `governance-sync/<UTC timestamp>`, commits the synced document, pushes branch, and opens a PR with `gh pr create`.
+
+**Codepath map (source-verified):**
+
+| Behavior | Workflow codepath | Notes |
+| --- | --- | --- |
+| Required payload fields | `if [ -z "$DOCUMENT_NAME" ] \|\| [ -z "$DOCUMENT_CONTENT" ]` | Missing fields fail the run. |
+| Allowed destination paths | `case "$DOCUMENT_NAME" in NLT-*.md \| docs/governance/NLT-*.md)` | Any other path is rejected. |
+| Base64 decode write path | `echo "$DOCUMENT_CONTENT" \| base64 --decode > "$DOCUMENT_NAME"` | Parent dir is created first with `mkdir -p`. |
+| Checksum verification | `case "$ALGO" in sha256)` | `sha256` mismatches fail; unsupported algorithms warn only. |
+| Validation document check | `for doc in NLT-DEV-OTOI.md; do ...` | Missing docs warn, not fail. |
+| PR creation gate | `if: github.event_name == 'repository_dispatch' && steps.changes.outputs.changed == 'true'` | Manual/scheduled runs do not open PRs. |
+
+**Operational constraints and pitfalls:**
+
+- Governance sync requires `contents: write` and `pull-requests: write` to push branches and create PRs.
+- Document content must be base64-safe text; malformed base64 causes decode failure.
+- A valid dispatch can still produce no PR if the decoded content is identical to the existing file.
+- The validation step currently checks only `NLT-DEV-OTOI.md`; additional required governance docs must be added explicitly in workflow code.
+
 ### Manual usage
 
 From GitHub UI:
 
 1. Open **Actions**.
-2. Select **Shared CI**, **Python application**, or **PR Cleanup**.
+2. Select **Shared CI**, **Python application**, **PR Cleanup**, or **Sync Governance (Public)**.
 3. Click **Run workflow**.
 4. Choose the branch and (for PR Cleanup) optionally override stale/close thresholds.
+
+For manual PR cleanup tuning (`PR Cleanup` only):
+
+1. Open **Actions** -> **PR Cleanup** -> **Run workflow**.
+2. Set `days_before_stale` (default `30`) and `days_before_close` (default `7`) if needed.
+3. Run and inspect logs for the `stale-prs` and `delete-merged-branches` jobs.
+
+PR cleanup verification checklist:
+
+1. Confirm the run used the expected `days_before_stale` and `days_before_close` values.
+2. In `stale-prs` logs, verify labels/actions align with the current policy (`stale`, `auto-closed`, draft PR exemption).
+3. In `delete-merged-branches` logs, verify each skip/delete outcome is expected (fork PR, protected branch, or already deleted branch).
+4. If merged branches remain, check whether the relevant PRs fall outside the current `per_page: 100` query window.
+
+For manual governance validation (`Sync Governance (Public)` only):
+
+1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
+2. Choose the branch (usually `master`) and start the run.
+3. Review `Validate governance documents` logs for missing-file warnings.
+
+For automated governance ingestion (from tooling/private repo), dispatch `repository_dispatch` with this payload contract:
+
+```json
+{
+  "event_type": "governance-sync",
+  "client_payload": {
+    "document_name": "NLT-DEV-OTOI.md",
+    "content": "<base64-encoded markdown>",
+    "version": "optional-version-string",
+    "checksum": "sha256:<hex-digest>"
+  }
+}
+```
+
+`document_name` and `content` are required. `checksum` is optional but recommended for tamper detection.
 
 To reproduce `python-app.yml` locally:
 
@@ -212,10 +306,18 @@ pytest
 - **Keep branch trigger filters aligned** in both CI files when changing branch policy.
 - **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
 - **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
+- **When changing PR retention policy, update both code and docs together**:
+  - `.github/workflows/pr-cleanup.yml` (`days-before-stale`, `days-before-close`)
+  - this README section (trigger behavior + runbook defaults)
+- **When changing governance document policy, update both code and docs together**:
+  - `.github/workflows/sync-governance-public.yml` (allowed path patterns + validation document list)
+  - this README section (payload contract + runbook constraints)
+- **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
 - **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
 - **Keep cleanup intent aligned in two places** when requirements change:
   - `.github/workflows/pr-cleanup.yml` (enforced behavior)
   - `.github/agents/pr-cleanup.agent.md` (agent runbook + reporting expectations)
+- **If checksum algorithms change**, update both workflow verification logic and this runbook's payload guidance at the same time.
 
 ### Troubleshooting and common pitfalls
 
@@ -223,7 +325,12 @@ pytest
 - **`Shared CI` fails before local tests run:** inspect reusable workflow logs from `.github-private`; failures there can occur without changes in this repository.
 - **Security/test ordering confusion:** in `shared-ci.yml`, both `test` and `security` depend on `lint` and can run in parallel after lint passes.
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
-- **Merged branch not deleted:** verify the PR was merged from a same-repo branch, not forked, and that the branch is not protected.
+- **PR branch was not deleted after merge:** check whether the PR came from a fork, whether the branch is protected, or whether it was already deleted (422 is treated as non-fatal in workflow logs).
+- **PR expected to stay open got marked stale:** add any activity (comment/commit/review) or convert to draft if it is actively in progress but intentionally paused.
+- **Governance sync run fails with "missing required fields":** verify `repository_dispatch.client_payload` includes both `document_name` and `content`.
+- **Governance sync run fails with "Disallowed document name":** path must match `NLT-*.md` or `docs/governance/NLT-*.md`.
+- **Governance sync logs checksum mismatch:** recompute checksum from the decoded file content and ensure it is sent as `sha256:<hex>`.
+- **Governance sync did not open a PR:** confirm event was `repository_dispatch` (not schedule/manual) and that the decoded file content actually changed.
 
 ### Local runtime troubleshooting (scripts)
 

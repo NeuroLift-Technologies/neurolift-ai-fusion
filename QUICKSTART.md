@@ -308,6 +308,54 @@ print(db._is_available())  # True if connected, False otherwise
 
 ---
 
+## 🧹 Repository Maintenance Automation (PR Cleanup)
+
+Use this when you need to reproduce or validate pull-request hygiene behavior in GitHub Actions.
+
+### What the workflow does
+
+- Workflow file: `.github/workflows/pr-cleanup.yml`
+- Actions UI name: **PR Cleanup**
+- Runs daily at `06:00 UTC` (`cron: 0 6 * * *`) and supports manual dispatch
+- Marks inactive PRs as `stale` after 30 days, then auto-closes after 7 more days (`auto-closed` label)
+- Deletes branches for merged PRs when the branch belongs to this repository
+- Reads up to 100 closed PRs per run when scanning for merged branch deletion candidates
+
+### Safety constraints (from workflow logic)
+
+- Draft PRs are exempt from stale marking (`exempt-draft-pr: true`)
+- Issues are never marked stale/closed by this workflow
+- Branch cleanup skips protected branches and common default branch names
+- Branches from fork-based PRs are not deleted by the cleanup job
+- Workflow permissions must include `contents: write`, `pull-requests: write`, and `issues: write`
+
+### Manual run (Actions UI)
+
+1. Go to **Actions** -> **PR Cleanup** -> **Run workflow**
+2. Select the branch/ref
+3. Optionally override:
+   - `days_before_stale` (default `30`)
+   - `days_before_close` (default `7`)
+4. Review logs from:
+   - `stale-prs` (stale/close decisions)
+   - `delete-merged-branches` (branch cleanup actions)
+
+### Quick verification checklist
+
+After each manual run, confirm:
+
+1. The run used the intended `days_before_stale` and `days_before_close` values.
+2. Draft PRs were skipped and issue staleness was not applied.
+3. Branch cleanup outcomes are expected (`deleted`, `skipped protected`, `fork source`, or `already deleted`).
+4. Any remaining merged branches are not just outside the current 100-PR scan window.
+
+### Common pitfalls
+
+- **Merged branch not deleted:** branch may already be removed, protected, or from a fork PR.
+- **Unexpected stale label:** any new activity (comment/commit/review) keeps an active PR from closure.
+
+---
+
 ## 📊 Next Steps
 
 1. **Run the baseline checks** - `compileall` + `test_session_orchestrator.py`
