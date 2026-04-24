@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0  
-**Last updated:** 2026-04-05  
+**Last updated:** 2026-04-24  
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -19,6 +19,7 @@
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-001 | Add required governance files (AGENTS.md, CLAUDE.md, active-threads.md, agent-log dirs) | Joshua W. Dorsey Sr. | GitHub Copilot | copilot/add-required-files | 🟡 In Progress | 2026-04-05 |
+| TH-002 | Cloudflare API access probe + CI workflow | Joshua W. Dorsey Sr. | GitHub Copilot | copilot/test-cloudflare-api-access | ✅ Complete | 2026-04-24 |
 
 ---
 
