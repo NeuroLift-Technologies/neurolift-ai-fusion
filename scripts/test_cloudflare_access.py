@@ -49,16 +49,16 @@ def _c(code: str, text: str) -> str:
     return f"\033[{code}m{text}\033[0m" if _USE_COLOUR else text
 
 
-GREEN  = lambda t: _c("32", t)   # noqa: E731
-RED    = lambda t: _c("31", t)   # noqa: E731
+GREEN = lambda t: _c("32", t)   # noqa: E731
+RED = lambda t: _c("31", t)   # noqa: E731
 YELLOW = lambda t: _c("33", t)   # noqa: E731
-CYAN   = lambda t: _c("36", t)   # noqa: E731
-BOLD   = lambda t: _c("1",  t)   # noqa: E731
+CYAN = lambda t: _c("36", t)   # noqa: E731
+BOLD = lambda t: _c("1", t)   # noqa: E731
 
-OK      = GREEN("✅  PASS")
-FAIL    = RED("❌  FAIL")
-WARN    = YELLOW("⚠️   WARN")
-SKIP    = YELLOW("⏭️   SKIP")
+OK = GREEN("✅  PASS")
+FAIL = RED("❌  FAIL")
+WARN = YELLOW("⚠️   WARN")
+SKIP = YELLOW("⏭️   SKIP")
 
 
 def section(title: str) -> None:
@@ -266,14 +266,26 @@ def run() -> int:
     # ── 1. Credentials inventory ──────────────────────────────
     section("1. Credentials Check")
 
-    token      = os.getenv("CLOUDFLARE_API_TOKEN")
+    token = os.getenv("CLOUDFLARE_API_TOKEN")
     account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
-    zone_id    = os.getenv("CLOUDFLARE_ZONE_ID")
+    zone_id = os.getenv("CLOUDFLARE_ZONE_ID")
 
     cred_rows: List[Tuple[str, str, str]] = [
-        ("CLOUDFLARE_API_TOKEN",   "✅  set" if token      else "❌  NOT SET (required)",   "required"),
-        ("CLOUDFLARE_ACCOUNT_ID",  "✅  set" if account_id else "⚠️   not set (Workers / R2 / D1 checks will be skipped)", "optional"),
-        ("CLOUDFLARE_ZONE_ID",     "✅  set" if zone_id    else "⚠️   not set (will auto-discover from first zone)", "optional"),
+        (
+            "CLOUDFLARE_API_TOKEN",
+            "✅  set" if token else "❌  NOT SET (required)",
+            "required",
+        ),
+        (
+            "CLOUDFLARE_ACCOUNT_ID",
+            "✅  set" if account_id else "⚠️   not set (Workers / R2 / D1 checks will be skipped)",
+            "optional",
+        ),
+        (
+            "CLOUDFLARE_ZONE_ID",
+            "✅  set" if zone_id else "⚠️   not set (will auto-discover from first zone)",
+            "optional",
+        ),
     ]
 
     for name, status, req in cred_rows:
@@ -368,7 +380,7 @@ def run() -> int:
             print(f"  {label}  /zones/{{id}}/workers/routes  —  {detail}")
     else:
         print(f"  {SKIP}  Workers checks skipped — CLOUDFLARE_ACCOUNT_ID not set")
-        print(f"         Set CLOUDFLARE_ACCOUNT_ID as an org/repo secret to enable this section.")
+        print("         Set CLOUDFLARE_ACCOUNT_ID as an org/repo secret to enable this section.")
 
     # ── 9. Summary ────────────────────────────────────────────
     _print_summary()
