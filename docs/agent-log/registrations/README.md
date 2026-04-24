@@ -40,6 +40,29 @@ If available in your runtime, also include:
 - `trigger_context` (automation/webhook metadata)
 - `related_pr` (URL or PR number)
 
+## Minimal example
+
+```json
+{
+  "agent_name": "CODEX",
+  "session_id": "automation-158b2152-7214-45b1-9efe-a458133e75b6",
+  "session_start": "2026-04-24T15:30:00Z",
+  "task_scope": "Update runtime and runbook documentation after merged PR review",
+  "branch": "cursor/codebase-documentation-alignment-f6f9",
+  "thread_id": null,
+  "otoi_version": "ORG-DEV-OTOI-1.0.0",
+  "trigger_context": {
+    "event_type": "pull_request",
+    "action": "closed",
+    "pr_number": 22
+  },
+  "related_pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/22"
+}
+```
+
+Use this as a baseline payload, then add any runtime-specific metadata required by
+your automation environment.
+
 ## Workflow
 
 1. Read required governance docs:
