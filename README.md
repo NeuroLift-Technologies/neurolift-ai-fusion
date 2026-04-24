@@ -454,6 +454,9 @@ Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workf
 - [TOI-OTOI Integration](TOI-OTOI-INTEGRATION.md)
 - [Implementation Summary](docs/implementation_summary.md)
 - [Cloudflare Setup Guide](docs/cloudflare/CLOUDFLARE_SETUP.md)
+- [Agent registration runbook](docs/agent-log/registrations/README.md)
+- [Agent handoff runbook (current)](docs/agent-log/handoffs/README.md)
+- [Legacy handoff archive guide](docs/handoffs/README.md)
 
 ## Infrastructure & Deployment
 
