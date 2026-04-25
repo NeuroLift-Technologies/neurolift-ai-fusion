@@ -127,7 +127,7 @@ This repository currently has four automation workflows in `.github/workflows/`:
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
 | `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
-| `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Receives governance documents from `NeuroLift-Technologies/.github-private`, validates payload/file safety constraints, and opens a PR when updates are detected | single `sync-governance` job |
+| `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Syncs governance documents (for example `NLT-DEV-OTOI.md`) from `NeuroLift-Technologies/.github-private` via `repository_dispatch`, and runs weekly presence validation | single `sync-governance` job (checkout -> apply payload doc -> validate -> optional commit/PR) |
 
 Both CI workflows currently use **Python 3.10**.
 
@@ -232,7 +232,7 @@ Important constraint:
 | Required payload fields | `if [ -z "$DOCUMENT_NAME" ] \|\| [ -z "$DOCUMENT_CONTENT" ]` | Missing fields fail the run. |
 | Allowed destination paths | `case "$DOCUMENT_NAME" in NLT-*.md \| docs/governance/NLT-*.md)` | Any other path is rejected. |
 | Base64 decode write path | `echo "$DOCUMENT_CONTENT" \| base64 --decode > "$DOCUMENT_NAME"` | Parent dir is created first with `mkdir -p`. |
-| Checksum verification | `case "$ALGO" in sha256)` | `sha256` mismatches fail; unsupported algorithms warn only. |
+| Checksum verification | `case "$ALGO" in sha256)` | Expects `sha256:<hex>` format. Mismatches fail the run; unsupported algorithm prefixes are skipped with a warning (not enforced). |
 | Validation document check | `for doc in NLT-DEV-OTOI.md; do ...` | Missing docs warn, not fail. |
 | PR creation gate | `if: github.event_name == 'repository_dispatch' && steps.changes.outputs.changed == 'true'` | Manual/scheduled runs do not open PRs. |
 
@@ -257,6 +257,14 @@ For manual PR cleanup tuning (`PR Cleanup` only):
 1. Open **Actions** -> **PR Cleanup** -> **Run workflow**.
 2. Set `days_before_stale` (default `30`) and `days_before_close` (default `7`) if needed.
 3. Run and inspect logs for the `stale-prs` and `delete-merged-branches` jobs.
+
+For governance validation (`Sync Governance (Public)`):
+
+1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
+2. Run on the target branch (normally `master`).
+3. Inspect logs for:
+   - `Validate governance documents` (presence/warnings)
+   - `Apply synced governance document` and `Create pull request for governance update` on repository-dispatch runs.
 
 PR cleanup verification checklist:
 
@@ -317,6 +325,9 @@ pytest
 - **Keep cleanup intent aligned in two places** when requirements change:
   - `.github/workflows/pr-cleanup.yml` (enforced behavior)
   - `.github/agents/pr-cleanup.agent.md` (agent runbook + reporting expectations)
+- **Keep governance source-of-truth explicit**:
+  - upstream governance authoring lives in `NeuroLift-Technologies/.github-private`
+  - this repository consumes synced copies (for example `NLT-DEV-OTOI.md`) via `Sync Governance (Public)`
 - **If checksum algorithms change**, update both workflow verification logic and this runbook's payload guidance at the same time.
 
 ### Troubleshooting and common pitfalls

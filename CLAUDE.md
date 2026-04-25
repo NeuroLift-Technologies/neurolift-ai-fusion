@@ -54,7 +54,7 @@ neurolift-ai-fusion/
 | Language | Python 3.11+ |
 | Database | Supabase (PostgreSQL) with Row-Level Security |
 | Testing | pytest |
-| CI/CD | GitHub Actions (shared-ci.yml, python-app.yml) |
+| CI/CD | GitHub Actions (shared-ci.yml, python-app.yml, pr-cleanup.yml, sync-governance-public.yml) |
 | Infrastructure | Cloudflare (Workers, Pages) |
 | Package manager | pip / requirements.txt |
 
@@ -99,11 +99,13 @@ neurolift-ai-fusion/
 
 Before writing any code, read these files in order:
 
-1. `.github-private/NLT-DEV-OTOI.md` — OTOI constitutional document
+1. `NLT-DEV-OTOI.md` (repo root synced copy) — OTOI constitutional document used by this repository
 2. `AGENTS.md` — Agent coordination gateway
 3. `CLAUDE.md` — This file ✓
 4. `docs/active-threads.md` — Current work and ownership
 5. `docs/architecture.md` — System architecture
+
+If `NLT-DEV-OTOI.md` is missing in the repository root, request a run of **Sync Governance (Public)** (`.github/workflows/sync-governance-public.yml`) to refresh governance docs from `NeuroLift-Technologies/.github-private`.
 
 ---
 
