@@ -1,8 +1,44 @@
-# NeuroLift Technologies Simulation Environment
+# NeuroLift AI Fusion
 
-**NeuroLift AI-Fusion Framework - Simulation Training Environment**
+**Full-Stack Avatar-Aide-Advocate Training Platform**
 
-A Sims/RPG-style simulation environment where AI Avatars with ADHD traits experience authentic life struggles while AI Aides provide real-time coaching. After sufficient training through repeated scenarios, they fuse into Advocates that combine lived understanding with expert solutions.
+A full-stack web and mobile platform backed by a Python AI simulation engine. AI Avatars with ADHD traits experience authentic life struggles in a Sims/RPG-style environment while AI Aides provide real-time coaching. After sufficient training they fuse into Advocates that combine lived understanding with expert solutions.
+
+## Quick Start
+
+### API (FastAPI — Python)
+```bash
+cd apps/api
+pip install -r requirements.txt
+PYTHONPATH=../../src uvicorn main:app --reload
+# → http://localhost:8000/docs
+```
+
+### Web App (Next.js)
+```bash
+cd apps/web
+npm install
+cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL
+npm run dev
+# → http://localhost:3000
+```
+
+### Mobile App (Expo — iOS & Android)
+```bash
+cd apps/mobile
+npm install
+cp .env.example .env
+npx expo start
+# → scan QR with Expo Go on your device
+```
+
+### Simulation Engine (Python)
+```bash
+pip install -r requirements.txt
+pytest
+```
+
+---
 
 ## 🎯 Project Vision
 

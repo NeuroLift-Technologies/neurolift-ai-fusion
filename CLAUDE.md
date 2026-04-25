@@ -2,7 +2,7 @@
 
 **Repository:** NeuroLift-Technologies/neurolift-ai-fusion  
 **Governance:** ORG-DEV-OTOI-1.0.0  
-**Last updated:** 2026-04-05
+**Last updated:** 2026-04-25
 
 ---
 
@@ -22,12 +22,30 @@ The system enables:
 
 ```
 neurolift-ai-fusion/
-├── src/                    # Core application source
+├── apps/                   # Full-stack application layer
+│   ├── api/                # FastAPI backend (wraps simulation engine)
+│   │   ├── main.py         # App entry point
+│   │   ├── routers/        # Route handlers (avatars, aides, sessions, advocates)
+│   │   ├── schemas/        # Pydantic request/response models
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   ├── web/                # Next.js 14 web app (TypeScript + Tailwind)
+│   │   ├── app/            # App Router pages (dashboard, session)
+│   │   ├── components/     # Shared UI components
+│   │   └── lib/            # API client + types
+│   └── mobile/             # Expo (React Native) — iOS & Android
+│       ├── app/            # Expo Router screens
+│       │   ├── (tabs)/     # Tab navigation (dashboard, sessions, profile)
+│       │   └── session/    # Session detail & new session screens
+│       └── lib/            # API client + types
+├── src/                    # Python simulation engine
 │   ├── avatars/            # Avatar trait implementations
 │   ├── aides/              # Aide coaching implementations
 │   ├── core/               # Core infrastructure (events, signals, DB)
-│   └── simulation/         # Simulation environment (WorldEngine)
-├── tests/                  # Test suite (pytest)
+│   ├── simulation/         # SessionOrchestrator + WorldEngine
+│   ├── fusion/             # Fusion engine + readiness assessor
+│   └── database/           # Supabase abstraction layer
+├── tests/                  # pytest test suite
 ├── docs/                   # Project documentation
 │   ├── architecture.md     # System architecture
 │   ├── active-threads.md   # Active work tracking (read before starting)
@@ -35,11 +53,16 @@ neurolift-ai-fusion/
 │   │   ├── registrations/  # Agent registration records
 │   │   └── handoffs/       # Session handoff records
 │   ├── ai-guidance/        # AI assistant reference materials
-│   ├── cloudflare/         # Cloudflare integration docs
-│   └── handoffs/           # Legacy handoff format (older sessions)
-├── config/                 # Configuration files
+│   └── cloudflare/         # Cloudflare integration docs
+├── config/                 # All configuration (YAML + JSON)
 ├── supabase/               # Supabase schema and migrations
 ├── scripts/                # Utility scripts
+├── cloudflare/             # Cloudflare Workers infrastructure
+├── archive/                # Archived / deprecated content
+├── package.json            # Monorepo root (npm workspaces)
+├── turbo.json              # Turborepo build pipeline
+├── requirements.txt        # Python simulation engine deps
+├── pytest.ini              # pytest configuration
 ├── AGENTS.md               # Agent coordination gateway
 ├── CLAUDE.md               # This file
 └── TOI-OTOI-INTEGRATION.md # TOI-OTOI framework overview
@@ -51,12 +74,15 @@ neurolift-ai-fusion/
 
 | Layer | Technology |
 |-------|-----------|
-| Language | Python 3.11+ |
+| Simulation Engine | Python 3.11+ |
+| API Backend | FastAPI + uvicorn (`apps/api/`) |
+| Web Frontend | Next.js 14 + TypeScript + Tailwind CSS (`apps/web/`) |
+| Mobile (iOS + Android) | Expo (React Native) + TypeScript (`apps/mobile/`) |
+| Monorepo tooling | npm workspaces + Turborepo |
 | Database | Supabase (PostgreSQL) with Row-Level Security |
-| Testing | pytest |
-| CI/CD | GitHub Actions (shared-ci.yml, python-app.yml, pr-cleanup.yml, sync-governance-public.yml) |
+| Testing | pytest (Python) |
+| CI/CD | GitHub Actions (python-app.yml, web.yml, mobile.yml, shared-ci.yml) |
 | Infrastructure | Cloudflare (Workers, Pages) |
-| Package manager | pip / requirements.txt |
 
 ---
 
