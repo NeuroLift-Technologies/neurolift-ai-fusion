@@ -11,8 +11,7 @@
     "Created session registration record in docs/agent-log/registrations/GPT-2026-04-25-docs-automation-system.json."
   ],
   "work_not_completed": [
-    "No code changes were made.",
-    "No PR was opened manually because this Cloud Agent branch workflow is expected to handle PRs automatically unless explicitly requested."
+    "No code changes were made."
   ],
   "blockers": [
     ".github-private/NLT-DEV-OTOI.md is required by SOP-NLT-001 but is not present in this checkout.",
@@ -32,7 +31,7 @@
     "python3 -m pytest tests/test_simulation/test_session_orchestrator.py tests/test_fusion/test_exports.py"
   ],
   "branch": "cursor/documentation-automation-system-b094",
-  "pr_url": null,
+  "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/28",
   "escalations_filed": [],
   "otoi_version": "ORG-DEV-OTOI-1.0.0"
 }
