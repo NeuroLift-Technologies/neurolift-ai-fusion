@@ -1,0 +1,11 @@
+# Root wrangler config for the neurolift-ai-fusion Cloudflare Workers service.
+# This file is read by Cloudflare's Git integration on every push.
+# Worker source lives in cloudflare/workers/; detailed config in cloudflare/config/wrangler.toml.
+
+name = "neurolift-ai-fusion"
+main = "cloudflare/workers/main-worker.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[build]
+command = ""
