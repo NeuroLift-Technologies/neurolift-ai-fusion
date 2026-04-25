@@ -39,6 +39,7 @@ _No blocked threads at this time._
 | — | Avatar cursor remaining traits | Cursor | — | `docs/handoffs/handoff_cursor_remaining_traits.json` |
 | — | Fusion validation advisory | Advisory | — | `docs/handoffs/handoff_advisory_fusion_validation.json` |
 | — | Codex AIDE expertise | Codex | — | `docs/handoffs/handoff_codex_aide_expertise.json` |
+| TH-002 | Repo cleanup + full-stack app foundation (web/mobile/api) | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-repo-cleanup-fullstack-foundation-handoff.json` |
 
 ---
 

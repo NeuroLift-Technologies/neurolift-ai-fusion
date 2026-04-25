@@ -80,6 +80,27 @@ This simulation approach addresses both gaps through authentic experiential lear
 18. **SensorySeeker** - Sensory seeking behavior
 19. **ConfidenceCoach** - Self-esteem and identity
 
+
+## 🧹 Repository Cleanup Update (2026-04-25)
+
+To reduce scope drift and support productization, non-core assets were archived and a new full-stack app layout was introduced:
+
+- Archived legacy folders into `archive/legacy-content/`
+- Added app/service/package scaffolds under `apps/`, `services/`, and `packages/`
+- Added implementation roadmap: `docs/roadmaps/full-stack-simulation-app-plan.md`
+
+### New Full-Stack Foundation
+
+```text
+apps/
+  web/
+  mobile/
+services/
+  api/
+packages/
+  simulation-sdk/
+```
+
 ## 🚀 Quick Start
 
 ### Prerequisites
