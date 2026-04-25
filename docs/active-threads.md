@@ -18,7 +18,7 @@
 
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
-_No active threads at this time._
+| — | No active threads at this time. | — | — | — | — | — |
 
 ---
 

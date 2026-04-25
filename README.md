@@ -225,7 +225,7 @@ Important constraint:
 | Trigger type gate | `if: github.event_name == 'repository_dispatch'` | Content-writing steps are skipped for schedule/manual validation-only runs. |
 | Allowed filename filter | `case "$DOCUMENT_NAME" in NLT-*.md \| docs/governance/NLT-*.md)` | Rejects non-governance paths to prevent arbitrary writes. |
 | Base64 payload decode | `echo "$DOCUMENT_CONTENT" \| base64 --decode > "$DOCUMENT_NAME"` | Keeps transport safe for multiline markdown. |
-| Optional checksum verification | `sha256sum` block when `DOCUMENT_CHECKSUM` is set | Fails run on checksum mismatch. |
+| Optional checksum verification | `sha256sum` block when `DOCUMENT_CHECKSUM` is set | Expects `sha256:<hex>` format. Fails run on mismatch; unsupported algorithm formats are skipped with a warning (not enforced). |
 | Weekly validation target | `for doc in NLT-DEV-OTOI.md` | Ensures required constitutional doc presence in this repo. |
 | PR creation condition | `steps.changes.outputs.changed == 'true'` | Avoids no-op governance sync PRs. |
 
