@@ -26,7 +26,7 @@
     "docs/agent-log/handoffs/CURSOR-2026-04-25-docs-alignment-handoff.json"
   ],
   "branch": "cursor/codebase-documentation-alignment-192d",
-  "pr_url": null,
+  "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/29",
   "escalations_filed": [],
   "otoi_version": "ORG-DEV-OTOI-1.0.0"
 }
