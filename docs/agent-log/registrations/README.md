@@ -42,11 +42,18 @@ If available in your runtime, also include:
 
 ## Workflow
 
-1. Read required governance docs (`.github-private/NLT-DEV-OTOI.md`,
-   `AGENTS.md`, `CLAUDE.md`, `docs/active-threads.md`).
-2. Create registration JSON in this directory.
-3. Add/update an entry in `docs/active-threads.md`.
-4. Continue implementation work.
+1. Read required governance docs:
+   - `NLT-DEV-OTOI.md` from the repository root (synced copy)
+   - `AGENTS.md`
+   - `CLAUDE.md`
+   - `docs/active-threads.md`
+2. If root `NLT-DEV-OTOI.md` is missing, record that blocker in your
+   registration and request/trigger the **Sync Governance (Public)** workflow
+   (`.github/workflows/sync-governance-public.yml`) to refresh the synced copy
+   from `NeuroLift-Technologies/.github-private`.
+3. Create registration JSON in this directory.
+4. Add/update an entry in `docs/active-threads.md`.
+5. Continue implementation work.
 
 ## Governance
 
