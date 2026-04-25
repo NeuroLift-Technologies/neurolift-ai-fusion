@@ -1,12 +1,59 @@
 # NeuroLift Technologies Simulation Environment - Architecture Overview
 
-**Date:** October 7, 2025  
-**Version:** 1.0  
+**Date:** Apr 4, 2026  
+**Version:** 1.1  
 **Author:** Cursor AI (Initial Implementation)
 
 ## System Architecture
 
 The NeuroLift Technologies Simulation Environment implements a novel approach to AI training through experiential learning. Unlike traditional machine learning approaches that train on datasets, this system creates realistic simulation environments where AI agents (Avatars) experience authentic challenges and learn through doing.
+
+## Current Runtime Contracts (Source-Verified, Apr 2026)
+
+The sections below include conceptual architecture. For day-to-day engineering work,
+use the following codepaths as the current contract surface:
+
+- `src/avatars/base_avatar.py`
+- `src/aides/base_aide.py`
+- `src/simulation/session_orchestrator.py`
+
+### Public constructors and orchestration entrypoints
+
+```python
+# src/avatars/base_avatar.py
+BaseAvatar(avatar_id: str, trait_config: Dict[str, Any], event_bus: Optional[EventBus] = None)
+
+# src/aides/base_aide.py
+BaseAide(aide_id: str, expertise_config: Dict[str, Any], event_bus: Optional[EventBus] = None)
+
+# src/simulation/session_orchestrator.py
+SessionOrchestrator(
+    avatar: BaseAvatar,
+    aide: BaseAide,
+    config: Optional[SessionConfig] = None,
+    event_bus: Optional[EventBus] = None,
+)
+result = orchestrator.run_session(scenarios: List[Dict[str, Any]])
+```
+
+Scenario dictionaries are expected to include at least:
+`name`, `task_type`, `base_success_rate`, and `cognitive_demand`.
+
+### Runtime workflow (current path)
+
+1. Create Avatar + Aide with shared or compatible `EventBus`.
+2. `SessionOrchestrator` binds the pair via `aide.bind_to_avatar(avatar)`.
+3. Avatar attempts tasks (`attempt_task`), Aide observes/coaches (`observe_and_coach`).
+4. Session tracks attempts/coaching/independence and (optionally) fusion readiness.
+
+### Constraints and known pitfalls
+
+- `src/simulation/training_session.py` uses an older `CoachingContext` shape
+  and is currently not the canonical orchestration path.
+- `scripts/test_training_loop.py` routes through `TrainingSession`, so it is
+  useful as a reproducible diagnostic, not as a stable "green path."
+- The stable verification target for orchestration behavior is:
+  `tests/test_simulation/test_session_orchestrator.py`.
 
 ### High-Level Architecture
 
