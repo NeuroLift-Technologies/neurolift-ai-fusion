@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { api } from "@/lib/api";
+import Constants from "expo-constants";
 import type { SessionResult, ScenarioResult } from "@/lib/types";
 
 function MetricBox({ label, value }: { label: string; value: string }) {
@@ -44,35 +45,40 @@ export default function SessionDetailScreen() {
   const [session, setSession] = useState<SessionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const s = await api.sessions.get(id);
+    // Fetch initial state, then open a WebSocket for live updates.
+    api.sessions
+      .get(id)
+      .then((s) => {
         setSession(s);
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Failed to load");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-
-    // Poll every 2s while running
-    const interval = setInterval(async () => {
-      try {
-        const s = await api.sessions.get(id);
-        setSession(s);
-        if (s.status !== "running" && s.status !== "pending") {
-          clearInterval(interval);
+        if (s.status === "running" || s.status === "pending") {
+          const base = (
+            (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
+            "http://localhost:8000"
+          ).replace(/^http/, "ws");
+          const ws = new WebSocket(`${base}/api/v1/sessions/${id}/ws`);
+          ws.onmessage = (e) => {
+            const updated: SessionResult = JSON.parse(e.data as string);
+            setSession(updated);
+            if (
+              updated.status !== "running" &&
+              updated.status !== "pending"
+            ) {
+              ws.close();
+            }
+          };
+          ws.onerror = () => ws.close();
+          wsRef.current = ws;
         }
-      } catch {
-        clearInterval(interval);
-      }
-    }, 2000);
+      })
+      .catch((e: unknown) =>
+        setError(e instanceof Error ? e.message : "Failed to load")
+      )
+      .finally(() => setLoading(false));
 
-    return () => clearInterval(interval);
+    return () => wsRef.current?.close();
   }, [id]);
 
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#4f46e5" /></View>;

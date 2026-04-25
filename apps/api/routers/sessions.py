@@ -26,26 +26,51 @@ router = APIRouter()
 _sessions: dict[UUID, SessionResult] = {}
 _summaries: dict[UUID, SessionSummary] = {}
 
+# Per-session asyncio.Events so WebSocket handlers wake up on state changes
+# instead of polling with sleep(1). Supports one active WS listener per session.
+_session_events: dict[UUID, asyncio.Event] = {}
+
 
 def _resolve_src_path() -> None:
-    """Add the repo src/ to sys.path so simulation imports work."""
-    repo_root = Path(__file__).resolve().parents[3]
-    src_path = repo_root / "src"
-    if str(src_path) not in sys.path:
-        sys.path.insert(0, str(src_path))
+    """Ensure the repo root is in sys.path so ``import src.*`` works.
+
+    In Docker, PYTHONPATH=/app covers this. Locally, we walk up the directory
+    tree to find the first ancestor that contains ``src/__init__.py``.
+    """
+    try:
+        import src  # noqa: F401  — already importable, nothing to do
+        return
+    except ImportError:
+        pass
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "src" / "__init__.py").exists():
+            if str(parent) not in sys.path:
+                sys.path.insert(0, str(parent))
+            return
 
 
-async def _run_session(session_id: UUID, payload: SessionCreate) -> None:
-    """Execute a training session in a background task."""
+def _notify_update(session_id: UUID, loop: asyncio.AbstractEventLoop) -> None:
+    """Wake the WebSocket handler for this session (called from a worker thread)."""
+    event = _session_events.get(session_id)
+    if event is not None:
+        loop.call_soon_threadsafe(event.set)
+
+
+def _run_session(
+    session_id: UUID,
+    payload: SessionCreate,
+    loop: asyncio.AbstractEventLoop,
+) -> None:
+    """Execute a training session in a thread-pool worker (sync, non-blocking)."""
     session = _sessions[session_id]
 
     try:
         _resolve_src_path()
 
-        from avatars.stay_alert_avatar import StayAlertAvatar
-        from avatars.task_kickstart_avatar import TaskKickstartAvatar
-        from aides.coaching.stay_alert_aide import StayAlertAide
-        from simulation.session_orchestrator import SessionOrchestrator, SessionConfig
+        from src.avatars.stay_alert_avatar import StayAlertAvatar  # type: ignore[import]
+        from src.avatars.task_kickstart_avatar import TaskKickstartAvatar  # type: ignore[import]
+        from src.aides.coaching.stay_alert_aide import StayAlertAide  # type: ignore[import]
+        from src.simulation.session_orchestrator import SessionOrchestrator, SessionConfig  # type: ignore[import]
 
         avatar_map = {
             AvatarType.STAY_ALERT: StayAlertAvatar,
@@ -106,6 +131,7 @@ async def _run_session(session_id: UUID, payload: SessionCreate) -> None:
         session.error = str(exc)
 
     _sessions[session_id] = session
+    _notify_update(session_id, loop)
 
 
 @router.post("/", response_model=SessionSummary, status_code=201)
@@ -132,7 +158,8 @@ async def create_session(
     _sessions[session_id] = result
     _summaries[session_id] = summary
 
-    background_tasks.add_task(_run_session, session_id, payload)
+    loop = asyncio.get_running_loop()
+    background_tasks.add_task(_run_session, session_id, payload, loop)
     return summary
 
 
@@ -155,21 +182,34 @@ async def delete_session(session_id: UUID) -> None:
         raise HTTPException(status_code=404, detail="Session not found")
     _sessions.pop(session_id, None)
     _summaries.pop(session_id, None)
+    _session_events.pop(session_id, None)
 
 
 @router.websocket("/{session_id}/ws")
 async def session_ws(websocket: WebSocket, session_id: UUID) -> None:
-    """Stream session status updates in real time."""
+    """Stream session status updates, pushing only on state changes."""
     await websocket.accept()
+
+    event = asyncio.Event()
+    _session_events[session_id] = event
+
     try:
         while True:
             session = _sessions.get(session_id)
             if session is None:
                 await websocket.send_json({"error": "Session not found"})
                 break
+
             await websocket.send_json(session.model_dump(mode="json"))
+
             if session.status in (SessionStatus.COMPLETED, SessionStatus.FAILED, SessionStatus.ABORTED):
                 break
-            await asyncio.sleep(1)
+
+            # Block until _notify_update() wakes us (no sleep polling)
+            event.clear()
+            await event.wait()
+
     except WebSocketDisconnect:
         pass
+    finally:
+        _session_events.pop(session_id, None)

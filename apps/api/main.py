@@ -3,6 +3,7 @@
 Exposes the Avatar-Aide-Advocate simulation engine over HTTP/WebSocket.
 """
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -23,10 +24,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Restrict origins in production via ALLOWED_ORIGINS env var (comma-separated).
+# Defaults to "*" for local development convenience.
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "")
+_allowed_origins: list[str] = [o.strip() for o in _raw_origins.split(",") if o.strip()] or ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=_allowed_origins,
+    allow_credentials=_allowed_origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -39,4 +45,4 @@ app.include_router(advocates.router, prefix="/api/v1/advocates", tags=["advocate
 
 @app.get("/health")
 async def health() -> dict:
-    return {"status": "ok", "service": "neurolift-api"}
+    return {"status": "ok", "service": "neurolift-api", "allowed_origins": _allowed_origins}

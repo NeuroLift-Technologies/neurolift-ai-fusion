@@ -17,7 +17,10 @@ COPY src/ ./src/
 COPY apps/api/ ./api/
 
 WORKDIR /app/api
-ENV PYTHONPATH=/app/src
+# /app is the repo root, so `import src.*` resolves relative imports correctly.
+# The sim engine uses `from ..core.events` style, which requires src to be a package,
+# not the root of sys.path.
+ENV PYTHONPATH=/app
 
 EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
