@@ -1,6 +1,6 @@
 # NeuroLift Technologies - Quick Start Guide
 
-> **Current status (Apr 2026):** script entrypoints are in transition. Use this guide for validated setup checks, and treat the training script runs as reproducible diagnostics rather than guaranteed successful end-to-end sessions.
+> **Current status (Apr 2026):** script entrypoints are in transition. Use this guide for validated setup checks, and treat script-based runs as reproducible diagnostics rather than guaranteed successful end-to-end sessions.
 
 ## 🚀 Get Started in 5 Minutes
 
@@ -11,8 +11,17 @@
 cd /path/to/neurolift-ai-fusion
 
 # Install dependencies
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
+
+### Entrypoint Status Matrix (Verified Against Current Code)
+
+| Entrypoint | Current behavior | Recommended use |
+| --- | --- | --- |
+| `scripts/setup_environment.py` | Creates directories/config templates, **overwrites root `.gitignore` and `LICENSE`**, and prints a reference to `docs/avatar-aide-advocate-process.md` (file not present). | Run only in a fresh clone or sandbox where those overwrite side effects are intentional. |
+| `scripts/test_training_loop.py` | Progresses through Avatar/Aide setup and scenario selection, then fails in `src/simulation/training_session.py` with `TypeError: CoachingContext.__init__() got an unexpected keyword argument 'avatar'`. | Use as a reproducible integration diagnostic for coaching-context mismatch. |
+| `scripts/run_training_session.py` | Fails immediately with `ImportError: attempted relative import beyond top-level package` due package-relative imports under `src/avatars`. | Treat as a legacy script pending import-path reconciliation. |
+| `src/simulation/session_orchestrator.py` (+ `tests/test_simulation/test_session_orchestrator.py`) | Represents the active orchestration contract (`SessionOrchestrator`, `SessionConfig`, `SessionResult`). | Use as the primary API/reference path while legacy scripts are reconciled. |
 
 ### Run a Training Session
 
@@ -283,7 +292,7 @@ Training runs locally without database - no setup required!
 python3 -m compileall src scripts
 
 # 2) Current orchestration contract (stable test target)
-pytest tests/test_simulation/test_session_orchestrator.py
+python3 -m pytest tests/test_simulation/test_session_orchestrator.py
 
 # 3) Optional integration diagnostic (expected known failure point)
 python3 scripts/test_training_loop.py
@@ -390,6 +399,19 @@ If you see `TypeError: CoachingContext.__init__() got an unexpected keyword argu
 If `TrainingSession.run()` fails at coaching construction, the same mismatch exists in
 `src/simulation/training_session.py` (`CoachingContext` is instantiated with legacy fields).
 Prefer `src/simulation/session_orchestrator.py` for current interface validation.
+
+### `setup_environment.py` changed tracked files
+
+`scripts/setup_environment.py` currently writes root `.gitignore` and `LICENSE`.
+If run in an existing working tree, review changes with `git diff` before committing.
+
+### `No module named pytest`
+
+Install project dependencies first:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
 
 ---
 

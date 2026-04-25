@@ -93,11 +93,14 @@ git clone <repository-url>
 cd neurolift-ai-fusion
 
 # Install dependencies
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 
 # Run initial setup
-python scripts/setup_environment.py
+python3 scripts/setup_environment.py
 ```
+
+> ⚠️ `scripts/setup_environment.py` creates default configs/data templates **and currently overwrites root `.gitignore` and `LICENSE`**. Run it in a fresh clone or sandbox, then review changes with `git diff` before committing.  
+> Note: the script currently prints a reference to `docs/avatar-aide-advocate-process.md`, which is not present in this repository.
 
 ### Running Your First Training Session
 
@@ -145,9 +148,9 @@ Both CI workflows currently use **Python 3.10**.
 
 `sync-governance-public.yml` runs on:
 
-- `repository_dispatch` with type `governance-sync` (content sync path)
-- `workflow_dispatch` (manual validation/sync testing)
-- weekly schedule (`cron: 0 8 * * 1`, Monday 08:00 UTC) for validation-only runs
+- `repository_dispatch` with type `governance-sync` (document sync path)
+- `workflow_dispatch` (manual validation-only run)
+- weekly schedule (`cron: 0 8 * * 1`, Monday 08:00 UTC validation-only run)
 
 Important constraints:
 
@@ -157,8 +160,10 @@ Important constraints:
 - Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
 - PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
 - Branch deletion only applies to branches merged from this repository (not forks), and skips protected/default branches.
-- Governance sync only accepts document names matching `NLT-*.md` at repo root or `docs/governance/NLT-*.md`; other filenames are rejected.
-- Governance sync weekly/manual validation warns when `NLT-DEV-OTOI.md` is missing; repository-dispatch runs can open a PR only when synced content actually changed.
+- Governance sync requires `document_name` and base64-encoded `content` in `repository_dispatch.client_payload`; optional fields are `version` and `checksum`.
+- Governance sync only writes documents matching `NLT-*.md` or `docs/governance/NLT-*.md`; other paths are rejected.
+- Governance sync checksum verification currently supports only `sha256:<hex>` values; unsupported checksum algorithms are warned and skipped.
+- Governance sync creates a PR only on `repository_dispatch` runs that produce an actual file diff; scheduled/manual validation runs do not commit or open PRs.
 
 ### Agent automation definitions (`.github/agents/*.agent.md`)
 
@@ -204,37 +209,39 @@ Important constraint:
 - Fork-origin PR branches are not deleted by design.
 - Schedule times are UTC; if cleanup appears "late", verify timezone conversion before changing cron.
 
-### Governance Sync runbook (`.github/workflows/sync-governance-public.yml`)
+### Governance sync runbook (`.github/workflows/sync-governance-public.yml`)
 
 **Subsystems covered:**
 
-1. **Inbound governance payload application** (`repository_dispatch`)
-   - Reads `github.event.client_payload.document_name`, `content`, `version`, and optional `checksum`.
-   - Restricts allowed targets to `NLT-*.md` or `docs/governance/NLT-*.md`.
-   - Decodes base64 content and writes the document to the requested path.
-2. **Governance presence validation**
-   - Verifies `NLT-DEV-OTOI.md` is present and emits warnings (not hard failure) when missing.
-3. **Conditional commit and PR creation**
-   - Runs only for `repository_dispatch` events with real file changes.
-   - Creates branch `governance-sync/<timestamp>`, commits synced document, and opens a PR with governance metadata.
+1. **Inbound sync ingestion** (`repository_dispatch`)
+   - Reads `document_name`, `content` (base64), `version`, and `checksum` from `github.event.client_payload`.
+   - Rejects requests that do not include required fields (`document_name`, `content`).
+   - Restricts writable targets to `NLT-*.md` and `docs/governance/NLT-*.md`.
+2. **Content verification and validation**
+   - Decodes payload content from base64 and writes to the requested file.
+   - Optionally verifies checksum when `checksum` is provided.
+   - Weekly/manual validation checks presence of `NLT-DEV-OTOI.md` and emits warnings if missing.
+3. **Automated PR creation**
+   - Runs only for `repository_dispatch` events with actual file changes.
+   - Creates branch `governance-sync/<UTC timestamp>`, commits the synced document, pushes branch, and opens a PR with `gh pr create`.
 
 **Codepath map (source-verified):**
 
 | Behavior | Workflow codepath | Notes |
 | --- | --- | --- |
-| Trigger type gate | `if: github.event_name == 'repository_dispatch'` | Content-writing steps are skipped for schedule/manual validation-only runs. |
-| Allowed filename filter | `case "$DOCUMENT_NAME" in NLT-*.md \| docs/governance/NLT-*.md)` | Rejects non-governance paths to prevent arbitrary writes. |
-| Base64 payload decode | `echo "$DOCUMENT_CONTENT" \| base64 --decode > "$DOCUMENT_NAME"` | Keeps transport safe for multiline markdown. |
-| Optional checksum verification | `sha256sum` block when `DOCUMENT_CHECKSUM` is set | Expects `sha256:<hex>` format. Fails run on mismatch; unsupported algorithm formats are skipped with a warning (not enforced). |
-| Weekly validation target | `for doc in NLT-DEV-OTOI.md` | Ensures required constitutional doc presence in this repo. |
-| PR creation condition | `steps.changes.outputs.changed == 'true'` | Avoids no-op governance sync PRs. |
+| Required payload fields | `if [ -z "$DOCUMENT_NAME" ] \|\| [ -z "$DOCUMENT_CONTENT" ]` | Missing fields fail the run. |
+| Allowed destination paths | `case "$DOCUMENT_NAME" in NLT-*.md \| docs/governance/NLT-*.md)` | Any other path is rejected. |
+| Base64 decode write path | `echo "$DOCUMENT_CONTENT" \| base64 --decode > "$DOCUMENT_NAME"` | Parent dir is created first with `mkdir -p`. |
+| Checksum verification | `case "$ALGO" in sha256)` | Expects `sha256:<hex>` format. Mismatches fail the run; unsupported algorithm prefixes are skipped with a warning (not enforced). |
+| Validation document check | `for doc in NLT-DEV-OTOI.md; do ...` | Missing docs warn, not fail. |
+| PR creation gate | `if: github.event_name == 'repository_dispatch' && steps.changes.outputs.changed == 'true'` | Manual/scheduled runs do not open PRs. |
 
 **Operational constraints and pitfalls:**
 
-- The workflow uses `gh pr create` and requires `pull-requests: write` + `contents: write` in the job permission block.
-- Validation-only runs can succeed with warnings when governance docs are absent; they are observability checks, not strict enforcement gates.
-- If dispatch payload omits `document_name` or `content`, the sync step exits with an explicit error.
-- Filename allow-list is intentionally strict; if governance scope expands, update both workflow code and this runbook together.
+- Governance sync requires `contents: write` and `pull-requests: write` to push branches and create PRs.
+- Document content must be base64-safe text; malformed base64 causes decode failure.
+- A valid dispatch can still produce no PR if the decoded content is identical to the existing file.
+- The validation step currently checks only `NLT-DEV-OTOI.md`; additional required governance docs must be added explicitly in workflow code.
 
 ### Manual usage
 
@@ -266,6 +273,28 @@ PR cleanup verification checklist:
 3. In `delete-merged-branches` logs, verify each skip/delete outcome is expected (fork PR, protected branch, or already deleted branch).
 4. If merged branches remain, check whether the relevant PRs fall outside the current `per_page: 100` query window.
 
+For manual governance validation (`Sync Governance (Public)` only):
+
+1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
+2. Choose the branch (usually `master`) and start the run.
+3. Review `Validate governance documents` logs for missing-file warnings.
+
+For automated governance ingestion (from tooling/private repo), dispatch `repository_dispatch` with this payload contract:
+
+```json
+{
+  "event_type": "governance-sync",
+  "client_payload": {
+    "document_name": "NLT-DEV-OTOI.md",
+    "content": "<base64-encoded markdown>",
+    "version": "optional-version-string",
+    "checksum": "sha256:<hex-digest>"
+  }
+}
+```
+
+`document_name` and `content` are required. `checksum` is optional but recommended for tamper detection.
+
 To reproduce `python-app.yml` locally:
 
 ```bash
@@ -288,9 +317,9 @@ pytest
 - **When changing PR retention policy, update both code and docs together**:
   - `.github/workflows/pr-cleanup.yml` (`days-before-stale`, `days-before-close`)
   - this README section (trigger behavior + runbook defaults)
-- **When changing governance sync scope, update both code and docs together**:
-  - `.github/workflows/sync-governance-public.yml` (allow-list, validation targets, PR behavior)
-  - this README section (trigger behavior + governance runbook)
+- **When changing governance document policy, update both code and docs together**:
+  - `.github/workflows/sync-governance-public.yml` (allowed path patterns + validation document list)
+  - this README section (payload contract + runbook constraints)
 - **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
 - **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
 - **Keep cleanup intent aligned in two places** when requirements change:
@@ -299,6 +328,7 @@ pytest
 - **Keep governance source-of-truth explicit**:
   - upstream governance authoring lives in `NeuroLift-Technologies/.github-private`
   - this repository consumes synced copies (for example `NLT-DEV-OTOI.md`) via `Sync Governance (Public)`
+- **If checksum algorithms change**, update both workflow verification logic and this runbook's payload guidance at the same time.
 
 ### Troubleshooting and common pitfalls
 
@@ -308,9 +338,10 @@ pytest
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
 - **PR branch was not deleted after merge:** check whether the PR came from a fork, whether the branch is protected, or whether it was already deleted (422 is treated as non-fatal in workflow logs).
 - **PR expected to stay open got marked stale:** add any activity (comment/commit/review) or convert to draft if it is actively in progress but intentionally paused.
-- **Governance sync did not write a file:** verify the event was `repository_dispatch` with `governance-sync`, and that payload included both `document_name` and base64 `content`.
-- **Governance sync rejected the file path:** ensure the payload target matches `NLT-*.md` or `docs/governance/NLT-*.md`.
-- **No governance sync PR was created:** check whether there were actual file changes (`Check for changes` may evaluate to `false` on identical content).
+- **Governance sync run fails with "missing required fields":** verify `repository_dispatch.client_payload` includes both `document_name` and `content`.
+- **Governance sync run fails with "Disallowed document name":** path must match `NLT-*.md` or `docs/governance/NLT-*.md`.
+- **Governance sync logs checksum mismatch:** recompute checksum from the decoded file content and ensure it is sent as `sha256:<hex>`.
+- **Governance sync did not open a PR:** confirm event was `repository_dispatch` (not schedule/manual) and that the decoded file content actually changed.
 
 ### Local runtime troubleshooting (scripts)
 
@@ -318,8 +349,10 @@ pytest
   `run_training_session.py` imports `avatars.*` after modifying `sys.path`, but modules under `src/avatars` use package-relative imports (`..core`), so direct execution currently fails.
 - **`TypeError: CoachingContext.__init__() got an unexpected keyword argument 'avatar'` from `scripts/test_training_loop.py`:**
   this script still uses an older `CoachingContext` call pattern that no longer matches `src/aides/base_aide.py`.
+- **`No module named pytest` when running test commands:**
+  install dependencies first with `python3 -m pip install -r requirements.txt`.
 - **Need a deterministic smoke path while those scripts are being reconciled:**
-  run `python3 -m compileall src scripts`, then use `tests/test_simulation/test_session_orchestrator.py` as the reference for current orchestration interfaces.
+  run `python3 -m compileall src scripts`, then use `python3 -m pytest tests/test_simulation/test_session_orchestrator.py` as the reference for current orchestration interfaces.
 
 ## 📂 Business Structure
 
