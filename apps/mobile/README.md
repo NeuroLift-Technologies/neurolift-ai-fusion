@@ -1,13 +1,18 @@
-# Mobile App (Android + iOS Foundation)
+# Mobile App (Android + iOS)
 
-This directory is reserved for the shared mobile application targeting Android and iOS.
+This is now a runnable Expo starter app connected to the simulation API.
 
-## Intended responsibilities
+## Current capabilities
 
-- scenario participation and status tracking
-- in-session coaching prompts
-- post-session reflection workflows
+- check API health
+- run demo simulation session from mobile UI
 
-## Status
+## Local run
 
-Scaffolded as part of repository cleanup and full-stack transition planning.
+```bash
+cd apps/mobile
+npm install
+npm run start
+```
+
+Then launch Android or iOS from Expo.

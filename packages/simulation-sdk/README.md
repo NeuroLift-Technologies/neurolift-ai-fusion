@@ -1,13 +1,15 @@
-# Simulation SDK (Foundation)
+# Simulation SDK
 
-This package directory is reserved for shared simulation contracts and API client utilities consumed by the web and mobile apps.
+Shared TypeScript contracts and API client for web + mobile surfaces.
 
-## Intended responsibilities
+## Included
 
-- typed request/response contracts
-- event and telemetry schemas
-- client helpers for API integration
+- `src/types.ts`: session/scenario request-response contracts
+- `src/client.ts`: minimal API client wrapper
 
-## Status
+## Example
 
-Scaffolded as part of repository cleanup and full-stack transition planning.
+```ts
+const client = new SimulationApiClient("http://localhost:8000");
+const result = await client.runSession({ scenarios: [{ name: "Morning planning" }] });
+```

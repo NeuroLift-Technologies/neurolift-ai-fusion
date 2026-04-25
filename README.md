@@ -85,7 +85,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 
 To reduce scope drift and support productization, non-core assets were archived and a new full-stack app layout was introduced:
 
-- Archived legacy folders into `archive/legacy-content/`
+- Archived legacy folders into `archive/legacy-content/` (including business structures, WordPress assets, and older business-agent framework)
 - Added app/service/package scaffolds under `apps/`, `services/`, and `packages/`
 - Added implementation roadmap: `docs/roadmaps/full-stack-simulation-app-plan.md`
 
@@ -420,7 +420,7 @@ This structure is designed for a two-person team (CEO + COO) to orchestrate a co
 3. **Phase 3**: Department layer deployment (Weeks 5-8)
 4. **Phase 4**: Optimization and tuning (Weeks 9-12)
 
-See `nlt-business-agents/implementation-guide.md` for detailed instructions.
+See `archive/legacy-content/nlt-business-agents/implementation-guide.md` for historical business-agent instructions.
 
 ## Support
 
@@ -443,7 +443,7 @@ business-agents-repo/
 ├── AGENT-ORCHESTRATION-GUIDE.md       # How agents coordinate and communicate
 ├── .github/                           # GitHub workflows + custom agent prompt definitions
 ├── config/                            # Global configuration files
-├── business-structure/
+├── archive/legacy-content/business-structure/  # Archived planning assets
 │   ├── 1-person-structure/
 │   │   ├── neurodivergent-adhd-ai-fusion-system/
 │   │   ├── toi-otoi-framework/
@@ -496,7 +496,7 @@ neuroLift-simulation/
 ├── configs/                # All configuration files
 ├── data/                   # Local storage (privacy-first)
 ├── archive/                # Archived content for reference
-└── nlt-business-agents/    # Business agent framework (1-person setup)
+└── archive/legacy-content/nlt-business-agents/    # Archived business agent framework
 ```
 
 ## 🔬 Development Phases
@@ -632,4 +632,4 @@ We'll know we've succeeded when:
 
 ---
 
-*Note: The business agent framework has been reorganized into `/nlt-business-agents/` with a 1-person business setup.*
+*Note: The older business-agent framework now lives in `/archive/legacy-content/nlt-business-agents/` for historical reference.*

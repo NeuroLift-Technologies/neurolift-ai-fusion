@@ -1,13 +1,20 @@
-# Simulation API Service (Foundation)
+# Simulation API Service
 
-This service directory is reserved for the full-stack API layer that will expose simulation capabilities to web and mobile clients.
+This service now includes a runnable FastAPI starter wired to the existing Python simulation domain.
 
-## Intended responsibilities
+## Endpoints
 
-- session lifecycle APIs
-- event stream ingestion and retrieval
-- authenticated access to simulation resources
+- `GET /health` — service health
+- `GET /sessions/demo-run` — run built-in demo scenarios
+- `POST /sessions/run` — run a custom session payload
 
-## Status
+## Local run
 
-Scaffolded as part of repository cleanup and full-stack transition planning.
+```bash
+pip install fastapi uvicorn pydantic
+uvicorn services.api.app.main:app --reload
+```
+
+## Why this matters
+
+This API is the integration seam for both web and mobile applications, so clients do not directly couple to `src/` internals.

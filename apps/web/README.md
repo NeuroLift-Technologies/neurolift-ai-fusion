@@ -1,13 +1,18 @@
-# Web App (Foundation)
+# Web App
 
-This directory is reserved for the NeuroLift simulation web application.
+A runnable web starter for simulation control.
 
-## Intended responsibilities
+## Current capabilities
 
-- session orchestration UI
-- simulation monitoring dashboards
-- coaching replay and insights
+- check simulation API health
+- trigger a demo session and inspect JSON output
 
-## Status
+## Local run
 
-Scaffolded as part of repository cleanup and full-stack transition planning.
+Use any static file server after the API is running:
+
+```bash
+python3 -m http.server 4173 --directory apps/web
+```
+
+Then open `http://localhost:4173`.

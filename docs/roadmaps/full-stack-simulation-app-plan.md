@@ -8,6 +8,13 @@ Evolve `neurolift-ai-fusion` from a Python-first simulation codebase into a prod
 - a shared mobile app (Android + iOS),
 - and a simulation API layer backed by existing Python domain logic.
 
+## Current implementation baseline (2026-04-25)
+
+- **API starter live** in `services/api/app/` using FastAPI and the existing `SessionOrchestrator`.
+- **Web starter live** in `apps/web/` with buttons to call `/health` and `/sessions/demo-run`.
+- **Mobile starter live** in `apps/mobile/` as an Expo app for Android and iOS.
+- **Shared SDK starter live** in `packages/simulation-sdk/` with TypeScript contracts + client wrapper.
+
 ## Target Monorepo Layout
 
 ```text
@@ -45,11 +52,11 @@ src/                    # Existing Python simulation domain (current engine)
 
 ## Migration Phases
 
-1. **Foundation (current):** repository cleanup + app/service/package scaffolding.
-2. **API encapsulation:** expose stable endpoints for scenario lifecycle and coaching events.
-3. **Web MVP:** launch browser-first simulation controls and observability screens.
-4. **Mobile MVP:** deliver Android/iOS experience from shared codebase.
-5. **Convergence:** unify telemetry, identity, and release workflows across all surfaces.
+1. **Foundation (complete):** repository cleanup + app/service/package scaffolding.
+2. **Starter implementation (complete):** API + web + mobile + SDK starter code connected.
+3. **API hardening:** authentication, persistence integration, and robust error contracts.
+4. **Product UX:** richer web/mobile flows for session management and analytics.
+5. **Convergence:** unified telemetry, identity, and release workflows across all surfaces.
 
 ## Guardrails for Implementation
 
