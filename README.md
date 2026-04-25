@@ -93,11 +93,14 @@ git clone <repository-url>
 cd neurolift-ai-fusion
 
 # Install dependencies
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 
 # Run initial setup
-python scripts/setup_environment.py
+python3 scripts/setup_environment.py
 ```
+
+> ⚠️ `scripts/setup_environment.py` creates default configs/data templates **and currently overwrites root `.gitignore` and `LICENSE`**. Run it in a fresh clone or sandbox, then review changes with `git diff` before committing.  
+> Note: the script currently prints a reference to `docs/avatar-aide-advocate-process.md`, which is not present in this repository.
 
 ### Running Your First Training Session
 
@@ -335,8 +338,10 @@ pytest
   `run_training_session.py` imports `avatars.*` after modifying `sys.path`, but modules under `src/avatars` use package-relative imports (`..core`), so direct execution currently fails.
 - **`TypeError: CoachingContext.__init__() got an unexpected keyword argument 'avatar'` from `scripts/test_training_loop.py`:**
   this script still uses an older `CoachingContext` call pattern that no longer matches `src/aides/base_aide.py`.
+- **`No module named pytest` when running test commands:**
+  install dependencies first with `python3 -m pip install -r requirements.txt`.
 - **Need a deterministic smoke path while those scripts are being reconciled:**
-  run `python3 -m compileall src scripts`, then use `tests/test_simulation/test_session_orchestrator.py` as the reference for current orchestration interfaces.
+  run `python3 -m compileall src scripts`, then use `python3 -m pytest tests/test_simulation/test_session_orchestrator.py` as the reference for current orchestration interfaces.
 
 ## 📂 Business Structure
 
