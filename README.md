@@ -120,7 +120,7 @@ python3 scripts/test_training_loop.py
 
 ### Intent and architecture
 
-This repository currently has four automation workflows in `.github/workflows/`:
+This repository currently has five automation workflows in `.github/workflows/`:
 
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
@@ -128,6 +128,7 @@ This repository currently has four automation workflows in `.github/workflows/`:
 | `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
 | `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Receives governance documents from `NeuroLift-Technologies/.github-private`, validates payload/file safety constraints, and opens a PR when updates are detected | single `sync-governance` job |
+| `.github/workflows/test-cloudflare.yml` | **Test Cloudflare API Access** | Manual/API credential probe for Cloudflare org/repo secrets and permissions | single `cloudflare-access-probe` job |
 
 Both CI workflows currently use **Python 3.10**.
 
@@ -152,6 +153,11 @@ Both CI workflows currently use **Python 3.10**.
 - `workflow_dispatch` (manual validation-only run)
 - weekly schedule (`cron: 0 8 * * 1`, Monday 08:00 UTC validation-only run)
 
+`test-cloudflare.yml` runs on:
+
+- `workflow_dispatch` (manual credential/permission probe)
+- `push` to `copilot/test-cloudflare-api-access` when `scripts/test_cloudflare_access.py` or `.github/workflows/test-cloudflare.yml` changes
+
 Important constraints:
 
 - A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
@@ -164,6 +170,8 @@ Important constraints:
 - Governance sync only writes documents matching `NLT-*.md` or `docs/governance/NLT-*.md`; other paths are rejected.
 - Governance sync checksum verification currently supports only `sha256:<hex>` values; unsupported checksum algorithms are warned and skipped.
 - Governance sync creates a PR only on `repository_dispatch` runs that produce an actual file diff; scheduled/manual validation runs do not commit or open PRs.
+- Cloudflare API access probing requires `CLOUDFLARE_API_TOKEN`; `CLOUDFLARE_ACCOUNT_ID` enables Workers checks, and `CLOUDFLARE_ZONE_ID` enables explicit zone checks (otherwise the script uses the first readable zone when available).
+- Cloudflare probe failures are intentional workflow failures; the workflow prints the setup guide on failure via `python scripts/test_cloudflare_access.py --guide`.
 
 ### Agent automation definitions (`.github/agents/*.agent.md`)
 
@@ -243,12 +251,45 @@ Important constraint:
 - A valid dispatch can still produce no PR if the decoded content is identical to the existing file.
 - The validation step currently checks only `NLT-DEV-OTOI.md`; additional required governance docs must be added explicitly in workflow code.
 
+### Cloudflare API access runbook (`.github/workflows/test-cloudflare.yml`)
+
+**Subsystems covered:**
+
+1. **Credential inventory**
+   - Requires `CLOUDFLARE_API_TOKEN`.
+   - Treats `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ZONE_ID` as optional; missing values skip Workers checks or use the first readable zone when possible.
+2. **Cloudflare read probes**
+   - Verifies token status through `/user/tokens/verify`.
+   - Checks zone access, DNS records, page rules, zone settings, SSL/security-level settings, analytics, Workers scripts, and Workers routes when the needed IDs are available.
+3. **Failure remediation**
+   - Fails the workflow on missing/invalid tokens or endpoint failures.
+   - Always prints `python scripts/test_cloudflare_access.py --guide` on workflow failure so required token permissions are visible in the run log.
+
+**Codepath map (source-verified):**
+
+| Behavior | Source | Notes |
+| --- | --- | --- |
+| Workflow trigger | `.github/workflows/test-cloudflare.yml` | Manual `workflow_dispatch`; path-scoped push trigger exists only for `copilot/test-cloudflare-api-access`. |
+| Runtime script | `scripts/test_cloudflare_access.py` | Uses `requests` against `https://api.cloudflare.com/client/v4`. |
+| Required secret | `CLOUDFLARE_API_TOKEN` | Exit code `2` when missing; no API calls are made. |
+| Optional secrets | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID` | Account ID enables Workers scripts; Zone ID enables explicit zone checks. |
+| Exit codes | script docstring / `run()` | `0` all tested endpoints passed, `1` endpoint/token failure, `2` token missing. |
+| Setup guide | `_print_setup_guide()` | Lists Cloudflare token permission groups and GitHub secret setup locations. |
+
+**Operational constraints and pitfalls:**
+
+- The workflow installs only `requests`; local runs need `pip install requests` if project dependencies are not already installed.
+- Analytics can warn rather than fail when Cloudflare plan limitations return HTTP 400.
+- Workers checks are skipped unless `CLOUDFLARE_ACCOUNT_ID` is set.
+- The setup guide recommends write-capable permissions for DNS, Page Rules, Zone Settings, and Workers because deployment utilities need edits; the probe itself performs GET requests only.
+- Do not paste token values into logs, docs, commits, or issue comments. Store them as GitHub organization or repository Actions secrets.
+
 ### Manual usage
 
 From GitHub UI:
 
 1. Open **Actions**.
-2. Select **Shared CI**, **Python application**, **PR Cleanup**, or **Sync Governance (Public)**.
+2. Select **Shared CI**, **Python application**, **PR Cleanup**, **Sync Governance (Public)**, or **Test Cloudflare API Access**.
 3. Click **Run workflow**.
 4. Choose the branch and (for PR Cleanup) optionally override stale/close thresholds.
 
@@ -270,6 +311,15 @@ For manual governance validation (`Sync Governance (Public)` only):
 1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
 2. Choose the branch (usually `master`) and start the run.
 3. Review `Validate governance documents` logs for missing-file warnings.
+
+For manual Cloudflare credential validation (`Test Cloudflare API Access` only):
+
+1. Confirm Actions secrets are configured for this repository:
+   - required: `CLOUDFLARE_API_TOKEN`
+   - optional: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`
+2. Open **Actions** -> **Test Cloudflare API Access** -> **Run workflow**.
+3. Review each `PASS`/`FAIL`/`WARN`/`SKIP` row in the probe report.
+4. If the run fails, use the automatically printed setup guide to add missing token permissions or repository secret access.
 
 For automated governance ingestion (from tooling/private repo), dispatch `repository_dispatch` with this payload contract:
 
@@ -312,6 +362,10 @@ pytest
 - **When changing governance document policy, update both code and docs together**:
   - `.github/workflows/sync-governance-public.yml` (allowed path patterns + validation document list)
   - this README section (payload contract + runbook constraints)
+- **When changing Cloudflare probe coverage or secret names, update docs together**:
+  - `.github/workflows/test-cloudflare.yml` (workflow triggers, installed packages, injected secrets)
+  - `scripts/test_cloudflare_access.py` (probe endpoints, exit codes, setup guide)
+  - `docs/cloudflare/CLOUDFLARE_SETUP.md` and this README section (operator runbooks)
 - **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
 - **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
 - **Keep cleanup intent aligned in two places** when requirements change:
@@ -331,6 +385,10 @@ pytest
 - **Governance sync run fails with "Disallowed document name":** path must match `NLT-*.md` or `docs/governance/NLT-*.md`.
 - **Governance sync logs checksum mismatch:** recompute checksum from the decoded file content and ensure it is sent as `sha256:<hex>`.
 - **Governance sync did not open a PR:** confirm event was `repository_dispatch` (not schedule/manual) and that the decoded file content actually changed.
+- **Cloudflare probe fails before endpoint checks:** verify `CLOUDFLARE_API_TOKEN` is available to this repository's Actions workflows.
+- **Cloudflare probe skips Workers:** set `CLOUDFLARE_ACCOUNT_ID` as an Actions secret.
+- **Cloudflare probe checks the wrong zone:** set `CLOUDFLARE_ZONE_ID`; otherwise the script uses the first zone returned by `/zones`.
+- **Cloudflare probe shows 403 rows:** add the permission listed under the failed row to the API token, then rerun the workflow.
 
 ### Local runtime troubleshooting (scripts)
 

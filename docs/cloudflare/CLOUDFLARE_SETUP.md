@@ -139,6 +139,54 @@ cp cloudflare/.env.example cloudflare/.env
 - Scroll down in Overview page
 - Copy "Zone ID" from API section
 
+### Step 5: Verify GitHub Actions API Access
+
+Before relying on deployment or maintenance workflows, run the repository's
+source-verified API probe:
+
+```bash
+# Local/offline permission guide
+python scripts/test_cloudflare_access.py --guide
+
+# Local live probe (requires environment variables)
+CLOUDFLARE_API_TOKEN=... \
+CLOUDFLARE_ACCOUNT_ID=... \
+CLOUDFLARE_ZONE_ID=... \
+python scripts/test_cloudflare_access.py
+```
+
+GitHub Actions workflow:
+
+1. Store the required token as an Actions secret named `CLOUDFLARE_API_TOKEN`.
+2. Optionally store `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ZONE_ID` to avoid
+   skipped Workers checks or first-zone auto-discovery.
+3. Open **Actions** -> **Test Cloudflare API Access** -> **Run workflow**.
+4. Review the `PASS`/`FAIL`/`WARN`/`SKIP` rows in the workflow log.
+
+Probe coverage comes from `.github/workflows/test-cloudflare.yml` and
+`scripts/test_cloudflare_access.py`. It verifies token validity, zone access,
+DNS records, page rules, zone settings, SSL/security-level settings, analytics,
+Workers scripts, and Workers routes when the required IDs are available.
+
+Exit codes:
+
+| Code | Meaning | Operator action |
+| --- | --- | --- |
+| `0` | All tested endpoints succeeded. | No credential action needed. |
+| `1` | Token verification or one or more endpoint checks failed. | Add the permission printed under the failed row, then rerun. |
+| `2` | `CLOUDFLARE_API_TOKEN` was not set. | Add or grant repository access to the Actions secret. |
+
+Important constraints:
+
+- The workflow installs only `requests`; local runs need `pip install requests`
+  if project dependencies are not installed.
+- Analytics can emit `WARN` for plan limitations (HTTP 400) without proving the
+  token is invalid.
+- Workers checks are skipped unless `CLOUDFLARE_ACCOUNT_ID` is set.
+- If `CLOUDFLARE_ZONE_ID` is omitted, the script uses the first readable zone
+  returned by `/zones` when one exists.
+- Never paste token values into logs, docs, commits, or issue comments.
+
 ---
 
 ## Cloudflare Workers

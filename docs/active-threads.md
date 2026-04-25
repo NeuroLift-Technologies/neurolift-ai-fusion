@@ -39,6 +39,7 @@ _No blocked threads at this time._
 | — | Avatar cursor remaining traits | Cursor | — | `docs/handoffs/handoff_cursor_remaining_traits.json` |
 | — | Fusion validation advisory | Advisory | — | `docs/handoffs/handoff_advisory_fusion_validation.json` |
 | — | Codex AIDE expertise | Codex | — | `docs/handoffs/handoff_codex_aide_expertise.json` |
+| TH-003 | Documentation automation alignment after PR #13 | GPT | 2026-04-25 | `docs/agent-log/handoffs/GPT-2026-04-25-docs-cloudflare-probe-handoff.json` |
 
 ---
 
