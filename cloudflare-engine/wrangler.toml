@@ -1,0 +1,12 @@
+name = "neurolift-world-engine"
+main = "src/index.ts"
+compatibility_date = "2026-04-25"
+
+[durable_objects]
+bindings = [
+  { name = "WORLD_ENGINE", class_name = "WorldEngineDO" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WorldEngineDO"]

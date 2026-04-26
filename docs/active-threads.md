@@ -18,7 +18,7 @@
 
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
-| — | No active threads at this time. | — | — | — | — | — |
+| TH-002 | Prepare Cloudflare World Engine deployment | Joshua W. Dorsey, Sr. | Codex | unknown (git safe.directory blocked in sandbox) | 🟡 In Progress | 2026-04-25 |
 
 ---
 
@@ -57,4 +57,5 @@ _No blocked threads at this time._
 - Governance stub files (`AGENTS.md`, `CLAUDE.md`, `docs/active-threads.md`, `docs/agent-log/`) were merged in TH-001 (PR #17).
 - Governance source-of-truth is synced via `.github/workflows/sync-governance-public.yml`; validate that `NLT-DEV-OTOI.md` exists in the repository root when onboarding.
 - The `docs/handoffs/` directory contains legacy handoff records in an older format. New handoff records should go to `docs/agent-log/handoffs/` using the `handoff-record.json` schema from SOP-NLT-001.
-- No active blockers. No architectural decisions pending.
+- TH-002 updated `cloudflare-engine/wrangler.toml` for current Durable Object migration syntax and patched `cloudflare-engine/src/index.ts` to use Durable Object WebSocket handlers instead of `addEventListener` on accepted sockets.
+- Remaining TH-002 work is local validation plus authenticated Cloudflare deployment of `neurolift-world-engine`.
