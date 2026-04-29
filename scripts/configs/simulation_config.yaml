@@ -1,0 +1,29 @@
+consequence_config:
+  immediate_consequences: true
+  learning_from_failures: true
+  realistic_impact: true
+description: Default simulation environment configuration
+difficulty_scaling:
+  adaptive_difficulty: true
+  failure_penalty: 0.1
+  success_threshold: 0.7
+performance_metrics:
+  assess_burnout_risk: true
+  measure_independence: true
+  track_learning_progress: true
+random_events:
+  dysfunction_injection: true
+  environmental_changes: true
+  social_interactions: true
+simulation_id: default_simulation
+time_config:
+  real_time_sync: true
+  simulation_speed: 1.0
+  time_compression: false
+world_config:
+  consequence_severity: realistic
+  gravity: 9.8
+  random_events: enabled
+  realism_level: high
+  social_dynamics: enabled
+  time_scale: 1.0
