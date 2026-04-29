@@ -3,9 +3,9 @@
   "session_id": "codex-2026-04-25-pr-feedback-fullstack-implementation",
   "session_start": "2026-04-25T11:00:48Z",
   "task_scope": "Address PR feedback by implementing actual full-stack foundations (API, web, and mobile) and further archive non-core repository content.",
-  "branch": "work",
-  "thread_id": "TH-003",
+  "branch": "codex/cleanup-repo-and-organize-simulation-environment",
+  "thread_id": "TH-004",
   "otoi_version": "ORG-DEV-OTOI-1.0.0",
   "trigger_context": "Follow-up user request after unsatisfactory prior PR",
-  "related_pr": null
+  "related_pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/30"
 }

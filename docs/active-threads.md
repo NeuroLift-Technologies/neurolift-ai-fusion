@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0  
-**Last updated:** 2026-04-24  
+**Last updated:** 2026-04-29  
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -39,8 +39,8 @@ _No blocked threads at this time._
 | — | Avatar cursor remaining traits | Cursor | — | `docs/handoffs/handoff_cursor_remaining_traits.json` |
 | — | Fusion validation advisory | Advisory | — | `docs/handoffs/handoff_advisory_fusion_validation.json` |
 | — | Codex AIDE expertise | Codex | — | `docs/handoffs/handoff_codex_aide_expertise.json` |
-| TH-002 | Repo cleanup + full-stack app foundation (web/mobile/api) | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-repo-cleanup-fullstack-foundation-handoff.json` |
-| TH-003 | PR feedback response: implement runnable API/web/mobile starters + archive legacy business-agent tree | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-pr-feedback-fullstack-implementation-handoff.json` |
+| TH-003 | Repo cleanup + full-stack app foundation (web/mobile/api) | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-repo-cleanup-fullstack-foundation-handoff.json` |
+| TH-004 | PR feedback response: implement runnable API/web/mobile starters + archive legacy business-agent tree | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-pr-feedback-fullstack-implementation-handoff.json` |
 
 ---
 
