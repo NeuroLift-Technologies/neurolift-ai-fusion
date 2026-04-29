@@ -1,0 +1,182 @@
+{
+  "handoff_record": {
+    "session_id": "2026-04-29-copilot-pr-cleanup-audit",
+    "agent_name": "Copilot (PR Cleanup Agent)",
+    "date": "2026-04-29",
+    "repo": "neurolift-ai-fusion",
+    "branch": "copilot/review-and-update-prs",
+    "work_completed": [
+      "Audited all 16 branches and 10 open PRs in the repository.",
+      "Compared every open PR branch against master to determine ahead/behind commit counts.",
+      "Performed test merges on all open PR branches to detect merge conflicts.",
+      "Identified 4 PR branches that can be cleanly merged with master (no conflicts).",
+      "Identified 6 PR branches with merge conflicts requiring human resolution.",
+      "Identified 4 orphaned branches with no open PR.",
+      "Produced this structured handoff report for human review."
+    ],
+    "work_in_progress": [],
+    "blockers": [
+      "Agent tooling prevents pushing to branches other than the task PR branch. The 4 cleanly-mergeable branches could not be updated automatically — a human or a code owner must merge master into them (or use GitHub's 'Update branch' button on each PR)."
+    ],
+    "decisions_made": [
+      "Did not close any PRs or delete any branches per Read-only default governance constraint.",
+      "Draft PRs were not recommended for stale marking.",
+      "Protected branches (master) were excluded from deletion candidates."
+    ],
+    "decisions_pending": [
+      "Which of PRs #30, #31, #32 should be selected as the canonical restructuring PR (all three conflict with each other and with master — only one can land).",
+      "Whether orphaned branches should be deleted (requires Joshua W. Dorsey approval).",
+      "Whether stale draft PRs (#23, #25, #26, #27, #28, #29) should be closed or kept."
+    ],
+    "escalations": [
+      "PRs #30, #31, #32 are mutually conflicting restructuring proposals. All three attempt major repo reorganization. A human decision is required on which to pursue. Escalate to Joshua W. Dorsey, Sr."
+    ],
+    "next_agent_notes": "Use GitHub's 'Update branch' button on PRs #23, #25, #28, #29 — these have clean merges. For PRs #21, #26, #27, #30, #31, #32 — conflicts must be resolved manually. See pr_cleanup_report field below for full details.",
+    "pr_cleanup_report": {
+      "open_prs_total": 10,
+      "non_draft_prs": [
+        {
+          "number": 32,
+          "title": "feat: transform simulation into full-stack web + mobile app",
+          "branch": "feat/fullstack-web-mobile-app",
+          "author": "JDUB1216",
+          "commits_ahead_of_master": 1,
+          "commits_behind_master": 2,
+          "last_updated": "2026-04-25",
+          "merge_status": "CONFLICTS",
+          "conflict_type": "rename/rename — structural (docs moved to archive/ vs docs/ai-agent-docs/)",
+          "recommended_action": "Human resolution required. Decision needed: adopt this restructuring or close in favour of #30 or #31."
+        },
+        {
+          "number": 31,
+          "title": "feat(platform): restructure repo as full-stack monorepo (web + mobile + API)",
+          "branch": "claude/cleanup-and-restructure-NDGqg",
+          "author": "JDUB1216",
+          "commits_ahead_of_master": 4,
+          "commits_behind_master": 2,
+          "last_updated": "2026-04-25",
+          "merge_status": "CONFLICTS",
+          "conflict_type": "rename/rename — structural (same root cause as #32)",
+          "recommended_action": "Human resolution required. Decision needed: adopt this restructuring or close in favour of #30 or #32."
+        },
+        {
+          "number": 30,
+          "title": "Archive legacy content and scaffold full-stack app foundation (web/mobile/api/sdk)",
+          "branch": "codex/cleanup-repo-and-organize-simulation-environment",
+          "author": "JDUB1216",
+          "commits_ahead_of_master": 3,
+          "commits_behind_master": 2,
+          "last_updated": "2026-04-29",
+          "merge_status": "CONFLICTS",
+          "conflict_type": "rename/rename — structural (same root cause as #31, #32)",
+          "recommended_action": "Human resolution required. Decision needed: adopt this restructuring or close in favour of #31 or #32."
+        },
+        {
+          "number": 21,
+          "title": "[CODEX] docs: align handoff runbooks with current agent-log workflow",
+          "branch": "cursor/codebase-documentation-alignment-42ec",
+          "author": "cursor[bot]",
+          "commits_ahead_of_master": 1,
+          "commits_behind_master": 8,
+          "last_updated": "2026-04-29",
+          "merge_status": "CONFLICTS",
+          "conflict_type": "modify/delete — docs/agent-log/handoffs/README.md deleted in master, modified in branch",
+          "recommended_action": "Human resolution. Likely resolvable by accepting the master deletion of that file."
+        }
+      ],
+      "draft_prs": [
+        {
+          "number": 29,
+          "title": "[CURSOR] docs(governance): align agent onboarding registration docs",
+          "branch": "cursor/codebase-documentation-alignment-192d",
+          "author": "cursor[bot]",
+          "commits_ahead_of_master": 3,
+          "commits_behind_master": 2,
+          "merge_status": "CLEAN — use GitHub 'Update branch' button",
+          "recommended_action": "Use GitHub 'Update branch' to sync with master, then review for merge."
+        },
+        {
+          "number": 28,
+          "title": "[GPT] docs(architecture): document fusion runtime contracts",
+          "branch": "cursor/documentation-automation-system-b094",
+          "author": "cursor[bot]",
+          "commits_ahead_of_master": 3,
+          "commits_behind_master": 3,
+          "merge_status": "CLEAN — use GitHub 'Update branch' button",
+          "recommended_action": "Use GitHub 'Update branch' to sync with master, then review for merge."
+        },
+        {
+          "number": 27,
+          "title": "[GPT] docs(cloudflare): document API probe workflow",
+          "branch": "cursor/codebase-documentation-alignment-a799",
+          "author": "cursor[bot]",
+          "commits_ahead_of_master": 1,
+          "commits_behind_master": 4,
+          "merge_status": "CONFLICTS",
+          "conflict_type": "content conflict in README.md",
+          "recommended_action": "Manual conflict resolution needed."
+        },
+        {
+          "number": 26,
+          "title": "[CODEX] docs(cloudflare): document API access probe workflow and troubleshooting",
+          "branch": "cursor/documentation-automation-system-307c",
+          "author": "cursor[bot]",
+          "commits_ahead_of_master": 1,
+          "commits_behind_master": 5,
+          "merge_status": "CONFLICTS",
+          "conflict_type": "content conflict in docs/active-threads.md",
+          "recommended_action": "Manual conflict resolution needed."
+        },
+        {
+          "number": 25,
+          "title": "docs(quickstart): add governance sync workflow operations reference",
+          "branch": "cursor/documentation-automation-system-147f",
+          "author": "cursor[bot]",
+          "commits_ahead_of_master": 1,
+          "commits_behind_master": 6,
+          "merge_status": "CLEAN — use GitHub 'Update branch' button",
+          "recommended_action": "Use GitHub 'Update branch' to sync with master, then review for merge."
+        },
+        {
+          "number": 23,
+          "title": "[CODEX] docs: add source-verified runtime examples and agent-log payload samples",
+          "branch": "cursor/codebase-documentation-alignment-f6f9",
+          "author": "cursor[bot]",
+          "commits_ahead_of_master": 1,
+          "commits_behind_master": 7,
+          "merge_status": "CLEAN — use GitHub 'Update branch' button",
+          "recommended_action": "Use GitHub 'Update branch' to sync with master, then review for merge."
+        }
+      ]
+    },
+    "orphaned_branches": [
+      {
+        "name": "claude/cloudflare-connector-access-018QZhQp8Kg9uucUAvLJB6Jf",
+        "open_pr": false,
+        "notes": "No open PR. Likely leftover from a Cloudflare connector task. Recommend deletion after confirming no pending work.",
+        "recommended_action": "Delete branch (requires human approval)."
+      },
+      {
+        "name": "cursor/ai-agent-business-repository-structure-setup-73af",
+        "open_pr": false,
+        "notes": "Was the base branch for PRs #1, #2, #3 which are all merged. Branch itself was never merged into master.",
+        "recommended_action": "Delete branch (requires human approval)."
+      },
+      {
+        "name": "cursor/create-simulation-environment-repository-structure-b820",
+        "open_pr": false,
+        "notes": "No PR was ever opened. Branch appears abandoned.",
+        "recommended_action": "Delete branch (requires human approval)."
+      },
+      {
+        "name": "review/simulation-env-codex-tasks-2026-02-11",
+        "open_pr": false,
+        "notes": "No open PR. 95 commits behind master. Very stale — work has long since been superseded.",
+        "recommended_action": "Delete branch (requires human approval)."
+      }
+    ],
+    "files_modified": [
+      "docs/agent-log/handoffs/2026-04-29-copilot-pr-cleanup-audit-handoff.json"
+    ]
+  }
+}
