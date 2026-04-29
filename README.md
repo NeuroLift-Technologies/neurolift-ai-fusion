@@ -156,8 +156,8 @@ Both CI workflows currently use **Python 3.10**.
 
 `shared-ci.yml` and `python-app.yml` run on:
 
-- `push` to `master`
-- `pull_request` targeting `master`
+- `push` to `main`
+- `pull_request` targeting `main`
 - `workflow_dispatch` (manual run from the Actions tab)
 
 `pr-cleanup.yml` runs on:
@@ -175,8 +175,8 @@ Both CI workflows currently use **Python 3.10**.
 
 Important constraints:
 
-- A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
-- Because both CI workflows subscribe to the same events, a PR to `master` runs both pipelines.
+- A push to a non-`main` branch does **not** auto-run CI unless you open a PR to `main` or trigger manually.
+- Because both CI workflows subscribe to the same events, a PR to `main` runs both pipelines.
 - PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
 - Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
 - PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
@@ -282,7 +282,7 @@ For manual PR cleanup tuning (`PR Cleanup` only):
 For governance validation (`Sync Governance (Public)`):
 
 1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
-2. Run on the target branch (normally `master`).
+2. Run on the target branch (normally `main`).
 3. Inspect logs for:
    - `Validate governance documents` (presence/warnings)
    - `Apply synced governance document` and `Create pull request for governance update` on repository-dispatch runs.
@@ -297,7 +297,7 @@ PR cleanup verification checklist:
 For manual governance validation (`Sync Governance (Public)` only):
 
 1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
-2. Choose the branch (usually `master`) and start the run.
+2. Choose the branch (usually `main`) and start the run.
 3. Review `Validate governance documents` logs for missing-file warnings.
 
 For automated governance ingestion (from tooling/private repo), dispatch `repository_dispatch` with this payload contract:
@@ -353,7 +353,7 @@ pytest
 
 ### Troubleshooting and common pitfalls
 
-- **CI did not run:** confirm the event targets `master`, or run with `workflow_dispatch`.
+- **CI did not run:** confirm the event targets `main`, or run with `workflow_dispatch`.
 - **`Shared CI` fails before local tests run:** inspect reusable workflow logs from `.github-private`; failures there can occur without changes in this repository.
 - **Security/test ordering confusion:** in `shared-ci.yml`, both `test` and `security` depend on `lint` and can run in parallel after lint passes.
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
