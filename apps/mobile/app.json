@@ -1,40 +1,20 @@
 {
   "expo": {
-    "name": "NeuroLift AI-Fusion",
-    "slug": "neurolift-ai-fusion",
-    "version": "1.0.0",
+    "name": "NeuroLift Mobile",
+    "slug": "neurolift-mobile",
+    "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
-    "scheme": "neurolift",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0f0f1a"
-    },
+    "platforms": ["ios", "android"],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.neurolift.aifusion"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0f0f1a"
-      },
-      "package": "com.neurolift.aifusion",
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+        "backgroundColor": "#0b1020"
+      }
     },
-    "web": {
-      "bundler": "metro",
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-router"
-    ],
-    "experiments": {
-      "typedRoutes": true
+    "extra": {
+      "apiUrl": "http://localhost:8000"
     }
   }
 }
