@@ -1,0 +1,10 @@
+{
+  // NeuroLift Solutions — Cloudflare Pages configuration
+  // Used by `wrangler versions upload` (Pages V2 deployment model)
+  // See: https://developers.cloudflare.com/pages/configuration/wrangler/
+  "name": "neurolift-solutions",
+  "compatibility_date": "2026-04-30",
+  "assets": {
+    "directory": "./public"
+  }
+}
