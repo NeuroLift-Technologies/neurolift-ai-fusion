@@ -1,0 +1,11 @@
+{
+  "name": "neurolift-ai-fusion",
+  "private": true,
+  "description": "NeuroLift AI Fusion (Python) — placeholder to satisfy Cloudflare Pages autodetection",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "echo 'No build step: static assets live in ./public'",
+    "test": "echo 'No JS tests in repo root'"
+  }
+}
