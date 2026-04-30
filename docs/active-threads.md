@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
-**Governance:** ORG-DEV-OTOI-1.0.0  
-**Last updated:** 2026-04-29  
+**Governance:** ORG-DEV-OTOI-1.0.0
+**Last updated:** 2026-04-30
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -33,6 +33,7 @@ _No blocked threads at this time._
 | Thread ID | Title | Completed By | Completed Date | Handoff |
 |-----------|-------|-------------|----------------|---------|
 | TH-001 | Add required governance files (AGENTS.md, CLAUDE.md, active-threads.md, agent-log dirs) | GitHub Copilot | 2026-04-21 | Merged via [PR #17](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/17) |
+| TH-005 | Document PR #30 full-stack simulation app foundation | Cursor Automation | 2026-04-30 | `docs/agent-log/handoffs/CURSOR-2026-04-30-doc-automation-pr30-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
