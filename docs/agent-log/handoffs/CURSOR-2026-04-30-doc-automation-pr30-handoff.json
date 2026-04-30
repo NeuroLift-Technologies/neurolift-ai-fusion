@@ -41,6 +41,6 @@
       "python3 dependency import probe for pydantic, fastapi, and uvicorn (all missing in the current environment)"
     ],
     "tests_passing": false,
-    "pr_url": "TBD"
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/35"
   }
 }
