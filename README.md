@@ -677,6 +677,12 @@ Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workf
 
 ## Infrastructure & Deployment
 
+> **Deployment guardrail (Apr 2026):** the root `wrangler.jsonc` expects
+> Worker entrypoints under `cloudflare/workers/`, but the current Worker
+> examples are archived under `archive/cloudflare/cloudflare/workers/`.
+> Treat the archived files as reference material until the active tree is
+> restored, and get explicit human approval before any production deploy.
+
 ### 🌐 Cloudflare Integration
 **Website**: neuroliftsolutions.com (Registered with Northwest Registered Agent)
 
@@ -699,12 +705,15 @@ Our infrastructure leverages Cloudflare for:
 #### Quick Start
 
 ```bash
-# Configure environment
-cp cloudflare/.env.example cloudflare/.env
+# Verify active Worker entrypoints exist before any Wrangler deploy.
+test -f cloudflare/workers/main-worker.js
+test -f cloudflare/workers/wordpress-optimizer.js
+test -f cloudflare/workers/security-worker.js
 
-# Deploy everything
-cd cloudflare/utils
-./deploy.sh --all
+# Deploy named environments from the repository root after approval.
+wrangler deploy --env production
+wrangler deploy --env wordpress
+wrangler deploy --env security
 ```
 
 **Documentation**: See [Cloudflare Setup Guide](docs/cloudflare/CLOUDFLARE_SETUP.md)
