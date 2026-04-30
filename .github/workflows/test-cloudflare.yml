@@ -1,0 +1,62 @@
+# NeuroLift Solutions — Cloudflare API Access Test
+# =================================================
+#
+# Verifies that org secrets grant the expected Cloudflare API access
+# and prints a detailed report of what is / is not accessible.
+#
+# Secrets consumed (set at org or repo level):
+#   CLOUDFLARE_API_TOKEN   — required
+#   CLOUDFLARE_ACCOUNT_ID  — optional (enables Workers checks)
+#   CLOUDFLARE_ZONE_ID     — optional (auto-discovered if omitted)
+#
+# Trigger manually from:
+#   GitHub → Actions → "Test Cloudflare API Access" → Run workflow
+
+name: Test Cloudflare API Access
+
+on:
+  workflow_dispatch:   # manual trigger from the Actions UI
+  push:
+    branches:
+      - copilot/test-cloudflare-api-access
+    paths:
+      - scripts/test_cloudflare_access.py
+      - .github/workflows/test-cloudflare.yml
+
+permissions:
+  contents: read
+
+jobs:
+  cloudflare-access-probe:
+    name: Probe Cloudflare API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      # Run the probe.  We use `continue-on-error: false` deliberately so
+      # that a failed token check surfaces as a workflow failure, making
+      # the problem visible immediately in the PR / commit status.
+      - name: Run Cloudflare API access probe
+        env:
+          CLOUDFLARE_API_TOKEN:  ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ZONE_ID:    ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          python scripts/test_cloudflare_access.py
+
+      # If the probe exits non-zero (token missing / invalid / insufficient
+      # permissions) this separate step always runs and prints the setup guide
+      # so that the fix is visible directly in the workflow log.
+      - name: Print setup guide (on failure)
+        if: failure()
+        run: python scripts/test_cloudflare_access.py --guide

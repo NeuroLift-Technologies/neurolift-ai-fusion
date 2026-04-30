@@ -1,0 +1,40 @@
+{
+  "handoff_type": "implementation",
+  "from": "claude_code",
+  "to": "cursor",
+  "priority": "high",
+  "title": "Implement Remaining 18 Avatar Trait Subclasses",
+  "description": "The base class architecture is complete. Each remaining ADHD trait needs a concrete subclass implementing get_adhd_trait_impact() and simulate_struggle(). Follow the AttentionDeficit pattern in src/avatars/adhd_traits/attention_deficit.py.",
+  "deliverables": [
+    "src/avatars/adhd_traits/impulsivity.py",
+    "src/avatars/adhd_traits/working_memory.py",
+    "src/avatars/adhd_traits/time_blindness.py",
+    "src/avatars/adhd_traits/emotional_dysregulation.py",
+    "src/avatars/adhd_traits/hyperfocus.py",
+    "src/avatars/adhd_traits/task_initiation.py",
+    "src/avatars/adhd_traits/frustration_tolerance.py",
+    "src/avatars/adhd_traits/planning_deficit.py",
+    "src/avatars/adhd_traits/transition_difficulty.py",
+    "src/avatars/adhd_traits/self_monitoring.py",
+    "src/avatars/adhd_traits/impulse_control.py",
+    "src/avatars/adhd_traits/focus_fatigue.py",
+    "src/avatars/adhd_traits/effort_perception.py",
+    "src/avatars/adhd_traits/stress_sensitivity.py",
+    "src/avatars/adhd_traits/sensory_sensitivity.py",
+    "src/avatars/adhd_traits/social_challenges.py",
+    "src/avatars/adhd_traits/sensory_seeking.py",
+    "src/avatars/adhd_traits/identity_challenges.py"
+  ],
+  "pattern_to_follow": "src/avatars/adhd_traits/attention_deficit.py",
+  "base_class": "src/avatars/base_avatar.py (BaseAvatar)",
+  "required_methods": [
+    "get_adhd_trait_impact(task_context) -> Dict with difficulty_modifier, quality_modifier, time_modifier, cognitive_load_modifier",
+    "simulate_struggle(task_context) -> List[str] of struggle indicators"
+  ],
+  "notes": [
+    "Each trait should have unique struggle patterns based on ADHD research",
+    "Use the ExperienceMemory system (inherited from BaseAvatar) — don't bypass it",
+    "New Avatar constructor should accept optional EventBus for shared event bus",
+    "Update attention_deficit.py constructor to also accept event_bus kwarg"
+  ]
+}

@@ -1,0 +1,31 @@
+# Calls the organization's shared CI workflows from NeuroLift-Technologies/.github-private
+# See: https://github.com/NeuroLift-Technologies/.github-private/tree/main/.github/workflows
+
+name: Shared CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  lint:
+    uses: NeuroLift-Technologies/.github-private/.github/workflows/python-lint.yml@main
+    with:
+      python-version: "3.10"
+
+  test:
+    uses: NeuroLift-Technologies/.github-private/.github/workflows/python-test.yml@main
+    with:
+      python-version: "3.10"
+    needs: lint
+
+  security:
+    uses: NeuroLift-Technologies/.github-private/.github/workflows/security-scan.yml@main
+    needs: lint

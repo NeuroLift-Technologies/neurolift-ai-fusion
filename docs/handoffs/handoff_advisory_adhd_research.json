@@ -1,0 +1,39 @@
+{
+  "handoff_type": "research",
+  "from": "claude_code",
+  "to": ["chatgpt", "gemini", "perplexity", "deepseek"],
+  "priority": "high",
+  "title": "ADHD Executive Function Research for Trait Implementation",
+  "description": "The architecture is ready for 19 ADHD trait implementations. Each trait needs clinically-accurate struggle patterns, evidence-based coaching strategies, and real-world success stories. Research needed for each trait.",
+  "traits_needing_research": [
+    "Impulsivity — decision-making patterns, verbal/behavioral/cognitive impulsivity",
+    "Working Memory — capacity limitations, decay rates, interference patterns",
+    "Time Blindness — time perception distortions, deadline awareness failure patterns",
+    "Emotional Dysregulation — emotional lability, rejection sensitivity, intensity patterns",
+    "Hyperfocus — triggers, duration patterns, transition-out difficulty",
+    "Task Initiation — activation energy requirements, avoidance patterns",
+    "Frustration Tolerance — threshold levels, escalation patterns",
+    "Planning Deficit — sequential planning failures, prioritization difficulties",
+    "Transition Difficulty — task-switching costs, perseveration patterns",
+    "Self-Monitoring — metacognitive awareness gaps, error detection failures",
+    "Impulse Control — behavioral inhibition, delayed gratification challenges",
+    "Focus Fatigue — mental endurance curves, recovery patterns",
+    "Effort Perception — effort discounting, reward sensitivity",
+    "Stress Sensitivity — threshold and accumulation patterns",
+    "Sensory Sensitivity — overstimulation triggers, processing differences",
+    "Social Challenges — conversation management, social cue processing",
+    "Sensory Seeking — stimulation-seeking patterns, self-regulation through sensation",
+    "Identity Challenges — self-concept impacts, masking and burnout from masking"
+  ],
+  "research_format_needed": {
+    "for_each_trait": {
+      "struggle_indicators": "List of specific, measurable struggle patterns",
+      "difficulty_modifiers": "How the trait affects task difficulty (1.0 = no effect, 2.0 = doubles difficulty)",
+      "cognitive_load_impact": "How much additional cognitive load the trait adds (0.0 to 0.5)",
+      "quality_impact": "How much the trait reduces task quality (0.0 to 0.3)",
+      "time_impact": "How much the trait increases task completion time (1.0 to 2.5x)",
+      "coaching_strategies": "Evidence-based interventions with effectiveness ratings",
+      "real_world_insights": "Success stories from ADHD individuals who've managed this trait"
+    }
+  }
+}

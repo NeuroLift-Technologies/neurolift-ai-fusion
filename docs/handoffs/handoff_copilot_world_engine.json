@@ -1,0 +1,20 @@
+{
+  "handoff_type": "implementation",
+  "from": "claude_code",
+  "to": "github_copilot",
+  "priority": "medium",
+  "title": "Integrate WorldEngine with New Event Bus Architecture",
+  "description": "The existing WorldEngine in src/simulation/environment/world_engine.py has its own event system. It needs to be integrated with the new EventBus from src/core/events.py so that simulation events flow through the same bus as Avatar/Aide signals.",
+  "file_to_modify": "src/simulation/environment/world_engine.py",
+  "integration_points": [
+    "Replace WorldEngine's internal event queue with EventBus from src.core.events",
+    "Map WorldEngine's EventType enum to corresponding SignalType values",
+    "Ensure WorldEngine emits ENVIRONMENT_CHANGED, NPC_INTERACTION, CONSEQUENCE_APPLIED signals",
+    "Add entity registration for Avatars, Aides, and NPCs",
+    "Support parallel execution of multiple Avatar-Aide pairs in the same world"
+  ],
+  "also_needed": [
+    "src/simulation/environment/time_system.py — Simulation clock and scheduling",
+    "src/simulation/environment/consequence_system.py — Real-world consequences for actions"
+  ]
+}

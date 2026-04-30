@@ -1,0 +1,32 @@
+{
+  "handoff_type": "implementation",
+  "from": "claude_code",
+  "to": "gemini_code",
+  "priority": "medium",
+  "title": "Implement Concrete Scenario Types and NPC Personalities",
+  "description": "Build out the simulation content: concrete Scenario subclasses and NPC personality types. The base classes are in place.",
+  "deliverables": {
+    "scenarios": [
+      "src/simulation/scenarios/workplace_scenario.py — Meeting deadlines, presentations, performance reviews",
+      "src/simulation/scenarios/personal_scenario.py — Morning routines, household tasks, appointments",
+      "src/simulation/scenarios/social_scenario.py — Conversations, group dynamics, relationship maintenance"
+    ],
+    "npcs": [
+      "src/simulation/npcs/boss_npc.py — Manager who tracks deadlines and performance",
+      "src/simulation/npcs/coworker_npc.py — Peer with varying patience levels",
+      "src/simulation/npcs/friend_npc.py — Personal relationship with understanding/frustration dynamics",
+      "src/simulation/npcs/supportive_npc.py — Always-supportive character for early training"
+    ]
+  },
+  "base_classes": {
+    "scenario": "src/simulation/scenarios/base_scenario.py (BaseScenario)",
+    "npc": "src/simulation/npcs/base_npc.py (BaseNPC)"
+  },
+  "scenario_required_methods": [
+    "_build_steps() — populate self.steps with ScenarioStep objects",
+    "evaluate_step_outcome(step, task_result) — determine consequences"
+  ],
+  "npc_required_methods": [
+    "react_to_event(event_type, event_data) — return NPCReaction"
+  ]
+}
