@@ -33,6 +33,7 @@ _No blocked threads at this time._
 | Thread ID | Title | Completed By | Completed Date | Handoff |
 |-----------|-------|-------------|----------------|---------|
 | TH-001 | Add required governance files (AGENTS.md, CLAUDE.md, active-threads.md, agent-log dirs) | GitHub Copilot | 2026-04-21 | Merged via [PR #17](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/17) |
+| TH-002 | Documentation automation for PR #31 full-stack monorepo changes | GPT-5 | 2026-04-30 | `docs/agent-log/handoffs/GPT-5-2026-04-30-docs-automation-pr31-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |

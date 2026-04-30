@@ -1,0 +1,22 @@
+{
+  "agent_name": "GPT-5",
+  "session_id": "158b2152-7214-45b1-9efe-a458133e75b6",
+  "session_start": "2026-04-30T13:40:00Z",
+  "task_scope": "Documentation automation for PR #31 full-stack monorepo changes",
+  "branch": "cursor/documentation-automation-system-2275",
+  "thread_id": "TH-002",
+  "otoi_version": "ORG-DEV-OTOI-1.0.0",
+  "trigger_context": {
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion",
+    "pr_number": 31,
+    "title": "feat(platform): restructure repo as full-stack monorepo (web + mobile + API)",
+    "url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/31"
+  },
+  "related_pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/31",
+  "onboarding_notes": [
+    "NLT-DEV-OTOI.md was not present in the repository root at session start; governance sync remains the documented refresh path.",
+    "AGENTS.md, CLAUDE.md, docs/active-threads.md, and docs/architecture.md were read before documentation edits."
+  ]
+}

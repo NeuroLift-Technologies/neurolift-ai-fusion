@@ -8,11 +8,15 @@ A full-stack web and mobile platform backed by a Python AI simulation engine. AI
 
 ### API (FastAPI — Python)
 ```bash
+python -m pip install -r requirements.txt
+python -m pip install -r apps/api/requirements.txt
 cd apps/api
-pip install -r requirements.txt
-PYTHONPATH=../../src uvicorn main:app --reload
+PYTHONPATH=../.. uvicorn main:app --reload
 # → http://localhost:8000/docs
 ```
+
+See [`docs/full-stack-platform.md`](docs/full-stack-platform.md) for the API
+contract, frontend integration notes, and current setup pitfalls.
 
 ### Web App (Next.js)
 ```bash
@@ -440,6 +444,7 @@ See `nlt-business-agents/implementation-guide.md` for detailed instructions.
 ## Support
 
 - **Architecture**: See `docs/architecture.md`
+- **Full-stack platform guide**: See `docs/full-stack-platform.md`
 - **Implementation summary**: See `docs/implementation_summary.md`
 - **Cloudflare setup**: See `docs/cloudflare/CLOUDFLARE_SETUP.md`
 
@@ -577,6 +582,7 @@ Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workf
 ## 📚 Documentation
 
 - [Architecture Overview](docs/architecture.md)
+- [Full-Stack Platform Guide](docs/full-stack-platform.md)
 - [Quick Start Guide](QUICKSTART.md)
 - [TOI-OTOI Integration](TOI-OTOI-INTEGRATION.md)
 - [Implementation Summary](docs/implementation_summary.md)
