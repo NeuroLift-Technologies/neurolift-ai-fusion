@@ -8,12 +8,12 @@ Evolve `neurolift-ai-fusion` from a Python-first simulation codebase into a prod
 - a shared mobile app (Android + iOS),
 - and a simulation API layer backed by existing Python domain logic.
 
-## Current implementation baseline (2026-04-25)
+## Current implementation baseline (source-verified 2026-04-30)
 
 - **API starter live** in `services/api/app/` using FastAPI and the existing `SessionOrchestrator`.
-- **Web starter live** in `apps/web/` with buttons to call `/health` and `/sessions/demo-run`.
-- **Mobile starter live** in `apps/mobile/` as an Expo app for Android and iOS.
-- **Shared SDK starter live** in `packages/simulation-sdk/` with TypeScript contracts + client wrapper.
+- **Web starter live** in `apps/web/` with a static HTML/JavaScript console that calls `/health` and `/sessions/demo-run`.
+- **Mobile starter live** in `apps/mobile/` as an Expo app for Android and iOS that calls `/health` and `/sessions/demo-run`.
+- **Shared SDK starter live** in `packages/simulation-sdk/` with TypeScript contracts and a source-only client wrapper for `/health` and `POST /sessions/run`.
 
 ## Target Monorepo Layout
 
@@ -57,6 +57,26 @@ src/                    # Existing Python simulation domain (current engine)
 3. **API hardening:** authentication, persistence integration, and robust error contracts.
 4. **Product UX:** richer web/mobile flows for session management and analytics.
 5. **Convergence:** unified telemetry, identity, and release workflows across all surfaces.
+
+## Verified starter contracts
+
+| Surface | Source path | Public contract |
+| --- | --- | --- |
+| API routes | `services/api/app/main.py` | `GET /health`, `GET /sessions/demo-run`, `POST /sessions/run` |
+| API schemas | `services/api/app/schemas.py` | `ScenarioInput`, `SessionRunRequest`, `SessionRunResponse` |
+| Simulation adapter | `services/api/app/session_service.py` | Runs `StayAlertAvatar` + `AttentionCoaching` through `SessionOrchestrator` |
+| Static web console | `apps/web/index.html`, `apps/web/main.js` | Buttons for API health and demo session calls |
+| Expo mobile starter | `apps/mobile/App.tsx` | Buttons for API health and demo session calls |
+| SDK contracts | `packages/simulation-sdk/src/types.ts` | TypeScript request/response shapes mirroring Pydantic models |
+| SDK client | `packages/simulation-sdk/src/client.ts` | `health()` and `runSession(payload)` fetch wrappers |
+
+### Important constraints
+
+- The API starter has no authentication, persistence, CORS middleware, or background job queue yet.
+- The current API adapter labels runs with `avatar_id` and `aide_id`, but it always instantiates the sustained-attention `StayAlertAvatar` and `AttentionCoaching` pair.
+- The static web console reads `window.NEUROLIFT_API_URL` or falls back to `http://localhost:8000`; CORS must be added before cross-origin browser calls are production-ready.
+- The Expo app reads `EXPO_PUBLIC_API_URL` or falls back to `http://localhost:8000`; device/emulator networking may need a LAN or emulator-specific host.
+- The SDK is source-only in this baseline; there is no package manifest, build output, or publish workflow under `packages/simulation-sdk/`.
 
 ## Guardrails for Implementation
 
