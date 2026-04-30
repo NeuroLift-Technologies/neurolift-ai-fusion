@@ -1,8 +1,44 @@
-# NeuroLift Technologies Simulation Environment
+# NeuroLift AI Fusion
 
-**NeuroLift AI-Fusion Framework - Simulation Training Environment**
+**Full-Stack Avatar-Aide-Advocate Training Platform**
 
-A Sims/RPG-style simulation environment where AI Avatars with ADHD traits experience authentic life struggles while AI Aides provide real-time coaching. After sufficient training through repeated scenarios, they fuse into Advocates that combine lived understanding with expert solutions.
+A full-stack web and mobile platform backed by a Python AI simulation engine. AI Avatars with ADHD traits experience authentic life struggles in a Sims/RPG-style environment while AI Aides provide real-time coaching. After sufficient training they fuse into Advocates that combine lived understanding with expert solutions.
+
+## Quick Start
+
+### API (FastAPI — Python)
+```bash
+cd apps/api
+pip install -r requirements.txt
+PYTHONPATH=../../src uvicorn main:app --reload
+# → http://localhost:8000/docs
+```
+
+### Web App (Next.js)
+```bash
+cd apps/web
+npm install
+cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL
+npm run dev
+# → http://localhost:3000
+```
+
+### Mobile App (Expo — iOS & Android)
+```bash
+cd apps/mobile
+npm install
+cp .env.example .env
+npx expo start
+# → scan QR with Expo Go on your device
+```
+
+### Simulation Engine (Python)
+```bash
+pip install -r requirements.txt
+pytest
+```
+
+---
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
 [![Visit Site](https://img.shields.io/badge/Visit%20Site-neuroliftsolutions.com-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com)
@@ -569,9 +605,6 @@ Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workf
 - [TOI-OTOI Integration](TOI-OTOI-INTEGRATION.md)
 - [Implementation Summary](docs/implementation_summary.md)
 - [Cloudflare Setup Guide](docs/cloudflare/CLOUDFLARE_SETUP.md)
-- [Agent registration runbook](docs/agent-log/registrations/README.md)
-- [Agent handoff runbook (current)](docs/agent-log/handoffs/README.md)
-- [Legacy handoff archive guide](docs/ai-agent-docs/handoffs/README.md)
 
 ## Infrastructure & Deployment
 
