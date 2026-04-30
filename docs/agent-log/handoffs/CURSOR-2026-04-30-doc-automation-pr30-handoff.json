@@ -33,11 +33,14 @@
       "services/api/README.md"
     ],
     "tests_run": [
-      "git diff --check",
+      "git diff --check HEAD~1..HEAD",
+      "python3 -m json.tool docs/agent-log/registrations/CURSOR-2026-04-30-doc-automation-pr30.json",
+      "python3 -m json.tool docs/agent-log/handoffs/CURSOR-2026-04-30-doc-automation-pr30-handoff.json",
+      "python3 -m compileall services/api/app",
       "python3 -m pytest tests/test_services/test_session_service.py (blocked: pytest is not installed in the current environment)",
       "python3 dependency import probe for pydantic, fastapi, and uvicorn (all missing in the current environment)"
     ],
-    "tests_passing": true,
+    "tests_passing": false,
     "pr_url": "TBD"
   }
 }
