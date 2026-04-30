@@ -1,58 +1,55 @@
-# Agent Handoff Records
+# Agent Handoff Records (`docs/agent-log/handoffs/`)
 
-This directory stores handoff JSON files created at the end of each agent session.
+This directory is the **current** location for session-end handoff artifacts under SOP-NLT-001.
 
-## Purpose
+Use this folder for handoffs that summarize what an agent completed, what remains, and what the next agent needs to continue safely.
 
-Handoff records preserve session continuity for the next agent by capturing:
+## When to write a handoff
 
-- what was completed,
-- what remains,
-- blockers/escalations,
-- and the exact branch/context needed to continue.
+Write a handoff JSON file whenever an agent session ends, including:
 
-## File Naming Convention (Repository Usage)
+- normal completion
+- partial completion with remaining work
+- blocked work that requires escalation or new access
 
+## File naming
+
+Use a date-first filename so records sort chronologically.
+
+Recommended pattern:
+
+```text
+{AGENT}-{YYYY-MM-DD}-{short-task-name}-handoff.json
 ```
-{AGENT_NAME}-{YYYY-MM-DD}-{scope}-handoff.json
-```
 
-## Example
+Example from this repository:
 
-```
+```text
 CLAUDE-2026-04-05-pull-fusion-files-handoff.json
 ```
 
-If your automation runtime imposes a different filename format, follow that runtime
-requirement; otherwise use the repository convention above for discoverability.
+## Minimum content checklist
 
-## Record Structure (handoff-record.json)
+The authoritative schema is defined in SOP-NLT-001 Step 8 (`handoff-record.json`).  
+At minimum, include fields that let another contributor resume work without guesswork:
 
-See SOP-NLT-001 Step 8 for the full `handoff-record.json` schema. Current records
-in this repository include these top-level fields:
-
-- `agent_name`
-- `session_id`
-- `session_end`
+- `agent_name`, `session_id`, `session_end`
 - `task_scope`
-- `work_completed`
-- `work_not_completed`
-- `blockers`
-- `next_steps`
+- `work_completed` (what is done)
+- `work_not_completed` (what still needs work)
+- `blockers` (if any)
+- `next_steps` (ordered, executable)
 - `files_changed`
-- `branch`
-- `pr_url`
-- `escalations_filed`
-- `otoi_version`
+- `branch`, `pr_url` (or `null` if none)
 
-## Writing Guidance
+## Common pitfalls
 
-1. Keep `work_completed` and `work_not_completed` actionable and specific.
-2. Record blockers as concrete constraints (tool scope, missing access, failing interface, etc.).
-3. Include reproducible `next_steps` commands where possible.
-4. List every changed file path in `files_changed`.
-5. Use UTC timestamps (`YYYY-MM-DDTHH:MM:SSZ`) for consistency across agents.
+- **Writing to the wrong directory:** new handoffs belong in `docs/agent-log/handoffs/`; `docs/ai-agent-docs/handoffs/` is the legacy archive.
+- **Missing resumability details:** include exact file paths, command hints, and branch names in `next_steps`.
+- **Silent blockers:** if access, policy, or scope prevents completion, record it explicitly in `blockers`.
 
-## Governance
+## Related docs
 
-Governed by ORG-DEV-OTOI-1.0.0 Section 5. No session ends without a handoff record.
+- `docs/agent-log/registrations/README.md` (session start records)
+- `docs/ai-agent-docs/handoffs/README.md` (legacy handoff archive guidance)
+- `docs/active-threads.md` (current thread ownership and status)

@@ -40,6 +40,9 @@ pytest
 
 ---
 
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
+[![Visit Site](https://img.shields.io/badge/Visit%20Site-neuroliftsolutions.com-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com)
+
 ## 🎯 Project Vision
 
 **Mission:** "Nothing About Us Without Us" - neurodivergent voices lead development
@@ -116,6 +119,27 @@ This simulation approach addresses both gaps through authentic experiential lear
 18. **SensorySeeker** - Sensory seeking behavior
 19. **ConfidenceCoach** - Self-esteem and identity
 
+
+## 🧹 Repository Cleanup Update (2026-04-25)
+
+To reduce scope drift and support productization, non-core assets were archived and a new full-stack app layout was introduced:
+
+- Archived legacy folders into `archive/legacy-content/` (including business structures, WordPress assets, and older business-agent framework)
+- Added app/service/package scaffolds under `apps/`, `services/`, and `packages/`
+- Added implementation roadmap: `docs/roadmaps/full-stack-simulation-app-plan.md`
+
+### New Full-Stack Foundation
+
+```text
+apps/
+  web/
+  mobile/
+services/
+  api/
+packages/
+  simulation-sdk/
+```
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -171,8 +195,8 @@ Both CI workflows currently use **Python 3.10**.
 
 `shared-ci.yml` and `python-app.yml` run on:
 
-- `push` to `master`
-- `pull_request` targeting `master`
+- `push` to `main`
+- `pull_request` targeting `main`
 - `workflow_dispatch` (manual run from the Actions tab)
 
 `pr-cleanup.yml` runs on:
@@ -190,8 +214,8 @@ Both CI workflows currently use **Python 3.10**.
 
 Important constraints:
 
-- A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
-- Because both CI workflows subscribe to the same events, a PR to `master` runs both pipelines.
+- A push to a non-`main` branch does **not** auto-run CI unless you open a PR to `main` or trigger manually.
+- Because both CI workflows subscribe to the same events, a PR to `main` runs both pipelines.
 - PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
 - Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
 - PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
@@ -297,7 +321,7 @@ For manual PR cleanup tuning (`PR Cleanup` only):
 For governance validation (`Sync Governance (Public)`):
 
 1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
-2. Run on the target branch (normally `master`).
+2. Run on the target branch (normally `main`).
 3. Inspect logs for:
    - `Validate governance documents` (presence/warnings)
    - `Apply synced governance document` and `Create pull request for governance update` on repository-dispatch runs.
@@ -312,7 +336,7 @@ PR cleanup verification checklist:
 For manual governance validation (`Sync Governance (Public)` only):
 
 1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
-2. Choose the branch (usually `master`) and start the run.
+2. Choose the branch (usually `main`) and start the run.
 3. Review `Validate governance documents` logs for missing-file warnings.
 
 For automated governance ingestion (from tooling/private repo), dispatch `repository_dispatch` with this payload contract:
@@ -368,7 +392,7 @@ pytest
 
 ### Troubleshooting and common pitfalls
 
-- **CI did not run:** confirm the event targets `master`, or run with `workflow_dispatch`.
+- **CI did not run:** confirm the event targets `main`, or run with `workflow_dispatch`.
 - **`Shared CI` fails before local tests run:** inspect reusable workflow logs from `.github-private`; failures there can occur without changes in this repository.
 - **Security/test ordering confusion:** in `shared-ci.yml`, both `test` and `security` depend on `lint` and can run in parallel after lint passes.
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
@@ -435,7 +459,7 @@ This structure is designed for a two-person team (CEO + COO) to orchestrate a co
 3. **Phase 3**: Department layer deployment (Weeks 5-8)
 4. **Phase 4**: Optimization and tuning (Weeks 9-12)
 
-See `nlt-business-agents/implementation-guide.md` for detailed instructions.
+See `archive/legacy-content/nlt-business-agents/implementation-guide.md` for historical business-agent instructions.
 
 ## Support
 
@@ -458,7 +482,7 @@ business-agents-repo/
 ├── AGENT-ORCHESTRATION-GUIDE.md       # How agents coordinate and communicate
 ├── .github/                           # GitHub workflows + custom agent prompt definitions
 ├── config/                            # Global configuration files
-├── business-structure/
+├── archive/legacy-content/business-structure/  # Archived planning assets
 │   ├── 1-person-structure/
 │   │   ├── neurodivergent-adhd-ai-fusion-system/
 │   │   ├── toi-otoi-framework/
@@ -511,7 +535,7 @@ neuroLift-simulation/
 ├── configs/                # All configuration files
 ├── data/                   # Local storage (privacy-first)
 ├── archive/                # Archived content for reference
-└── nlt-business-agents/    # Business agent framework (1-person setup)
+└── archive/legacy-content/nlt-business-agents/    # Archived business agent framework
 ```
 
 ## 🔬 Development Phases
@@ -595,7 +619,16 @@ Our infrastructure leverages Cloudflare for:
 - **Security**: DDoS protection, WAF, and bot mitigation
 - **SSL/TLS**: Automatic HTTPS and encryption
 
+#### Workers
+
+| Worker | Purpose | Deploy | Visit |
+|--------|---------|--------|-------|
+| **Main** | Request routing & caching | [![Deploy](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion) | [![Visit](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com) |
+| **WordPress Optimizer** | Performance & WP caching | [![Deploy](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion) | [![Visit](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com) |
+| **Security** | Bot protection & headers | [![Deploy](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion) | [![Visit](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com) |
+
 #### Quick Start
+
 ```bash
 # Configure environment
 cp cloudflare/.env.example cloudflare/.env
@@ -647,4 +680,4 @@ We'll know we've succeeded when:
 
 ---
 
-*Note: The business agent framework has been reorganized into `/nlt-business-agents/` with a 1-person business setup.*
+*Note: The older business-agent framework now lives in `/archive/legacy-content/nlt-business-agents/` for historical reference.*

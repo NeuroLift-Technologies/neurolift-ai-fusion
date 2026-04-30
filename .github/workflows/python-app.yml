@@ -2,7 +2,7 @@ name: Python — Simulation Engine
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "src/**"
       - "tests/**"
@@ -10,7 +10,7 @@ on:
       - "pytest.ini"
       - "apps/api/**"
   pull_request:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "src/**"
       - "tests/**"

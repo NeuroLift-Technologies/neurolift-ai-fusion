@@ -9,7 +9,6 @@ from .session_orchestrator import SessionOrchestrator, SessionConfig, SessionRes
 from .environment import (
     WorldEngine,
     SimulationState,
-    Event,
     # Additional environment exports will be added as modules are implemented
 )
 
@@ -51,6 +50,5 @@ __all__ = [
     "SimulationEnvironment",
     "WorldEngine",
     "SimulationState",
-    "Event",
     # Additional exports will be added as modules are implemented
 ]

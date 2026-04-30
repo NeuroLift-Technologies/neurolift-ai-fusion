@@ -78,14 +78,52 @@ cloudflare/
 
 ### Deploy Workers
 
+Each worker is a named environment in `wrangler.jsonc`. Deploy individually or all at once.
+
+---
+
+#### ⚡ Main Worker
+> Handles request routing, caching, and optimisation for `neuroliftsolutions.com`
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
+[![Visit Site](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com)
+
+```bash
+wrangler deploy --env production
+```
+
+---
+
+#### 🔧 WordPress Optimizer
+> WordPress-specific caching and performance optimisation
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
+[![Visit Site](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com)
+
+```bash
+wrangler deploy --env wordpress
+```
+
+---
+
+#### 🛡️ Security Worker
+> Bot protection, rate limiting, and security headers
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
+[![Visit Site](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com)
+
+```bash
+wrangler deploy --env security
+```
+
+---
+
+#### Deploy All Workers at Once
+
 ```bash
 # Deploy all workers
 cd utils
 ./deploy.sh --workers
-
-# Or deploy individually with Wrangler
-cd workers
-wrangler publish main-worker.js --name neurolift-main-worker
 ```
 
 ### Manage WordPress Cache

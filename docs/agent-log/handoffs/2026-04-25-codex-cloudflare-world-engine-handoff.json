@@ -1,0 +1,49 @@
+{
+  "handoff_record": {
+    "session_id": "2026-04-25-codex-cloudflare-world-engine",
+    "agent_name": "Codex (OpenAI Codex)",
+    "date": "2026-04-25",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "unknown (git safe.directory blocked in sandbox)",
+    "work_completed": [
+      "Inspected the AntiGravity handoff and traced the live task to `cloudflare-engine` plus the Python WebSocket client",
+      "Updated `cloudflare-engine/wrangler.toml` to use a current compatibility date and the current Durable Object migration key `new_sqlite_classes`",
+      "Reworked `cloudflare-engine/src/index.ts` to use Durable Object WebSocket handlers (`webSocketMessage` and `webSocketClose`) instead of relying on `addEventListener` on accepted sockets",
+      "Updated hub and repo active-thread tracking so the remaining work is clearly marked as deployment/tooling"
+    ],
+    "work_in_progress": [
+      "Validate the Worker with a healthy local Wrangler install or directly in the authenticated Cloudflare environment",
+      "Deploy `neurolift-world-engine` and confirm the Python avatars can connect over WebSockets"
+    ],
+    "blockers": [
+      "Local sandbox Node/npm/Wrangler tooling is broken, so no clean local validation command was run",
+      "Actual Cloudflare deployment still requires authenticated account context and explicit human-approved execution"
+    ],
+    "decisions_made": [
+      "Keep the existing Worker/Durable Object shape and fix the binding/migration/WebSocket handling first instead of redesigning the world engine",
+      "Treat deployment readiness as a configuration and runtime-API issue, not as a missing account_id issue in the Wrangler file"
+    ],
+    "decisions_pending": [
+      "Whether to deploy via Wrangler from a repaired local environment or via another authenticated Cloudflare workflow",
+      "Whether to preserve the current in-memory-only world state or add Durable Object storage persistence before broader rollout"
+    ],
+    "escalations": [
+      "No formal escalation file created; deployment remains human-governed per repo guidance"
+    ],
+    "next_agent_notes": "Start in `cloudflare-engine`. The main local fixes are already in place in `wrangler.toml` and `src/index.ts`. Next step is validation/deploy in the correct Cloudflare account context, then test the Python client in `src/simulation/network_client.py` against the deployed `wss://.../connect?agentId=...` endpoint.",
+    "files_modified": [
+      "cloudflare-engine/wrangler.toml",
+      "cloudflare-engine/src/index.ts",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/2026-04-25-codex-cloudflare-world-engine.json",
+      "docs/agent-log/handoffs/2026-04-25-codex-cloudflare-world-engine-handoff.json"
+    ],
+    "tests_run": [
+      "Documentation and config review only",
+      "No automated validation run because local Node/npm/Wrangler tooling is broken in the sandbox"
+    ],
+    "tests_passing": false,
+    "pr_url": ""
+  }
+}
