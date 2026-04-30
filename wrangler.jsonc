@@ -13,8 +13,10 @@
   },
 
   // KV namespace binding used for edge caching
-  // NOTE: Replace "id" and "preview_id" with your actual KV namespace IDs from
-  // the Cloudflare dashboard before deploying (Workers > KV > Namespaces).
+  // NOTE: Replace the placeholder values below with your actual KV namespace IDs from
+  // the Cloudflare dashboard (Workers & Pages > KV > Namespaces).
+  // If you need access, escalate to Joshua W. Dorsey, Sr. — info@neuroliftsolutions.com
+  // Docs: https://developers.cloudflare.com/kv/get-started/
   "kv_namespaces": [
     {
       "binding": "CACHE",
@@ -24,11 +26,11 @@
   ],
 
   // Named environments — deploy each independently with: wrangler deploy --env <name>
-  // NOTE: production, wordpress, and security intentionally share the same route pattern
-  // because each is a separate, independently deployed worker project. Only the worker
-  // active for that project name will handle requests; there is no routing conflict
-  // between environments at runtime. Set the correct zone_id in env vars or wrangler
-  // secrets before deploying to production.
+  // Each environment is a *separate Cloudflare Worker project* (different name/script).
+  // production, wordpress, and security each own the same route pattern but they are
+  // never simultaneously active on the same zone: only the specific project you deploy
+  // handles requests. Activate exactly one worker per route in the Cloudflare dashboard
+  // to avoid conflicts; disable or remove the route on any project not in active use.
   "env": {
     "production": {
       "name": "neurolift-solutions-prod",

@@ -4,6 +4,9 @@
 
 A Sims/RPG-style simulation environment where AI Avatars with ADHD traits experience authentic life struggles while AI Aides provide real-time coaching. After sufficient training through repeated scenarios, they fuse into Advocates that combine lived understanding with expert solutions.
 
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
+[![Visit Site](https://img.shields.io/badge/Visit%20Site-neuroliftsolutions.com-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com)
+
 ## 🎯 Project Vision
 
 **Mission:** "Nothing About Us Without Us" - neurodivergent voices lead development
@@ -471,7 +474,16 @@ Our infrastructure leverages Cloudflare for:
 - **Security**: DDoS protection, WAF, and bot mitigation
 - **SSL/TLS**: Automatic HTTPS and encryption
 
+#### Workers
+
+| Worker | Purpose | Deploy | Visit |
+|--------|---------|--------|-------|
+| **Main** | Request routing & caching | [![Deploy](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion) | [![Visit](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com) |
+| **WordPress Optimizer** | Performance & WP caching | [![Deploy](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion) | [![Visit](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com) |
+| **Security** | Bot protection & headers | [![Deploy](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion) | [![Visit](https://img.shields.io/badge/Visit-neuroliftsolutions.com-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com) |
+
 #### Quick Start
+
 ```bash
 # Configure environment
 cp cloudflare/.env.example cloudflare/.env
