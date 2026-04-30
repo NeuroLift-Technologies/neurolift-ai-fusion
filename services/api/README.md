@@ -21,6 +21,21 @@ The starter currently runs `StayAlertAvatar` with `AttentionCoaching` through
 `SessionOrchestrator`. It does not yet provide authentication, persistence, CORS middleware,
 or multi-avatar selection.
 
+## Implemented route surface
+
+`services/api/app/main.py` currently defines only these routes:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Liveness check for local clients and orchestration probes. |
+| `GET` | `/sessions/demo-run` | Runs the built-in `DEFAULT_SCENARIOS` list from `session_service.py`. |
+| `POST` | `/sessions/run` | Runs caller-provided scenarios through the current session adapter. |
+
+The React dashboard prototypes under `apps/web/src/` and `apps/mobile/app/` reference broader
+resource routes such as `/api/avatars/`, `/api/aides/`, `/api/sessions/`, `/api/fusion/`, and
+`/api/scenarios/`. Those routes are not implemented in this FastAPI starter yet. Treat those
+client paths as forward-looking UI scaffolding until API routers are added.
+
 ## Endpoints
 
 - `GET /health` — service health
@@ -87,6 +102,8 @@ curl -X POST http://localhost:8000/sessions/run \
   `aide_id` label the returned run but do not select different implementations yet.
 - Keep API schemas aligned with `packages/simulation-sdk/src/types.ts` when request or response
   fields change.
+- Do not point clients at `/api/...` resource routes until matching FastAPI routers exist. The
+  current smoke-test clients call the root-level route paths listed above.
 
 ## Why this matters
 

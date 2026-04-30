@@ -1,0 +1,24 @@
+{
+  "agent_registration": {
+    "agent_name": "Cursor Automation",
+    "platform": "Cursor Cloud",
+    "version": "GPT-5.5",
+    "session_id": "158b2152-7214-45b1-9efe-a458133e75b6-pr35-doc-alignment",
+    "entry_date": "2026-04-30",
+    "entry_point": "pull_request.closed automation for PR #35 documentation alignment",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "cursor/codebase-documentation-alignment-7410",
+    "capabilities_self_reported": [
+      "source-verified documentation alignment",
+      "Markdown documentation maintenance",
+      "Python and TypeScript codepath inspection"
+    ],
+    "known_limitations": [
+      "does not make architectural or deployment decisions",
+      "only documents behavior verified against the current repository snapshot"
+    ],
+    "preferred_handoff_format": "structured JSON handoff record"
+  }
+}

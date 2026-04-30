@@ -104,6 +104,23 @@ packages/
   simulation-sdk/
 ```
 
+Current source-verified starter contracts:
+
+- `services/api/app/main.py` exposes `GET /health`, `GET /sessions/demo-run`, and
+  `POST /sessions/run` through FastAPI.
+- `apps/web/index.html` + `apps/web/main.js` provide a static smoke-test console for
+  the implemented API routes.
+- `apps/mobile/App.tsx` provides an Expo smoke-test app for the same implemented API
+  routes.
+- `packages/simulation-sdk/src/` contains source-only TypeScript contracts for the
+  health and custom session run flow.
+
+The React dashboard under `apps/web/src/` and the Expo Router screens under
+`apps/mobile/app/` are prototype UI surfaces that call broader `/api/*` resources
+(`avatars`, `aides`, `sessions`, `fusion`, and `scenarios`). Those resources are not
+implemented by the current FastAPI starter yet, so treat those clients as forward-looking
+until the backend contract is expanded.
+
 ## 🚀 Quick Start
 
 ### Prerequisites

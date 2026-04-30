@@ -66,7 +66,9 @@ src/                    # Existing Python simulation domain (current engine)
 | API schemas | `services/api/app/schemas.py` | `ScenarioInput`, `SessionRunRequest`, `SessionRunResponse` |
 | Simulation adapter | `services/api/app/session_service.py` | Runs `StayAlertAvatar` + `AttentionCoaching` through `SessionOrchestrator` |
 | Static web console | `apps/web/index.html`, `apps/web/main.js` | Buttons for API health and demo session calls |
+| Vite web prototype | `apps/web/src/` | Dashboard routes for future `/api/avatars`, `/api/aides`, `/api/sessions`, `/api/fusion`, and `/api/scenarios` APIs |
 | Expo mobile starter | `apps/mobile/App.tsx` | Buttons for API health and demo session calls |
+| Expo Router mobile prototype | `apps/mobile/app/`, `apps/mobile/src/api/client.ts` | Tab routes for future `/api/avatars`, `/api/aides`, `/api/sessions`, `/api/fusion`, and `/api/scenarios` APIs |
 | SDK contracts | `packages/simulation-sdk/src/types.ts` | TypeScript request/response shapes mirroring Pydantic models |
 | SDK client | `packages/simulation-sdk/src/client.ts` | `health()` and `runSession(payload)` fetch wrappers |
 
@@ -76,6 +78,7 @@ src/                    # Existing Python simulation domain (current engine)
 - The current API adapter labels runs with `avatar_id` and `aide_id`, but it always instantiates the sustained-attention `StayAlertAvatar` and `AttentionCoaching` pair.
 - The static web console reads `window.NEUROLIFT_API_URL` or falls back to `http://localhost:8000`; CORS must be added before cross-origin browser calls are production-ready.
 - The Expo app reads `EXPO_PUBLIC_API_URL` or falls back to `http://localhost:8000`; device/emulator networking may need a LAN or emulator-specific host.
+- The Vite and Expo Router prototype clients are ahead of the FastAPI starter: they reference `/api/avatars`, `/api/aides`, `/api/sessions`, `/api/fusion`, and `/api/scenarios`, which are not implemented in `services/api/app/main.py` yet.
 - The SDK is source-only in this baseline; there is no package manifest, build output, or publish workflow under `packages/simulation-sdk/`.
 
 ## Guardrails for Implementation
