@@ -1,10 +1,62 @@
 {
-  // NeuroLift Solutions — Cloudflare Pages configuration
-  // Used by `wrangler versions upload` (Pages V2 deployment model)
-  // See: https://developers.cloudflare.com/pages/configuration/wrangler/
+  // NeuroLift Solutions — Cloudflare Workers + Pages configuration
+  // Deploys both a Worker (request handling) and static Pages assets from the same project.
+  // See: https://developers.cloudflare.com/workers/wrangler/configuration/
   "name": "neurolift-solutions",
+  "main": "./cloudflare/workers/main-worker.js",
   "compatibility_date": "2026-04-30",
+  "workers_dev": true,
+
+  // Cloudflare Pages: serve static assets from ./public alongside the Worker
   "assets": {
     "directory": "./public"
+  },
+
+  // KV namespace binding used for edge caching
+  // NOTE: Replace "id" and "preview_id" with your actual KV namespace IDs from
+  // the Cloudflare dashboard before deploying (Workers > KV > Namespaces).
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "REPLACE_WITH_KV_NAMESPACE_ID",
+      "preview_id": "REPLACE_WITH_KV_PREVIEW_NAMESPACE_ID"
+    }
+  ],
+
+  // Named environments — deploy each independently with: wrangler deploy --env <name>
+  // NOTE: production, wordpress, and security intentionally share the same route pattern
+  // because each is a separate, independently deployed worker project. Only the worker
+  // active for that project name will handle requests; there is no routing conflict
+  // between environments at runtime. Set the correct zone_id in env vars or wrangler
+  // secrets before deploying to production.
+  "env": {
+    "production": {
+      "name": "neurolift-solutions-prod",
+      "routes": [
+        { "pattern": "neuroliftsolutions.com/*", "zone_name": "neuroliftsolutions.com" }
+      ]
+    },
+    "staging": {
+      "name": "neurolift-solutions-staging",
+      "routes": [
+        { "pattern": "staging.neuroliftsolutions.com/*", "zone_name": "neuroliftsolutions.com" }
+      ]
+    },
+    // WordPress performance optimisation worker
+    "wordpress": {
+      "name": "neurolift-wordpress-optimizer",
+      "main": "./cloudflare/workers/wordpress-optimizer.js",
+      "routes": [
+        { "pattern": "neuroliftsolutions.com/*", "zone_name": "neuroliftsolutions.com" }
+      ]
+    },
+    // Security / bot-protection worker
+    "security": {
+      "name": "neurolift-security-worker",
+      "main": "./cloudflare/workers/security-worker.js",
+      "routes": [
+        { "pattern": "neuroliftsolutions.com/*", "zone_name": "neuroliftsolutions.com" }
+      ]
+    }
   }
 }
