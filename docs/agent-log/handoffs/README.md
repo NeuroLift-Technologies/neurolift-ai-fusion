@@ -44,12 +44,12 @@ At minimum, include fields that let another contributor resume work without gues
 
 ## Common pitfalls
 
-- **Writing to the wrong directory:** new handoffs belong in `docs/agent-log/handoffs/`; `docs/handoffs/` is a legacy archive.
+- **Writing to the wrong directory:** new handoffs belong in `docs/agent-log/handoffs/`; `docs/ai-agent-docs/handoffs/` is the legacy archive.
 - **Missing resumability details:** include exact file paths, command hints, and branch names in `next_steps`.
 - **Silent blockers:** if access, policy, or scope prevents completion, record it explicitly in `blockers`.
 
 ## Related docs
 
 - `docs/agent-log/registrations/README.md` (session start records)
-- `docs/handoffs/README.md` (legacy handoff archive guidance)
+- `docs/ai-agent-docs/handoffs/README.md` (legacy handoff archive guidance)
 - `docs/active-threads.md` (current thread ownership and status)

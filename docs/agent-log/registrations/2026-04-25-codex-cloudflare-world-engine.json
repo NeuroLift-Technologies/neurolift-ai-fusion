@@ -1,0 +1,25 @@
+{
+  "agent_registration": {
+    "agent_name": "Codex",
+    "platform": "OpenAI Codex",
+    "version": "GPT-5 Codex desktop",
+    "session_id": "2026-04-25-codex-cloudflare-world-engine",
+    "entry_date": "2026-04-25",
+    "entry_point": "Human-directed handoff from AntiGravity/Gemini to prepare Cloudflare world engine deployment",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "unknown (git safe.directory blocked in sandbox)",
+    "capabilities_self_reported": [
+      "Cloudflare Workers and Durable Objects review",
+      "Wrangler configuration updates",
+      "WebSocket workflow debugging",
+      "Cross-agent handoff documentation"
+    ],
+    "known_limitations": [
+      "Sandboxed local Node/npm/Wrangler tooling is not healthy enough for a clean validation run",
+      "Production deployment still requires authenticated Cloudflare account access and human-approved execution"
+    ],
+    "preferred_handoff_format": "Structured JSON plus concise markdown summary with file paths and next deployment steps"
+  }
+}

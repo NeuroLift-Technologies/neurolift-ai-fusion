@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0  
-**Last updated:** 2026-04-05  
+**Last updated:** 2026-04-29  
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -18,7 +18,7 @@
 
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
-| TH-001 | Add required governance files (AGENTS.md, CLAUDE.md, active-threads.md, agent-log dirs) | Joshua W. Dorsey Sr. | GitHub Copilot | copilot/add-required-files | 🟡 In Progress | 2026-04-05 |
+| TH-002 | Prepare Cloudflare World Engine deployment | Joshua W. Dorsey, Sr. | Codex | unknown (git safe.directory blocked in sandbox) | 🟡 In Progress | 2026-04-25 |
 
 ---
 
@@ -32,12 +32,15 @@ _No blocked threads at this time._
 
 | Thread ID | Title | Completed By | Completed Date | Handoff |
 |-----------|-------|-------------|----------------|---------|
+| TH-001 | Add required governance files (AGENTS.md, CLAUDE.md, active-threads.md, agent-log dirs) | GitHub Copilot | 2026-04-21 | Merged via [PR #17](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/17) |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
 | — | Avatar cursor remaining traits | Cursor | — | `docs/handoffs/handoff_cursor_remaining_traits.json` |
 | — | Fusion validation advisory | Advisory | — | `docs/handoffs/handoff_advisory_fusion_validation.json` |
 | — | Codex AIDE expertise | Codex | — | `docs/handoffs/handoff_codex_aide_expertise.json` |
+| TH-003 | Repo cleanup + full-stack app foundation (web/mobile/api) | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-repo-cleanup-fullstack-foundation-handoff.json` |
+| TH-004 | PR feedback response: implement runnable API/web/mobile starters + archive legacy business-agent tree | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-pr-feedback-fullstack-implementation-handoff.json` |
 
 ---
 
@@ -53,6 +56,8 @@ _No blocked threads at this time._
 
 ## Notes for Next Agent
 
-- Governance stub files (`AGENTS.md`, `CLAUDE.md`, `docs/active-threads.md`, `docs/agent-log/`) are being added in TH-001 to satisfy the SOP-NLT-001 onboarding requirements.
+- Governance stub files (`AGENTS.md`, `CLAUDE.md`, `docs/active-threads.md`, `docs/agent-log/`) were merged in TH-001 (PR #17).
+- Governance source-of-truth is synced via `.github/workflows/sync-governance-public.yml`; validate that `NLT-DEV-OTOI.md` exists in the repository root when onboarding.
 - The `docs/handoffs/` directory contains legacy handoff records in an older format. New handoff records should go to `docs/agent-log/handoffs/` using the `handoff-record.json` schema from SOP-NLT-001.
-- No active blockers. No architectural decisions pending.
+- TH-002 updated `cloudflare-engine/wrangler.toml` for current Durable Object migration syntax and patched `cloudflare-engine/src/index.ts` to use Durable Object WebSocket handlers instead of `addEventListener` on accepted sockets.
+- Remaining TH-002 work is local validation plus authenticated Cloudflare deployment of `neurolift-world-engine`.

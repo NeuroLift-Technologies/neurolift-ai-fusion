@@ -83,6 +83,27 @@ This simulation approach addresses both gaps through authentic experiential lear
 18. **SensorySeeker** - Sensory seeking behavior
 19. **ConfidenceCoach** - Self-esteem and identity
 
+
+## 🧹 Repository Cleanup Update (2026-04-25)
+
+To reduce scope drift and support productization, non-core assets were archived and a new full-stack app layout was introduced:
+
+- Archived legacy folders into `archive/legacy-content/` (including business structures, WordPress assets, and older business-agent framework)
+- Added app/service/package scaffolds under `apps/`, `services/`, and `packages/`
+- Added implementation roadmap: `docs/roadmaps/full-stack-simulation-app-plan.md`
+
+### New Full-Stack Foundation
+
+```text
+apps/
+  web/
+  mobile/
+services/
+  api/
+packages/
+  simulation-sdk/
+```
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -96,11 +117,14 @@ git clone <repository-url>
 cd neurolift-ai-fusion
 
 # Install dependencies
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 
 # Run initial setup
-python scripts/setup_environment.py
+python3 scripts/setup_environment.py
 ```
+
+> ⚠️ `scripts/setup_environment.py` creates default configs/data templates **and currently overwrites root `.gitignore` and `LICENSE`**. Run it in a fresh clone or sandbox, then review changes with `git diff` before committing.  
+> Note: the script currently prints a reference to `docs/avatar-aide-advocate-process.md`, which is not present in this repository.
 
 ### Running Your First Training Session
 
@@ -120,13 +144,14 @@ python3 scripts/test_training_loop.py
 
 ### Intent and architecture
 
-This repository currently has three automation workflows in `.github/workflows/`:
+This repository currently has four automation workflows in `.github/workflows/`:
 
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
 | `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
+| `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Syncs governance documents (for example `NLT-DEV-OTOI.md`) from `NeuroLift-Technologies/.github-private` via `repository_dispatch`, and runs weekly presence validation | single `sync-governance` job (checkout -> apply payload doc -> validate -> optional commit/PR) |
 
 Both CI workflows currently use **Python 3.10**.
 
@@ -134,8 +159,8 @@ Both CI workflows currently use **Python 3.10**.
 
 `shared-ci.yml` and `python-app.yml` run on:
 
-- `push` to `master`
-- `pull_request` targeting `master`
+- `push` to `main`
+- `pull_request` targeting `main`
 - `workflow_dispatch` (manual run from the Actions tab)
 
 `pr-cleanup.yml` runs on:
@@ -145,14 +170,24 @@ Both CI workflows currently use **Python 3.10**.
   - `days_before_stale` (default `30`)
   - `days_before_close` (default `7`)
 
+`sync-governance-public.yml` runs on:
+
+- `repository_dispatch` with type `governance-sync` (document sync path)
+- `workflow_dispatch` (manual validation-only run)
+- weekly schedule (`cron: 0 8 * * 1`, Monday 08:00 UTC validation-only run)
+
 Important constraints:
 
-- A push to a non-`master` branch does **not** auto-run CI unless you open a PR to `master` or trigger manually.
-- Because both CI workflows subscribe to the same events, a PR to `master` runs both pipelines.
+- A push to a non-`main` branch does **not** auto-run CI unless you open a PR to `main` or trigger manually.
+- Because both CI workflows subscribe to the same events, a PR to `main` runs both pipelines.
 - PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
 - Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
 - PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
 - Branch deletion only applies to branches merged from this repository (not forks), and skips protected/default branches.
+- Governance sync requires `document_name` and base64-encoded `content` in `repository_dispatch.client_payload`; optional fields are `version` and `checksum`.
+- Governance sync only writes documents matching `NLT-*.md` or `docs/governance/NLT-*.md`; other paths are rejected.
+- Governance sync checksum verification currently supports only `sha256:<hex>` values; unsupported checksum algorithms are warned and skipped.
+- Governance sync creates a PR only on `repository_dispatch` runs that produce an actual file diff; scheduled/manual validation runs do not commit or open PRs.
 
 ### Agent automation definitions (`.github/agents/*.agent.md`)
 
@@ -198,12 +233,46 @@ Important constraint:
 - Fork-origin PR branches are not deleted by design.
 - Schedule times are UTC; if cleanup appears "late", verify timezone conversion before changing cron.
 
+### Governance sync runbook (`.github/workflows/sync-governance-public.yml`)
+
+**Subsystems covered:**
+
+1. **Inbound sync ingestion** (`repository_dispatch`)
+   - Reads `document_name`, `content` (base64), `version`, and `checksum` from `github.event.client_payload`.
+   - Rejects requests that do not include required fields (`document_name`, `content`).
+   - Restricts writable targets to `NLT-*.md` and `docs/governance/NLT-*.md`.
+2. **Content verification and validation**
+   - Decodes payload content from base64 and writes to the requested file.
+   - Optionally verifies checksum when `checksum` is provided.
+   - Weekly/manual validation checks presence of `NLT-DEV-OTOI.md` and emits warnings if missing.
+3. **Automated PR creation**
+   - Runs only for `repository_dispatch` events with actual file changes.
+   - Creates branch `governance-sync/<UTC timestamp>`, commits the synced document, pushes branch, and opens a PR with `gh pr create`.
+
+**Codepath map (source-verified):**
+
+| Behavior | Workflow codepath | Notes |
+| --- | --- | --- |
+| Required payload fields | `if [ -z "$DOCUMENT_NAME" ] \|\| [ -z "$DOCUMENT_CONTENT" ]` | Missing fields fail the run. |
+| Allowed destination paths | `case "$DOCUMENT_NAME" in NLT-*.md \| docs/governance/NLT-*.md)` | Any other path is rejected. |
+| Base64 decode write path | `echo "$DOCUMENT_CONTENT" \| base64 --decode > "$DOCUMENT_NAME"` | Parent dir is created first with `mkdir -p`. |
+| Checksum verification | `case "$ALGO" in sha256)` | Expects `sha256:<hex>` format. Mismatches fail the run; unsupported algorithm prefixes are skipped with a warning (not enforced). |
+| Validation document check | `for doc in NLT-DEV-OTOI.md; do ...` | Missing docs warn, not fail. |
+| PR creation gate | `if: github.event_name == 'repository_dispatch' && steps.changes.outputs.changed == 'true'` | Manual/scheduled runs do not open PRs. |
+
+**Operational constraints and pitfalls:**
+
+- Governance sync requires `contents: write` and `pull-requests: write` to push branches and create PRs.
+- Document content must be base64-safe text; malformed base64 causes decode failure.
+- A valid dispatch can still produce no PR if the decoded content is identical to the existing file.
+- The validation step currently checks only `NLT-DEV-OTOI.md`; additional required governance docs must be added explicitly in workflow code.
+
 ### Manual usage
 
 From GitHub UI:
 
 1. Open **Actions**.
-2. Select **Shared CI**, **Python application**, or **PR Cleanup**.
+2. Select **Shared CI**, **Python application**, **PR Cleanup**, or **Sync Governance (Public)**.
 3. Click **Run workflow**.
 4. Choose the branch and (for PR Cleanup) optionally override stale/close thresholds.
 
@@ -213,12 +282,42 @@ For manual PR cleanup tuning (`PR Cleanup` only):
 2. Set `days_before_stale` (default `30`) and `days_before_close` (default `7`) if needed.
 3. Run and inspect logs for the `stale-prs` and `delete-merged-branches` jobs.
 
+For governance validation (`Sync Governance (Public)`):
+
+1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
+2. Run on the target branch (normally `main`).
+3. Inspect logs for:
+   - `Validate governance documents` (presence/warnings)
+   - `Apply synced governance document` and `Create pull request for governance update` on repository-dispatch runs.
+
 PR cleanup verification checklist:
 
 1. Confirm the run used the expected `days_before_stale` and `days_before_close` values.
 2. In `stale-prs` logs, verify labels/actions align with the current policy (`stale`, `auto-closed`, draft PR exemption).
 3. In `delete-merged-branches` logs, verify each skip/delete outcome is expected (fork PR, protected branch, or already deleted branch).
 4. If merged branches remain, check whether the relevant PRs fall outside the current `per_page: 100` query window.
+
+For manual governance validation (`Sync Governance (Public)` only):
+
+1. Open **Actions** -> **Sync Governance (Public)** -> **Run workflow**.
+2. Choose the branch (usually `main`) and start the run.
+3. Review `Validate governance documents` logs for missing-file warnings.
+
+For automated governance ingestion (from tooling/private repo), dispatch `repository_dispatch` with this payload contract:
+
+```json
+{
+  "event_type": "governance-sync",
+  "client_payload": {
+    "document_name": "NLT-DEV-OTOI.md",
+    "content": "<base64-encoded markdown>",
+    "version": "optional-version-string",
+    "checksum": "sha256:<hex-digest>"
+  }
+}
+```
+
+`document_name` and `content` are required. `checksum` is optional but recommended for tamper detection.
 
 To reproduce `python-app.yml` locally:
 
@@ -242,20 +341,31 @@ pytest
 - **When changing PR retention policy, update both code and docs together**:
   - `.github/workflows/pr-cleanup.yml` (`days-before-stale`, `days-before-close`)
   - this README section (trigger behavior + runbook defaults)
+- **When changing governance document policy, update both code and docs together**:
+  - `.github/workflows/sync-governance-public.yml` (allowed path patterns + validation document list)
+  - this README section (payload contract + runbook constraints)
 - **Protect long-lived branches in GitHub settings** so `delete-merged-branches` can safely skip them using the protected-branch API check.
 - **Do not reduce PR Cleanup write permissions** unless stale labeling/closing and branch deletion behavior is intentionally being disabled.
 - **Keep cleanup intent aligned in two places** when requirements change:
   - `.github/workflows/pr-cleanup.yml` (enforced behavior)
   - `.github/agents/pr-cleanup.agent.md` (agent runbook + reporting expectations)
+- **Keep governance source-of-truth explicit**:
+  - upstream governance authoring lives in `NeuroLift-Technologies/.github-private`
+  - this repository consumes synced copies (for example `NLT-DEV-OTOI.md`) via `Sync Governance (Public)`
+- **If checksum algorithms change**, update both workflow verification logic and this runbook's payload guidance at the same time.
 
 ### Troubleshooting and common pitfalls
 
-- **CI did not run:** confirm the event targets `master`, or run with `workflow_dispatch`.
+- **CI did not run:** confirm the event targets `main`, or run with `workflow_dispatch`.
 - **`Shared CI` fails before local tests run:** inspect reusable workflow logs from `.github-private`; failures there can occur without changes in this repository.
 - **Security/test ordering confusion:** in `shared-ci.yml`, both `test` and `security` depend on `lint` and can run in parallel after lint passes.
 - **`python-app.yml` lint behavior seems inconsistent:** the first flake8 command fails on syntax/name errors; the second uses `--exit-zero` and is informational for style/complexity reporting.
 - **PR branch was not deleted after merge:** check whether the PR came from a fork, whether the branch is protected, or whether it was already deleted (422 is treated as non-fatal in workflow logs).
 - **PR expected to stay open got marked stale:** add any activity (comment/commit/review) or convert to draft if it is actively in progress but intentionally paused.
+- **Governance sync run fails with "missing required fields":** verify `repository_dispatch.client_payload` includes both `document_name` and `content`.
+- **Governance sync run fails with "Disallowed document name":** path must match `NLT-*.md` or `docs/governance/NLT-*.md`.
+- **Governance sync logs checksum mismatch:** recompute checksum from the decoded file content and ensure it is sent as `sha256:<hex>`.
+- **Governance sync did not open a PR:** confirm event was `repository_dispatch` (not schedule/manual) and that the decoded file content actually changed.
 
 ### Local runtime troubleshooting (scripts)
 
@@ -263,8 +373,10 @@ pytest
   `run_training_session.py` imports `avatars.*` after modifying `sys.path`, but modules under `src/avatars` use package-relative imports (`..core`), so direct execution currently fails.
 - **`TypeError: CoachingContext.__init__() got an unexpected keyword argument 'avatar'` from `scripts/test_training_loop.py`:**
   this script still uses an older `CoachingContext` call pattern that no longer matches `src/aides/base_aide.py`.
+- **`No module named pytest` when running test commands:**
+  install dependencies first with `python3 -m pip install -r requirements.txt`.
 - **Need a deterministic smoke path while those scripts are being reconciled:**
-  run `python3 -m compileall src scripts`, then use `tests/test_simulation/test_session_orchestrator.py` as the reference for current orchestration interfaces.
+  run `python3 -m compileall src scripts`, then use `python3 -m pytest tests/test_simulation/test_session_orchestrator.py` as the reference for current orchestration interfaces.
 
 ## 📂 Business Structure
 
@@ -311,7 +423,7 @@ This structure is designed for a two-person team (CEO + COO) to orchestrate a co
 3. **Phase 3**: Department layer deployment (Weeks 5-8)
 4. **Phase 4**: Optimization and tuning (Weeks 9-12)
 
-See `nlt-business-agents/implementation-guide.md` for detailed instructions.
+See `archive/legacy-content/nlt-business-agents/implementation-guide.md` for historical business-agent instructions.
 
 ## Support
 
@@ -334,7 +446,7 @@ business-agents-repo/
 ├── AGENT-ORCHESTRATION-GUIDE.md       # How agents coordinate and communicate
 ├── .github/                           # GitHub workflows + custom agent prompt definitions
 ├── config/                            # Global configuration files
-├── business-structure/
+├── archive/legacy-content/business-structure/  # Archived planning assets
 │   ├── 1-person-structure/
 │   │   ├── neurodivergent-adhd-ai-fusion-system/
 │   │   ├── toi-otoi-framework/
@@ -387,7 +499,7 @@ neuroLift-simulation/
 ├── configs/                # All configuration files
 ├── data/                   # Local storage (privacy-first)
 ├── archive/                # Archived content for reference
-└── nlt-business-agents/    # Business agent framework (1-person setup)
+└── archive/legacy-content/nlt-business-agents/    # Archived business agent framework
 ```
 
 ## 🔬 Development Phases
@@ -459,7 +571,7 @@ Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workf
 - [Cloudflare Setup Guide](docs/cloudflare/CLOUDFLARE_SETUP.md)
 - [Agent registration runbook](docs/agent-log/registrations/README.md)
 - [Agent handoff runbook (current)](docs/agent-log/handoffs/README.md)
-- [Legacy handoff archive guide](docs/handoffs/README.md)
+- [Legacy handoff archive guide](docs/ai-agent-docs/handoffs/README.md)
 
 ## Infrastructure & Deployment
 
@@ -535,4 +647,4 @@ We'll know we've succeeded when:
 
 ---
 
-*Note: The business agent framework has been reorganized into `/nlt-business-agents/` with a 1-person business setup.*
+*Note: The older business-agent framework now lives in `/archive/legacy-content/nlt-business-agents/` for historical reference.*
