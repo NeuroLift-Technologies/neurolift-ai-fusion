@@ -1,6 +1,6 @@
 # Full-Stack Platform Guide
 
-**Source-verified:** Apr 30, 2026  
+**Source-verified:** Apr 30, 2026
 **Primary codepaths:** `apps/api/`, `apps/web/`, `apps/mobile/`, `src/simulation/session_orchestrator.py`
 
 This guide documents the full-stack application surface added around the
