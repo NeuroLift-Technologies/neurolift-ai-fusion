@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0
-**Last updated:** 2026-04-30
+**Last updated:** 2026-05-01
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -37,6 +37,7 @@ _No blocked threads at this time._
 | TH-003 | Repo cleanup + full-stack app foundation (web/mobile/api) | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-repo-cleanup-fullstack-foundation-handoff.json` |
 | TH-004 | PR feedback response: implement runnable API/web/mobile starters + archive legacy business-agent tree | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-pr-feedback-fullstack-implementation-handoff.json` |
 | TH-005 | Document PR #30 full-stack simulation app foundation | Cursor Automation | 2026-04-30 | `docs/agent-log/handoffs/CURSOR-2026-04-30-doc-automation-pr30-handoff.json` |
+| TH-006 | Sync Simulation Lab milestone onto current main | Codex | 2026-05-01 | `docs/agent-log/handoffs/2026-05-01-codex-main-sync-simulation-lab-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
@@ -62,3 +63,4 @@ _No blocked threads at this time._
 - Governance source-of-truth is synced via `.github/workflows/sync-governance-public.yml`; validate that `NLT-DEV-OTOI.md` exists in the repository root when onboarding.
 - The `docs/handoffs/` directory contains legacy handoff records in an older format. New handoff records should go to `docs/agent-log/handoffs/` using the `handoff-record.json` schema from SOP-NLT-001.
 - No active blockers. No architectural decisions pending.
+- TH-006 preserved the pre-sync local work on `codex-cli/local-simulation-lab-before-main-sync`, fast-forwarded `main` to `origin/main`, and ported the fixture-driven `/simulation-lab` observer route into the current Next.js web app.

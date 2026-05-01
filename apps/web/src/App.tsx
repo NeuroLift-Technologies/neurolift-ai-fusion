@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import AvatarsPage from "./pages/AvatarsPage";
-import AidesPage from "./pages/AidesPage";
-import SessionsPage from "./pages/SessionsPage";
-import FusionPage from "./pages/FusionPage";
-import ScenariosPage from "./pages/ScenariosPage";
+import Dashboard from "./vite-pages/Dashboard";
+import AvatarsPage from "./vite-pages/AvatarsPage";
+import AidesPage from "./vite-pages/AidesPage";
+import SessionsPage from "./vite-pages/SessionsPage";
+import FusionPage from "./vite-pages/FusionPage";
+import ScenariosPage from "./vite-pages/ScenariosPage";
 
 const NAV_LINKS = [
   { to: "/", label: "Dashboard" },
@@ -56,3 +56,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+

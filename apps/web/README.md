@@ -22,6 +22,7 @@ console is the source-verified starter documented here.
 - check simulation API health with `GET /health`
 - trigger a demo session with `GET /sessions/demo-run`
 - inspect returned JSON payloads in the browser
+- view the fixture-driven `/simulation-lab` observer surface in the Next.js app
 
 ## Local run
 
@@ -39,6 +40,15 @@ python3 -m http.server 4173 --directory apps/web
 ```
 
 Then open `http://localhost:4173`.
+
+To review the Next.js app and Simulation Lab route:
+
+```bash
+npm install
+npm run dev --workspace=apps/web
+```
+
+Then open `http://localhost:3000/simulation-lab`.
 
 ## API base URL
 
@@ -59,5 +69,8 @@ Define that global before loading `main.js` if the API runs somewhere else.
   `http://localhost:8000` may be blocked until CORS support is added to `services/api/app/main.py`.
 - The static console uses `GET /sessions/demo-run`; it does not exercise the SDK client or
   `POST /sessions/run` yet.
-- `npm run dev` starts the separate Vite/React surface under `apps/web/src/`, not the static
+- `npm run dev --workspace=apps/web` starts the Next.js surface, not the static
   console described above.
+- `/simulation-lab` is fixture-driven. Its state model lives in
+  `apps/web/src/simulation/lab/stayAlertMorningRoutine.ts` so a future renderer can
+  project the same state without becoming the source of truth.

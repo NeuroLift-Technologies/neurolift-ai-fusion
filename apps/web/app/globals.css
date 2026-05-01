@@ -5,6 +5,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --lab-bg: #101722;
+  --lab-surface: #141d2a;
+  --lab-surface-soft: #202938;
+  --lab-panel: #182233;
+  --lab-line: #314052;
+  --lab-muted: #9aa8bb;
+  --lab-text: #edf4fb;
+  --lab-blue: #63a8ff;
+  --lab-blue-soft: rgba(99, 168, 255, 0.15);
+  --lab-blue-hover: #7bb6ff;
+  --lab-green: #5ee2a0;
+  --lab-green-soft: rgba(94, 226, 160, 0.15);
+  --lab-amber: #f6c453;
+  --lab-amber-soft: rgba(246, 196, 83, 0.15);
+  --lab-rose: #ff7a90;
+  --lab-rose-soft: rgba(255, 122, 144, 0.16);
+  --lab-teal: #3dd8cc;
+  --lab-teal-soft: rgba(61, 216, 204, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {

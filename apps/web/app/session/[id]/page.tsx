@@ -42,7 +42,7 @@ function ScenarioCard({ sr }: { sr: ScenarioResult }) {
 }
 
 export default function SessionPage() {
-  const { id } = useParams<{ id: string }>();
+  const id = useParams<{ id: string }>()?.id ?? "";
   const [session, setSession] = useState<SessionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
