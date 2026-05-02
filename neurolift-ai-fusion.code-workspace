@@ -14,6 +14,9 @@
 		},
 		{
 			"path": "../mcp-server-cloudflare"
+		},
+		{
+			"path": "../.github-private"
 		}
 	],
 	"settings": {

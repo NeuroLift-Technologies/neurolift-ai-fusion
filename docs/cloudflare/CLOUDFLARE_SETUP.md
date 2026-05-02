@@ -181,7 +181,7 @@ npx wrangler dev
 
 1. Go to Cloudflare Dashboard → Your domain → Workers Routes
 2. Add route: `neuroliftsolutions.com/*`
-3. Select worker: `neurolift-ai-fusion`
+3. Select worker: `neurolift-world-engine`
 4. Save
 
 ---
@@ -619,7 +619,7 @@ Set up notifications:
    - Dashboard → Workers → Routes
 3. Check worker logs:
    ```bash
-   npx wrangler tail neurolift-ai-fusion
+   npx wrangler tail neurolift-world-engine
    ```
 
 ### Getting Help
