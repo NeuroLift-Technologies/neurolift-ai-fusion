@@ -8,6 +8,12 @@
 		},
 		{
 			"path": "../nlt-redteam"
+		},
+		{
+			"path": "../skills"
+		},
+		{
+			"path": "../mcp-server-cloudflare"
 		}
 	],
 	"settings": {
@@ -24,6 +30,7 @@
 				"matchCommandLine": true
 			}
 		},
+		"chat.mcp.autostart": true,
 		"powershell.cwd": "neurolift-ai-fusion"
 	}
 }
