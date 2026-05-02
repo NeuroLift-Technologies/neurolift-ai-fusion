@@ -3,6 +3,11 @@ name: pr-cleanup
 description: >
   Closes stale pull requests and removes merged branches to keep the repository
   tidy. Follows NLT governance (ORG-DEV-OTOI-1.0.0) and the Solidarity Framework.
+version: 1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-solidarity-framework: true
+nlt-haief: true
+nlt-authority: Joshua W. Dorsey, Sr.
 ---
 
 # PR Cleanup Agent

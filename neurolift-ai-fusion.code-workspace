@@ -8,7 +8,32 @@
 		},
 		{
 			"path": "../nlt-redteam"
+		},
+		{
+			"path": "../skills"
+		},
+		{
+			"path": "../mcp-server-cloudflare"
+		},
+		{
+			"path": "../.github-private"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/__pycache__": true,
+			"**/.pytest_cache": true,
+			"**/.expo": true,
+			"**/archive": true
+		},
+		"chat.tools.terminal.autoApprove": {
+			"/^Set-Location c:\\\\Users\\\\joshd\\\\nlt-repos\\\\solidarity-framework; python -c \"import unified_core; from unified_core\\.neurolift_foundation import create_foundation; print\\('ok'\\)\"; if \\(\\$LASTEXITCODE -ne 0\\) \\{ Write-Output \"IMPORT_FAILED:\\$LASTEXITCODE\" \\} else \\{ Write-Output \"IMPORT_OK\" \\}$/": {
+				"approve": true,
+				"matchCommandLine": true
+			}
+		},
+		"chat.mcp.autostart": true,
+		"powershell.cwd": "neurolift-ai-fusion"
+	}
 }

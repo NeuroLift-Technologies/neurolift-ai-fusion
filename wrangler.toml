@@ -1,11 +1,16 @@
-# Root wrangler config for the neurolift-ai-fusion Cloudflare Workers service.
-# This file is read by Cloudflare's Git integration on every push.
-# Worker source lives in cloudflare/workers/; detailed config in cloudflare/config/wrangler.toml.
+# Root Wrangler config aligned to the active World Engine Worker implementation.
+# Canonical deploy workflow remains in cloudflare-engine/.
 
 name = "neurolift-ai-fusion"
-main = "cloudflare/workers/main-worker.js"
-compatibility_date = "2024-01-01"
+main = "cloudflare-engine/src/index.ts"
+compatibility_date = "2026-05-01"
 workers_dev = true
 
-[build]
-command = ""
+[durable_objects]
+bindings = [
+	{ name = "WORLD_ENGINE", class_name = "WorldEngineDO" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WorldEngineDO"]
