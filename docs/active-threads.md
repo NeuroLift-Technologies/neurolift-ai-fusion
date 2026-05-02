@@ -39,6 +39,7 @@ _No blocked threads at this time._
 | TH-005 | Document PR #30 full-stack simulation app foundation | Cursor Automation | 2026-04-30 | `docs/agent-log/handoffs/CURSOR-2026-04-30-doc-automation-pr30-handoff.json` |
 | TH-006 | Sync Simulation Lab milestone onto current main | Codex | 2026-05-01 | `docs/agent-log/handoffs/2026-05-01-codex-main-sync-simulation-lab-handoff.json` |
 | TH-007 | Open-items review report for next agent | GitHub Copilot | 2026-05-02 | `docs/reviews/2026-05-02-copilot-open-items-review.md` |
+| TH-008 | Document review-report workflow | Cursor GPT-5.5 | 2026-05-02 | `docs/agent-log/handoffs/CURSOR-2026-05-02-doc-review-workflow-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
@@ -66,3 +67,4 @@ _No blocked threads at this time._
 - No active blockers. No architectural decisions pending.
 - TH-006 preserved the pre-sync local work on `codex-cli/local-simulation-lab-before-main-sync`, fast-forwarded `main` to `origin/main`, and ported the fixture-driven `/simulation-lab` observer route into the current Next.js web app.
 - TH-007 produced a full open-items review report at `docs/reviews/2026-05-02-copilot-open-items-review.md` covering all open PRs, unresolved review comments, blockers, and pending decisions as of 2026-05-02.
+- TH-008 added `docs/reviews/README.md` to define when review reports belong in `docs/reviews/`, source-verification requirements, recommended structure, and handoff boundaries.
