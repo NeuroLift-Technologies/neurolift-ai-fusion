@@ -53,7 +53,7 @@ The root-level `npm install` fails due to a peer dependency conflict between `vi
 
 | # | Title | State | Priority | Recommended Action |
 |---|-------|-------|----------|--------------------|
-| **#43** | Add neurolift-ai-fusion workspace file | Draft | High | Fix Cloudflare build failure; mark non-draft once resolved |
+| **#43** | Chore: workspace + Cloudflare docs alignment and open-items refresh | Draft | High | Preserve intentional auto-approve rule, add workspace excludes, align Cloudflare verification checks, then move to ready-for-review |
 | **#42** | Bump next 14→15 (Dependabot) | Open | High | Review and merge (resolves B-2 above) |
 | **#41** | [CURSOR] docs: align PR #37 monorepo runbooks | Draft | Medium | Review, consolidate with #38, merge or close |
 | **#38** | docs: document full-stack monorepo workflow | Draft | Medium | May overlap with #41 — consolidate and merge or close |

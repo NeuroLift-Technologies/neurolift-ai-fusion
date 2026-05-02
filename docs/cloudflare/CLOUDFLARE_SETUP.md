@@ -488,7 +488,11 @@ After deployment:
    ```
 
 4. **Workers**
-   - Check for custom headers: `X-Powered-By: NeuroLift Solutions`
+   ```bash
+   # Verify worker endpoint responds
+   curl -i https://<your-worker-domain>/connect
+   # Expected: HTTP 426 when Upgrade header is missing
+   ```
 
 ---
 
