@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../solidarity-framework"
+		},
+		{
+			"path": "../nlt-redteam"
+		}
+	],
+	"settings": {
+		"chat.tools.terminal.autoApprove": {
+			"/^Set-Location c:\\\\Users\\\\joshd\\\\nlt-repos\\\\solidarity-framework; python -c \"import unified_core; from unified_core\\.neurolift_foundation import create_foundation; print\\('ok'\\)\"; if \\(\\$LASTEXITCODE -ne 0\\) \\{ Write-Output \"IMPORT_FAILED:\\$LASTEXITCODE\" \\} else \\{ Write-Output \"IMPORT_OK\" \\}$/": {
+				"approve": true,
+				"matchCommandLine": true
+			}
+		}
+	}
+}
