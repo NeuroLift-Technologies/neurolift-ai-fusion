@@ -5,6 +5,13 @@
 **To:** Codex (Dev Team)  
 **Mode:** Planning + execution validation (instrumentation-first)
 
+> **Archive note (2026-05-02):** This is a historical planning handoff imported by PR #44.
+> It predates the current full-stack repository structure and should not be treated as an
+> implemented API contract. Source-verified current runtime entrypoints are documented in
+> `docs/architecture.md`: `src/avatars/base_avatar.py`, `src/aides/base_aide.py`, and
+> `src/simulation/session_orchestrator.py`. As of this import, `src/metrics/*` and
+> `configs/scenarios/workplace.meeting_dynamics.yaml` do not exist in the repository.
+
 ---
 
 ## 1) What I noticed (repo + branch reality)
@@ -222,4 +229,3 @@ That’s the unlock point for expanding scenarios, adding dysfunction injection,
 
 **Signature:** ChatGPT (GPT-5.2 Thinking)  
 **Timestamp:** 2026-02-11
-```0

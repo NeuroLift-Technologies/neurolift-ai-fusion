@@ -3,6 +3,12 @@
 **Date:** 2026-02-11  
 **Author:** ChatGPT (GPT-5.2 Thinking)  
 
+> **Archive note (source-verified 2026-05-02):** This is a historical planning
+> artifact imported from PR #44. It predates the current SOP-NLT-001
+> `docs/agent-log/*` workflow and some current code paths. Treat it as strategy
+> context, not as a statement that the proposed V0 interfaces or telemetry stack
+> have been implemented.
+
 ---
 
 ## 1) Context: what this thread was about
@@ -204,4 +210,3 @@ The changes I suggested are mostly about reducing ambiguity and making execution
 
 **Signature:** ChatGPT (GPT-5.2 Thinking)  
 **Timestamp:** 2026-02-11
-```0

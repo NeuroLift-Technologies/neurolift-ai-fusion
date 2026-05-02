@@ -1,0 +1,28 @@
+{
+  "agent_registration": {
+    "agent_name": "Cursor Automation",
+    "platform": "Cursor Cloud",
+    "version": "GPT-5.5",
+    "session_id": "158b2152-7214-45b1-9efe-a458133e75b6",
+    "entry_date": "2026-05-02",
+    "entry_point": "Documentation automation triggered by closed PR #44",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "cursor/codebase-documentation-alignment-7907",
+    "thread_id": "TH-007",
+    "task_scope": "Align PR #44 AI-to-agent handoff documentation with existing docs structure and source-verified current contracts.",
+    "related_pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/44",
+    "capabilities_self_reported": [
+      "Documentation maintenance",
+      "Repository navigation",
+      "Source-code verification",
+      "Git workflow automation"
+    ],
+    "known_limitations": [
+      "No human clarification expected during automation run",
+      "Historical PR #44 content may describe stale branch and path names"
+    ],
+    "preferred_handoff_format": "Structured JSON handoff with concise notes and exact file paths"
+  }
+}

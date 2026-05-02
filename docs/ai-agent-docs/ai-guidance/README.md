@@ -4,6 +4,11 @@ This directory contains documentation and guidance materials specifically design
 
 ## Contents
 
+> **Current contract source:** Before using historical AI guidance to plan new
+> implementation work, verify interfaces against `docs/architecture.md` and the
+> source files it lists (`src/avatars/base_avatar.py`,
+> `src/aides/base_aide.py`, `src/simulation/session_orchestrator.py`).
+
 ### GEMINI_TOPOGRAPHY.py
 
 A comprehensive Python file that provides:
