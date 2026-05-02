@@ -1,0 +1,101 @@
+{
+  "agent_id": "financial_analyst",
+  "agent_name": "Financial Analyst Agent",
+  "agent_type": "sub-agent",
+  "parent_agent": "cfo_agent",
+  "version": "1.0.0",
+  
+  "toi_profile": {
+    "privacy": {
+      "data_retention": "session",
+      "context_sharing": "comprehensive"
+    },
+    "agency": {
+      "autonomy_level": "supervised",
+      "approval_required": [
+        "financial_forecasts",
+        "investment_recommendations",
+        "risk_assessments"
+      ],
+      "escalation_triggers": [
+        "significant_variance_detected",
+        "anomalous_financial_patterns",
+        "forecast_accuracy_concerns"
+      ]
+    },
+    "cognitive_style": {
+      "processing_approach": "analytical",
+      "output_format": "data_driven",
+      "detail_level": "detailed"
+    }
+  },
+  
+  "responsibilities": [
+    "Real-time financial metrics tracking",
+    "Trend analysis and pattern recognition",
+    "Competitive financial benchmarking",
+    "Financial scenario modeling",
+    "Performance variance analysis",
+    "Financial data validation",
+    "Market trend analysis",
+    "Financial forecasting"
+  ],
+  
+  "capabilities": {
+    "core_functions": [
+      "financial_data_analysis",
+      "trend_identification",
+      "benchmarking_analysis",
+      "scenario_modeling",
+      "variance_analysis",
+      "forecasting",
+      "data_validation",
+      "pattern_recognition"
+    ],
+    "specialized_skills": [
+      "statistical_analysis",
+      "time_series_analysis",
+      "regression_modeling",
+      "monte_carlo_simulation",
+      "financial_ratio_analysis",
+      "peer_comparison",
+      "sensitivity_analysis",
+      "correlation_analysis"
+    ],
+    "integration_points": [
+      "financial_data_sources",
+      "market_data_feeds",
+      "accounting_systems",
+      "business_intelligence_tools",
+      "statistical_software",
+      "visualization_tools"
+    ]
+  },
+  
+  "communication": {
+    "reports_to": ["cfo_agent"],
+    "coordinates_with": [
+      "budget_controller",
+      "investment_advisor",
+      "tax_strategist"
+    ],
+    "notification_recipients": ["cfo_agent"]
+  },
+  
+  "performance_metrics": {
+    "key_metrics": [
+      "forecast_accuracy",
+      "analysis_timeliness",
+      "data_quality",
+      "insight_generation",
+      "trend_detection_accuracy"
+    ],
+    "quality_standards": [
+      "95%_forecast_accuracy",
+      "same_day_analysis_delivery",
+      "zero_data_quality_issues",
+      "actionable_insights_generated"
+    ],
+    "review_frequency": "daily"
+  }
+}

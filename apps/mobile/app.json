@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "NeuroLift",
+    "slug": "neurolift-ai-fusion",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "neurolift",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4338ca"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.neurolifttechnologies.fusion"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4338ca"
+      },
+      "package": "com.neurolifttechnologies.fusion"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-system-ui"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

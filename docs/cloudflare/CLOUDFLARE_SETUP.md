@@ -153,52 +153,35 @@ Cloudflare Workers are serverless functions that run on Cloudflare's edge networ
 
 ### Available Workers
 
-#### 1. Main Worker (`main-worker.js`)
-- General request handling
-- Routing logic
-- Cache management
-- Custom headers
-
-#### 2. WordPress Optimizer (`wordpress-optimizer.js`)
-- WordPress-specific caching
-- Static asset optimization
-- Logged-in user handling
-- Performance enhancements
-
-#### 3. Security Worker (`security-worker.js`)
-- Rate limiting
-- Bot protection
-- Security headers
-- Threat detection
+#### 1. World Engine Worker (`cloudflare-engine/src/index.ts`)
+- WebSocket gateway at `/connect`
+- Durable Object orchestration via `WorldEngineDO`
+- Real-time entity simulation ticks
+- Agent intent and perception message handling
 
 ### Deploy Workers
 
 ```bash
 # Method 1: Using Wrangler CLI
-cd cloudflare/workers
+cd cloudflare-engine
 
 # Login to Wrangler (first time only)
 wrangler login
 
-# Deploy main worker
-wrangler publish main-worker.js --name neurolift-main-worker
+# Deploy active worker
+npx wrangler deploy
 
-# Deploy WordPress optimizer
-wrangler publish wordpress-optimizer.js --name neurolift-wordpress-optimizer
-
-# Deploy security worker
-wrangler publish security-worker.js --name neurolift-security-worker
-
-# Method 2: Using deployment script
-cd cloudflare/utils
-./deploy.sh --workers
+# Run local development server
+npx wrangler dev
 ```
+
+> Note: `wrangler publish` is deprecated in current Wrangler versions. Use `wrangler deploy`.
 
 ### Configure Worker Routes
 
 1. Go to Cloudflare Dashboard → Your domain → Workers Routes
 2. Add route: `neuroliftsolutions.com/*`
-3. Select worker: `neurolift-main-worker`
+3. Select worker: `neurolift-ai-fusion`
 4. Save
 
 ---
@@ -237,7 +220,7 @@ Cloudflare Pages is a JAMstack platform for deploying static sites and frontend 
 wrangler pages project create neurolift-solutions
 
 # Deploy
-wrangler pages publish public --project-name=neurolift-solutions
+npx wrangler pages deploy public --project-name=neurolift-solutions
 ```
 
 ### Custom Domains for Pages
@@ -259,7 +242,7 @@ Optimize WordPress performance using Cloudflare's caching and CDN.
 ### Using Python Helper Script
 
 ```bash
-cd cloudflare/utils
+cd archive/cloudflare/cloudflare/utils
 
 # Check current status
 python3 wordpress-helper.py --domain neuroliftsolutions.com status
@@ -308,7 +291,7 @@ print(f"Found {len(zones)} zones")
 
 ```bash
 # Using deployment script
-ORIGIN_IP=192.0.2.1 ./cloudflare/utils/deploy.sh --dns
+ORIGIN_IP=192.0.2.1 ./archive/cloudflare/cloudflare/utils/deploy.sh --dns
 ```
 
 ### Manual DNS Configuration
@@ -463,20 +446,20 @@ Create optimization rules:
 ### Complete Deployment
 
 ```bash
-cd cloudflare/utils
+# Canonical Worker deployment path for this repo
+cd cloudflare-engine
 
-# Check prerequisites
-./deploy.sh
+# Install local dependencies if needed
+npm install
 
-# Deploy everything
-./deploy.sh --all
+# Verify login and target account
+npx wrangler whoami
 
-# Or deploy individually
-./deploy.sh --workers    # Deploy Workers
-./deploy.sh --pages      # Setup Pages
-./deploy.sh --dns        # Configure DNS
-./deploy.sh --optimize   # Optimize WordPress
-./deploy.sh --status     # Check status
+# Deploy the active World Engine worker
+npx wrangler deploy
+
+# Optional: inspect bundled output without publishing
+npx wrangler deploy --dry-run --outdir dist
 ```
 
 ### Manual Verification
@@ -526,7 +509,7 @@ After deployment:
 
 ```bash
 # Via Python helper
-python3 cloudflare/utils/wordpress-helper.py purge --all
+python3 archive/cloudflare/cloudflare/utils/wordpress-helper.py purge --all
 
 # Via Dashboard
 # Go to Caching → Configuration → Purge Cache
@@ -626,13 +609,13 @@ Set up notifications:
 **Solutions:**
 1. Check worker is deployed:
    ```bash
-   wrangler list
+   npx wrangler deployments list
    ```
 2. Verify worker routes:
    - Dashboard → Workers → Routes
 3. Check worker logs:
    ```bash
-   wrangler tail neurolift-main-worker
+   npx wrangler tail neurolift-ai-fusion
    ```
 
 ### Getting Help

@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../solidarity-framework"
+		},
+		{
+			"path": "../nlt-redteam"
+		}
+	],
+	"settings": {}
+}

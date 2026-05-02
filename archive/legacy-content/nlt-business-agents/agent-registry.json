@@ -1,0 +1,316 @@
+{
+  "agent_registry": {
+    "version": "1.0.0",
+    "last_updated": "2024-01-01T00:00:00Z",
+    "executive_agents": {
+      "cfo_agent": {
+        "agent_id": "cfo_agent",
+        "name": "Chief Financial Officer Agent",
+        "type": "executive",
+        "parent_agent": "owner",
+        "status": "active",
+        "version": "1.0.0",
+        "sub_agents": [
+          "financial_analyst",
+          "budget_controller",
+          "investment_advisor",
+          "tax_strategist"
+        ],
+        "responsibilities": [
+          "Financial strategy and planning",
+          "Budget allocation and monitoring",
+          "Investment strategy and portfolio management",
+          "Financial risk assessment",
+          "Tax planning and optimization",
+          "Financial reporting and compliance",
+          "Capital allocation decisions",
+          "Cost optimization strategies"
+        ]
+      },
+      "cto_agent": {
+        "agent_id": "cto_agent",
+        "name": "Chief Technology Officer Agent",
+        "type": "executive",
+        "parent_agent": "owner",
+        "status": "active",
+        "version": "1.0.0",
+        "sub_agents": [
+          "solutions_architect",
+          "security_officer",
+          "innovation_scout",
+          "technical_debt_manager"
+        ],
+        "responsibilities": [
+          "Technical vision and roadmap",
+          "System architecture decisions",
+          "Technology stack selection",
+          "Security strategy and implementation",
+          "Technical team coordination",
+          "Infrastructure planning",
+          "Innovation assessment",
+          "Technical debt management"
+        ]
+      },
+      "cmo_agent": {
+        "agent_id": "cmo_agent",
+        "name": "Chief Marketing Officer Agent",
+        "type": "executive",
+        "parent_agent": "owner",
+        "status": "active",
+        "version": "1.0.0",
+        "sub_agents": [
+          "brand_strategist",
+          "content_director",
+          "market_researcher",
+          "growth_hacker"
+        ],
+        "responsibilities": [
+          "Brand strategy and positioning",
+          "Marketing campaign planning",
+          "Market research and analysis",
+          "Customer acquisition strategy",
+          "Content strategy oversight",
+          "Growth strategy development",
+          "Marketing budget allocation",
+          "Brand reputation management"
+        ]
+      }
+    },
+    "department_agents": {
+      "business_development": {
+        "sales_agent": {
+          "agent_id": "sales_agent",
+          "name": "Sales Agent",
+          "type": "department",
+          "parent_agent": "cmo_agent",
+          "department": "business_development",
+          "status": "active",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Lead qualification and scoring",
+            "Sales strategy development",
+            "Deal negotiation support",
+            "Pipeline management and forecasting",
+            "Customer relationship building",
+            "Sales process optimization",
+            "Competitive positioning",
+            "Revenue forecasting"
+          ]
+        },
+        "marketing_agent": {
+          "agent_id": "marketing_agent",
+          "name": "Marketing Agent",
+          "type": "department",
+          "parent_agent": "cmo_agent",
+          "department": "business_development",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Marketing campaign execution",
+            "Content creation and distribution",
+            "Audience targeting and segmentation",
+            "Campaign performance tracking",
+            "Marketing automation management",
+            "Lead generation optimization",
+            "Channel strategy execution",
+            "Marketing ROI analysis"
+          ]
+        },
+        "partnership_agent": {
+          "agent_id": "partnership_agent",
+          "name": "Partnership Agent",
+          "type": "department",
+          "parent_agent": "cmo_agent",
+          "department": "business_development",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Strategic partnership identification",
+            "Partnership opportunity assessment",
+            "Deal structure development",
+            "Partner relationship management",
+            "Co-marketing initiative coordination",
+            "Partnership performance tracking",
+            "Ecosystem development",
+            "Strategic alliance building"
+          ]
+        },
+        "investor_relations_agent": {
+          "agent_id": "investor_relations_agent",
+          "name": "Investor Relations Agent",
+          "type": "department",
+          "parent_agent": "cfo_agent",
+          "department": "business_development",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Investor communication strategy",
+            "Fundraising campaign coordination",
+            "Pitch deck development and refinement",
+            "Investor meeting preparation",
+            "Shareholder update creation",
+            "Investor pipeline management",
+            "Valuation narrative development",
+            "Due diligence coordination"
+          ]
+        }
+      },
+      "operations": {
+        "legal_agent": {
+          "agent_id": "legal_agent",
+          "name": "Legal Agent",
+          "type": "department",
+          "parent_agent": "cfo_agent",
+          "department": "operations",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Contract review and analysis",
+            "Compliance monitoring and reporting",
+            "Legal risk assessment",
+            "Policy and procedure development",
+            "Regulatory requirement tracking",
+            "Legal documentation management",
+            "Intellectual property protection",
+            "Litigation support coordination"
+          ]
+        },
+        "hr_agent": {
+          "agent_id": "hr_agent",
+          "name": "Human Resources Agent",
+          "type": "department",
+          "parent_agent": "cfo_agent",
+          "department": "operations",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Recruitment strategy development",
+            "Candidate sourcing and assessment",
+            "Employee onboarding coordination",
+            "Performance management support",
+            "Learning and development planning",
+            "Culture and engagement initiatives",
+            "Compensation and benefits strategy",
+            "HR policy enforcement"
+          ]
+        },
+        "project_management_agent": {
+          "agent_id": "project_management_agent",
+          "name": "Project Management Agent",
+          "type": "department",
+          "parent_agent": "cfo_agent",
+          "department": "operations",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Project planning and scheduling",
+            "Resource allocation optimization",
+            "Risk identification and mitigation",
+            "Stakeholder communication",
+            "Progress tracking and reporting",
+            "Project documentation management",
+            "Cross-functional coordination",
+            "Delivery timeline management"
+          ]
+        },
+        "customer_success_agent": {
+          "agent_id": "customer_success_agent",
+          "name": "Customer Success Agent",
+          "type": "department",
+          "parent_agent": "cfo_agent",
+          "department": "operations",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Customer onboarding optimization",
+            "Customer health monitoring",
+            "Retention strategy execution",
+            "Upsell and expansion identification",
+            "Customer feedback analysis",
+            "Success plan development",
+            "Advocacy program management",
+            "Churn risk mitigation"
+          ]
+        }
+      },
+      "technical": {
+        "product_manager_agent": {
+          "agent_id": "product_manager_agent",
+          "name": "Product Manager Agent",
+          "type": "department",
+          "parent_agent": "cto_agent",
+          "department": "technical",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Product strategy development",
+            "Feature prioritization and planning",
+            "Roadmap creation and communication",
+            "User research coordination",
+            "Product requirements documentation",
+            "Stakeholder alignment",
+            "Product metrics tracking",
+            "Market opportunity assessment"
+          ]
+        },
+        "qa_agent": {
+          "agent_id": "qa_agent",
+          "name": "Quality Assurance Agent",
+          "type": "department",
+          "parent_agent": "cto_agent",
+          "department": "technical",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Test strategy and planning",
+            "Test case development",
+            "Quality metrics tracking",
+            "Defect analysis and reporting",
+            "Automation strategy development",
+            "Release quality assessment",
+            "Testing process optimization",
+            "Quality assurance best practices"
+          ]
+        },
+        "devops_agent": {
+          "agent_id": "devops_agent",
+          "name": "DevOps Agent",
+          "type": "department",
+          "parent_agent": "cto_agent",
+          "department": "technical",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Infrastructure architecture and planning",
+            "CI/CD pipeline management",
+            "Deployment automation",
+            "System monitoring and alerting",
+            "Incident response coordination",
+            "Performance optimization",
+            "Infrastructure cost optimization",
+            "Disaster recovery planning"
+          ]
+        },
+        "security_agent": {
+          "agent_id": "security_agent",
+          "name": "Security Agent",
+          "type": "department",
+          "parent_agent": "cto_agent",
+          "department": "technical",
+          "status": "planned",
+          "version": "1.0.0",
+          "responsibilities": [
+            "Security vulnerability assessment",
+            "Threat monitoring and analysis",
+            "Security policy development",
+            "Incident response management",
+            "Compliance monitoring",
+            "Security awareness training coordination",
+            "Penetration testing coordination",
+            "Security metrics tracking"
+          ]
+        }
+      }
+    }
+  }
+}

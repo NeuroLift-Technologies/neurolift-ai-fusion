@@ -1,0 +1,11 @@
+{
+  "agent_name": "CODEX",
+  "session_id": "codex-2026-04-25-repo-cleanup-fullstack-foundation",
+  "session_start": "2026-04-25T10:16:56Z",
+  "task_scope": "Clean up repository by archiving non-core assets and lay down full-stack app foundation for web, Android, and iOS simulation surfaces.",
+  "branch": "codex/cleanup-repo-and-organize-simulation-environment",
+  "thread_id": "TH-003",
+  "otoi_version": "ORG-DEV-OTOI-1.0.0",
+  "trigger_context": "Direct user request in Codex session",
+  "related_pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/30"
+}

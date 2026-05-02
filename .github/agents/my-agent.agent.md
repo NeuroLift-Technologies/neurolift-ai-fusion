@@ -1,16 +1,26 @@
 ---
-# Fill in the fields below to create a basic custom agent for your repository.
-# The Copilot CLI can be used for local testing: https://gh.io/customagents/cli
-# To make this agent available, merge this file into the default repository branch.
-# For format details, see: https://gh.io/customagents/config
-
-name:
-description:
+name: my-agent-template
+description: >
+  Template-only custom agent scaffold. Duplicate and customize this file before
+  using it for active automation.
 ---
 
-# My Agent
+# My Agent Template (Not Active)
 
-Describe what your agent does here...
+This file is a starter template for defining additional repository agents.
+
+Current repository automation is documented in:
+
+- `.github/workflows/*.yml` (executable GitHub Actions behavior)
+- `.github/agents/pr-cleanup.agent.md` (active PR cleanup prompt/spec)
+
+Use this file only when creating a *new* agent:
+
+1. Copy the file to a new `<agent-name>.agent.md`.
+2. Set frontmatter `name` and `description`.
+3. Replace the sections below with the agent's real scope, constraints, and
+   escalation policy.
+4. Keep examples aligned with real repository workflows and codepaths.
 
 ✅ **Validation Checklist**
 
@@ -38,17 +48,16 @@ Describe what your agent does here...
 
 ---
 
-📜 **Reviewer Agent Behavior**
+📜 **Template Behavior Sections**
 
-- **On Review:**  
-  - Flag any artifact that violates provenance, format, or identity rules.  
-  - Suggest corrections that restore TOI–OTOI compliance.  
-  - Highlight any language that risks shame, disempowerment, or privacy breaches.  
+- **On Scan:**  
+  - Define what this agent inspects and what data sources it is allowed to use.  
+  - Include explicit exclusions (for example, protected branches or sensitive files).  
 
-- **On Approval:**  
-  - Stamp the artifact as “NeuroLift Verified.”  
-  - Archive-ready outputs should be marked as suitable for ElevAItion Foundation publication.  
+- **On Report:**  
+  - Specify output format (table, checklist, JSON schema).  
+  - Specify required fields for reproducible triage.  
 
 - **On Escalation:**  
-  - If an artifact cannot be corrected within the rules, escalate it for human review.  
-  - Provide a concise summary of the issue and which principle was violated.  
+  - Define when to stop automation and request human review.  
+  - Provide a concise summary of the blocker and the governing principle involved.  
