@@ -159,11 +159,98 @@ Cloudflare Workers are serverless functions that run on Cloudflare's edge networ
 - Real-time entity simulation ticks
 - Agent intent and perception message handling
 
+Source-verified contract:
+
+| Surface | Current behavior |
+| --- | --- |
+| Worker script name | `neurolift-world-engine` in `cloudflare-engine/wrangler.toml` |
+| Durable Object binding | `WORLD_ENGINE` -> `WorldEngineDO` |
+| Durable Object instance | Singleton named `global-world-engine` via `idFromName(...)` |
+| WebSocket route | `GET /connect?agentId=<id>` with `Upgrade: websocket` |
+| Non-WebSocket `/connect` response | HTTP `426` with `Expected Upgrade: websocket` |
+| Other HTTP paths | Plain text gateway hint: `World Engine Gateway. Connect via WS to /connect?agentId=XXX` |
+
+The Durable Object stores connected WebSocket sessions with serialized
+attachments (`agentId`, generated `entityId`) so sessions can be restored after
+hibernation. Each connected agent receives a `Position` and `AgentController`
+component in the in-memory ECS registry. The current world loop ticks once per
+second while at least one session is connected, then stops itself when all
+sessions disconnect so the object can go idle.
+
+### World Engine WebSocket protocol
+
+Connect to `/connect?agentId=<stable-agent-id>` and send JSON messages:
+
+```json
+{"type":"intent","intent":{"type":"move","data":{"x":3,"y":2}}}
+```
+
+- `intent` messages set the agent controller's current intent. The implemented
+  movement system handles `intent.type === "move"` and steps the agent one grid
+  unit per tick toward `intent.data.x` / `intent.data.y`.
+- `perceive` messages request a radius-based spatial query:
+
+```json
+{"type":"perceive","radius":10}
+```
+
+The worker replies with:
+
+```json
+{"type":"perception","nearby":1}
+```
+
+On each tick, open sockets receive a broadcast shaped like:
+
+```json
+{
+  "type": "tick",
+  "tickCount": 1,
+  "agents": [
+    {"id": "agent-1", "pos": {"x": 1, "y": 0}, "busy": true}
+  ]
+}
+```
+
+Invalid JSON returns `{"type":"error","error":"Invalid message payload"}`.
+Unsupported message types return `{"type":"error","error":"Unsupported message type"}`.
+
+Constraints and pitfalls:
+
+- The ECS registry is initialized in memory when the Durable Object instance is
+  constructed; no durable SQL schema is currently used for world/entity state.
+- The grid defaults to `100 x 100`; `GridManager` exposes walkability/path
+  helpers, but current movement is a direct one-step-per-tick system.
+- Agent entity IDs are generated per WebSocket connection; provide a stable
+  `agentId` if client-side logs need to correlate reconnects.
+- The Worker route is WebSocket-only at `/connect`; use HTTP `426` from `curl`
+  as a positive signal that the endpoint is deployed but missing an upgrade.
+
+### Wrangler configuration layout
+
+PR #43 aligned the repository-level Wrangler files with the active World Engine
+source while keeping `cloudflare-engine/` as the canonical deploy directory.
+
+| File | Purpose | Notes |
+| --- | --- | --- |
+| `cloudflare-engine/wrangler.toml` | Canonical deploy config for the World Engine Worker | Uses `name = "neurolift-world-engine"`, `main = "src/index.ts"`, and `WORLD_ENGINE` Durable Object binding. |
+| `cloudflare-engine/package-lock.json` | Locked Worker toolchain dependencies | Keep in sync with `cloudflare-engine/package.json`; use `npm ci` in clean environments. |
+| `wrangler.toml` | Root mirror for tooling that expects a root TOML config | Points to `cloudflare-engine/src/index.ts`; comment notes that canonical deployment stays in `cloudflare-engine/`. |
+| `wrangler.jsonc` | Root JSONC mirror with schema reference | Mirrors the same Worker entrypoint and Durable Object binding for editor/tool compatibility. |
+
+When editing Worker configuration, update the canonical file first
+(`cloudflare-engine/wrangler.toml`) and keep both root mirrors aligned only if
+the intended tooling surface still requires them. Do not store Cloudflare
+tokens, account IDs, or other credentials in any Wrangler config.
+
 ### Deploy Workers
 
 ```bash
 # Method 1: Using Wrangler CLI
 cd cloudflare-engine
+
+# Install exact locked dependency versions in automation/clean clones
+npm ci
 
 # Login to Wrangler (first time only)
 wrangler login
@@ -449,8 +536,8 @@ Create optimization rules:
 # Canonical Worker deployment path for this repo
 cd cloudflare-engine
 
-# Install local dependencies if needed
-npm install
+# Install exact locked dependency versions
+npm ci
 
 # Verify login and target account
 npx wrangler whoami
@@ -493,6 +580,8 @@ After deployment:
    curl -i https://<your-worker-domain>/connect
    # Expected: HTTP 426 when Upgrade header is missing
    ```
+   For an end-to-end protocol check, connect with any WebSocket client and send
+   the message examples in [World Engine WebSocket protocol](#world-engine-websocket-protocol).
 
 ---
 
@@ -621,6 +710,29 @@ Set up notifications:
    ```bash
    npx wrangler tail neurolift-world-engine
    ```
+
+#### Issue 6: World Engine WebSocket Does Not Connect
+
+**Symptoms:** Client receives HTTP errors, no tick broadcasts, or movement
+intents do not change position.
+
+**Solutions:**
+1. Confirm the request is a WebSocket upgrade to `/connect`, not plain HTTP:
+   ```bash
+   curl -i https://<your-worker-domain>/connect
+   # Expected for plain HTTP: 426 Expected Upgrade: websocket
+   ```
+2. Include a stable `agentId` query parameter when debugging reconnects:
+   `wss://<your-worker-domain>/connect?agentId=debug-agent`.
+3. Send valid JSON matching the current protocol:
+   - `{"type":"intent","intent":{"type":"move","data":{"x":3,"y":2}}}`
+   - `{"type":"perceive","radius":10}`
+4. If ticks stop after disconnecting the last client, reconnect a socket; the
+   Durable Object intentionally stops its interval when no sessions are active.
+5. When Wrangler reads the wrong configuration, run commands from
+   `cloudflare-engine/` first. The root `wrangler.toml` and `wrangler.jsonc` are
+   mirrors for tooling compatibility, while `cloudflare-engine/wrangler.toml` is
+   the canonical deployment config.
 
 ### Getting Help
 
