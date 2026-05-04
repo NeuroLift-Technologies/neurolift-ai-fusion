@@ -97,6 +97,10 @@ apps/mobile/ios/
 *.mobileprovision
 *.orig.*
 
+# CI harness report output
+clearance-reports/
+pgsa-reports/
+
 # Secrets
 .env.local
 .env.*.local

@@ -1,0 +1,92 @@
+# Gitleaks configuration — NeuroLift Technologies
+# -------------------------------------------------
+# This file customises Gitleaks for the NLT Red Team context.
+# Reference: https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml
+
+[extend]
+# Extend Gitleaks' built-in ruleset rather than replacing it.
+useDefault = true
+
+# ---------------------------------------------------------------------------
+# NLT-specific additional rules
+# ---------------------------------------------------------------------------
+
+[[rules]]
+id          = "nlt-api-key"
+description = "NLT internal API key"
+regex       = '''(?i)nlt[_-]?api[_-]?key\s*[:=]\s*['\"]?([A-Za-z0-9_\-]{20,})['\"]?'''
+tags        = ["nlt", "api-key", "secret"]
+[rules.allowlist]
+  # Allow keys that are clearly placeholders
+  regexes = [
+    '''(?i)(example|placeholder|dummy|test|fake|replace[_-]?me|your[_-]?key)''',
+  ]
+
+[[rules]]
+id          = "nlt-jwt-secret"
+description = "NLT JWT signing secret"
+regex       = '''(?i)jwt[_-]?secret\s*[:=]\s*['\"]?([A-Za-z0-9+/=]{16,})['\"]?'''
+tags        = ["nlt", "jwt", "secret"]
+[rules.allowlist]
+  regexes = [
+    '''(?i)(example|placeholder|dummy|test|fake|replace[_-]?me|changeme)''',
+  ]
+
+[[rules]]
+id          = "nlt-supabase-key"
+description = "NLT Supabase service-role or anon key"
+# Supabase keys are JWT-shaped: header.payload.signature
+regex       = '''(?i)(supabase[_-]?(service[_-]?role|anon)[_-]?key)\s*[:=]\s*['\"]?(eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,})['\"]?'''
+tags        = ["nlt", "supabase", "secret"]
+[rules.allowlist]
+  regexes = [
+    # Allow values that appear in test/example files
+    '''(?i)(example|placeholder|dummy|test|fake)''',
+  ]
+
+[[rules]]
+id          = "nlt-cloudflare-token"
+description = "NLT Cloudflare API token"
+regex       = '''(?i)cloudflare[_-]?token\s*[:=]\s*['\"]?([A-Za-z0-9_\-]{40,})['\"]?'''
+tags        = ["nlt", "cloudflare", "secret"]
+
+# ---------------------------------------------------------------------------
+# Global allowlist — paths / files / commits that are safe to skip
+# ---------------------------------------------------------------------------
+
+[allowlist]
+description = "NLT global allowlist"
+
+# Never scan these paths
+paths = [
+  # Gitleaks config itself (contains regex that look like secrets)
+  ".github/gitleaks.toml",
+  # Generated lockfiles do not contain real secrets
+  "package-lock.json",
+  "yarn.lock",
+  "poetry.lock",
+  # Compiled / dist artefacts
+  "dist/",
+  "build/",
+  ".next/",
+  # Python virtualenv
+  ".venv/",
+  "venv/",
+  # IDE / OS artefacts
+  ".idea/",
+  ".vscode/",
+]
+
+# Safe regex patterns that match across all files (placeholder/example values)
+regexes = [
+  # Common placeholder values used in documentation and tests
+  '''(?i)(example|placeholder|dummy|fake|replace[_-]?me|your[_-]?(api[_-]?)?key|<YOUR_)''',
+  # GitHub Actions expression syntax — not real values
+  '''\$\{\{[^}]+\}\}''',
+  # Environment variable references (not the actual value)
+  '''\$\{[A-Z_][A-Z0-9_]*\}''',
+  # Python os.environ.get() calls
+  '''os\.environ\.get\(''',
+  # dotenv placeholder convention
+  '''=\s*$''',
+]
