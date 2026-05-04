@@ -180,24 +180,44 @@ python3 scripts/test_training_loop.py
 
 ### Intent and architecture
 
-This repository currently has four automation workflows in `.github/workflows/`:
+This repository currently has ten automation workflows in `.github/workflows/`.
+The table below groups the developer-facing CI and operations workflows most
+likely to affect pull requests:
 
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
-| `.github/workflows/python-app.yml` | **Python application** | Local baseline checks defined in this repository | single `build` job (checkout -> setup python -> install -> flake8 -> pytest) |
+| `.github/workflows/python-app.yml` | **Python — Simulation Engine** | Local Python/API checks for `src/`, `tests/`, `requirements.txt`, `pytest.ini`, and `apps/api/` changes | single `test` job (checkout -> setup Python 3.11 -> install -> flake8 -> pytest) |
+| `.github/workflows/redteam-ci.yml` | **Red Team CI — Clearance Rubric** | Progressive 3-level clearance harness for syntax/lint/tests, coverage/type checks, and security baseline | `clearance-level-1` -> `clearance-level-2` -> `clearance-level-3` -> PR summary comment |
+| `.github/workflows/pgsa-portability-gate.yml` | **PGSA Portability Gate** | Required-check aggregator for secrets scanning and provenance validation | (`secrets-scan`, `provenance-check`) -> `pgsa-gate` |
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
 | `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Syncs governance documents (for example `NLT-DEV-OTOI.md`) from `NeuroLift-Technologies/.github-private` via `repository_dispatch`, and runs weekly presence validation | single `sync-governance` job (checkout -> apply payload doc -> validate -> optional commit/PR) |
 
-Both CI workflows currently use **Python 3.10**.
+Other workflow files are subsystem-specific (`web.yml`, `mobile.yml`,
+`test-cloudflare.yml`, `validate-governance.yml`) or support repository
+maintenance. Python versions are workflow-specific: `shared-ci.yml` currently
+requests Python 3.10 from reusable workflows, while `python-app.yml`,
+`redteam-ci.yml`, and `pgsa-portability-gate.yml` set up Python 3.11 directly.
 
 ### Trigger behavior and constraints
 
-`shared-ci.yml` and `python-app.yml` run on:
+`shared-ci.yml`, `redteam-ci.yml`, and `pgsa-portability-gate.yml` run on:
 
 - `push` to `main`
 - `pull_request` targeting `main`
 - `workflow_dispatch` (manual run from the Actions tab)
+
+`redteam-ci.yml` also exposes a `clearance_level` manual-dispatch input, but
+the current workflow jobs invoke fixed levels (`1`, `2`, and `3`) rather than
+threading that input into the script commands.
+
+`python-app.yml` runs on the same event types when Python/API paths change:
+
+- `src/**`
+- `tests/**`
+- `requirements.txt`
+- `pytest.ini`
+- `apps/api/**`
 
 `pr-cleanup.yml` runs on:
 
@@ -215,7 +235,11 @@ Both CI workflows currently use **Python 3.10**.
 Important constraints:
 
 - A push to a non-`main` branch does **not** auto-run CI unless you open a PR to `main` or trigger manually.
-- Because both CI workflows subscribe to the same events, a PR to `main` runs both pipelines.
+- Because several CI workflows subscribe to PRs targeting `main`, a qualifying PR can run shared CI, Python/API checks, Red Team clearance, and PGSA checks in parallel.
+- `redteam-ci.yml` uploads `clearance-level-<N>-report` artifacts with `actions/upload-artifact@v4.6.2`; the PR summary comment links back to the workflow artifacts.
+- `pgsa-portability-gate.yml` uploads `pgsa-secrets-report` and `pgsa-provenance-report` artifacts with `actions/upload-artifact@v4.6.2`; branch protection should use `PGSA Gate — Required Status Check` if the portability gate is enforced.
+- Provenance validation passes when no `provenance.json` or `*.provenance.json` manifests are present; missing manifests are reported as "nothing to validate," not as a failure.
+- PGSA whitelist misses are advisory warnings; blacklisted sources, malformed manifests, and missing required provenance fields fail validation.
 - PR cleanup staleness currently uses defaults of **30 inactive days** before `stale`, then **7 more days** before auto-close (overridable via manual dispatch inputs).
 - Draft PRs are explicitly exempt from staleness in `pr-cleanup.yml` (`exempt-draft-pr: true`).
 - PR cleanup only targets pull requests (issue staleness is disabled via `days-before-issue-stale: -1` and `days-before-issue-close: -1`).
@@ -308,9 +332,20 @@ Important constraint:
 From GitHub UI:
 
 1. Open **Actions**.
-2. Select **Shared CI**, **Python application**, **PR Cleanup**, or **Sync Governance (Public)**.
+2. Select the workflow to run (for example **Shared CI**, **Python — Simulation Engine**, **Red Team CI — Clearance Rubric**, **PGSA Portability Gate**, **PR Cleanup**, or **Sync Governance (Public)**).
 3. Click **Run workflow**.
-4. Choose the branch and (for PR Cleanup) optionally override stale/close thresholds.
+4. Choose the branch and set any workflow-specific inputs.
+
+For manual Red Team clearance:
+
+1. Open **Actions** -> **Red Team CI — Clearance Rubric** -> **Run workflow**.
+2. Choose a branch and, if needed, select `clearance_level`.
+3. Inspect the `clearance-level-<N>-report` artifacts and the PR summary comment.
+
+For manual PGSA validation:
+
+1. Open **Actions** -> **PGSA Portability Gate** -> **Run workflow**.
+2. Inspect `pgsa-secrets-report`, `pgsa-provenance-report`, and the final `PGSA Gate — Required Status Check` job.
 
 For manual PR cleanup tuning (`PR Cleanup` only):
 
@@ -366,11 +401,40 @@ flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statist
 pytest
 ```
 
+To reproduce the Red Team and PGSA harness locally:
+
+```bash
+# Clearance Level 1 only: syntax, fatal lint errors, unit tests
+python scripts/run_clearance_tests.py --level 1 --verbose
+
+# Full clearance through Level 3. Requires flake8, pytest, pytest-cov, mypy,
+# and at least one installed secret scanner for meaningful secret results.
+python scripts/run_clearance_tests.py --level 3 --verbose
+
+# PGSA secrets scan. Install gitleaks locally for parity with CI.
+python scripts/scan_secrets.py \
+  --gitleaks-config .github/gitleaks.toml \
+  --fail-on-findings \
+  --skip-trufflehog \
+  --verbose
+
+# PGSA provenance validation.
+python scripts/validate_provenance.py \
+  --scan-root . \
+  --config config/pgsa-allowlists.json \
+  --verbose
+```
+
 ### Maintenance checklist
 
 - **Update Python version in both CI workflows together** to avoid drift:
   - `.github/workflows/shared-ci.yml` -> `with.python-version`
   - `.github/workflows/python-app.yml` -> `with.python-version`
+- **Keep Red Team/PGSA workflow docs aligned** when changing the harness:
+  - `.github/workflows/redteam-ci.yml` (job graph, artifact names, manual inputs)
+  - `.github/workflows/pgsa-portability-gate.yml` (required check name, report artifacts)
+  - `scripts/run_clearance_tests.py`, `scripts/scan_secrets.py`, and `scripts/validate_provenance.py` (CLI flags, exit behavior, report formats)
+  - `docs/CI_HARNESS_README.md` and this README section
 - **Keep branch trigger filters aligned** in both CI files when changing branch policy.
 - **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
 - **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
@@ -402,6 +466,11 @@ pytest
 - **Governance sync run fails with "Disallowed document name":** path must match `NLT-*.md` or `docs/governance/NLT-*.md`.
 - **Governance sync logs checksum mismatch:** recompute checksum from the decoded file content and ensure it is sent as `sha256:<hex>`.
 - **Governance sync did not open a PR:** confirm event was `repository_dispatch` (not schedule/manual) and that the decoded file content actually changed.
+- **Red Team Level 2 or 3 appears to rerun earlier checks:** this is current script behavior. `run_clearance_tests.py --level N` executes every level from `1` through `N`, and the workflow runs each clearance job independently.
+- **Secret scan reports no tools available locally:** install Gitleaks or TruffleHog. CI installs Gitleaks before Red Team Level 3 and PGSA secrets scanning.
+- **PGSA provenance passed with zero manifests:** this is expected; add `provenance.json` or `*.provenance.json` files for components that need explicit provenance tracking.
+- **PGSA provenance shows whitelist warnings but the job passes:** whitelist matches are advisory. Blacklist matches, parse errors, and missing required fields are enforced failures.
+- **Expected PGSA branch-protection check is missing:** branch protection should reference `PGSA Gate — Required Status Check`, not the individual `Secrets Scan (Gitleaks)` or `Provenance Validation (PGSA)` jobs.
 
 ### Local runtime troubleshooting (scripts)
 

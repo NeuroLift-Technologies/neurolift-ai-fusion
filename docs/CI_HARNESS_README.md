@@ -22,12 +22,23 @@ Both workflows are designed to be **non-blocking by default** during development
 
 Implements a 3-tier progressive clearance system.  Each level must pass before the next one runs.
 
+**Triggers:** pull requests targeting `main`, pushes to `main`, and manual
+`workflow_dispatch` runs. The workflow exposes a `clearance_level` manual input,
+but the current jobs call fixed levels (`--level 1`, `--level 2`, `--level 3`);
+changing that input does not currently skip later workflow jobs.
+
+**Artifact behavior:** each level writes Markdown reports under
+`clearance-reports/` and uploads them with `actions/upload-artifact@v4.6.2` as
+`clearance-level-1-report`, `clearance-level-2-report`, and
+`clearance-level-3-report`. On pull requests, `report-pr-comment` downloads the
+artifacts and posts a status summary comment.
+
 ### Level 1 — Basic
 
 | Step | Tool | What it checks |
 | ---- | ---- | -------------- |
-| `syntax-check` | `python -m py_compile` | All `.py` files parse without syntax errors |
-| `lint-errors` | `flake8` | Fatal linting errors (`E9`, `F63`, `F7`, `F82`) |
+| `syntax-check` | `python -m py_compile` | `.py` files discovered under `src/` and `scripts/` parse without syntax errors |
+| `lint-errors` | `flake8` | Fatal linting errors (`E9`, `F63`, `F7`, `F82`) under `src/` and `scripts/` |
 | `unit-tests` | `pytest` | Unit test suite passes |
 
 ### Level 2 — Standard
@@ -48,6 +59,38 @@ Implements a 3-tier progressive clearance system.  Each level must pass before t
 
 Each level uploads a Markdown report as a GitHub Actions artifact (`clearance-level-<N>-report`).  A summary comment is posted on pull requests when all levels complete.
 
+### Source-verified codepath map
+
+| Behavior | Source | Notes |
+| --- | --- | --- |
+| Workflow event surface | `.github/workflows/redteam-ci.yml` | Runs on PRs/pushes to `main` and manual dispatch. |
+| Progressive job ordering | `needs: clearance-level-1`, then `needs: clearance-level-2` | A failed lower level prevents later levels from running. |
+| Step definitions | `scripts/run_clearance_tests.py::LEVEL_STEPS` | Defines commands for each clearance level. |
+| Python file discovery | `scripts/run_clearance_tests.py::_collect_python_files` | Syntax check only scans `src/` and `scripts/`. |
+| Stop-on-failure behavior | `scripts/run_clearance_tests.py::main` | `--level N` runs levels `1..N` and stops after the first failed level. |
+| Report formats | `scripts/run_clearance_tests.py::write_report` | Supports `markdown` and `json`; workflow uses Markdown. |
+
+### Local reproduction
+
+Run from the repository root after installing Python dependencies:
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install flake8 pytest pytest-cov mypy
+
+# Match the Level 1 CI job.
+python scripts/run_clearance_tests.py \
+  --level 1 \
+  --report-dir clearance-reports \
+  --report-format markdown \
+  --verbose
+
+# Exercise all levels locally. Install Gitleaks first for a meaningful
+# Level 3 secret scan.
+python scripts/run_clearance_tests.py --level 3 --verbose
+```
+
 ---
 
 ## PGSA Portability Gate (`pgsa-portability-gate.yml`)
@@ -61,16 +104,55 @@ Enforces the **Portability and Governance Security Assessment** requirements.
 - Installs Gitleaks and runs `scripts/scan_secrets.py --fail-on-findings`.
 - Fails the gate if any secrets are detected.
 - Uses `.github/gitleaks.toml` for NLT-specific rules and allowlisting.
+- Runs with `--skip-trufflehog` in CI, so the PGSA workflow's enforced scanner
+  is currently Gitleaks.
 
 #### `provenance-check`
 
 - Runs `scripts/validate_provenance.py` against all `**/provenance.json` manifests.
 - Validates required schema fields and PGSA whitelist/blacklist rules.
 - Config loaded from `config/pgsa-allowlists.json`.
+- Passes when no provenance manifests are present; the script reports "nothing
+  to validate" and exits 0.
 
 #### `pgsa-gate`
 
 Aggregates the results of both jobs.  This is the **required status check** to add to branch protection rules.
+
+### Source-verified codepath map
+
+| Behavior | Source | Notes |
+| --- | --- | --- |
+| Workflow event surface | `.github/workflows/pgsa-portability-gate.yml` | Runs on PRs/pushes to `main` and manual dispatch. |
+| Required status check name | `pgsa-gate` job name | Use `PGSA Gate — Required Status Check` in branch protection. |
+| Gitleaks install path | `secrets-scan` job | Installs Gitleaks `8.21.2` before running `scan_secrets.py`. |
+| Secret scanner exit behavior | `scripts/scan_secrets.py::main` | Returns 1 only when findings exist and `--fail-on-findings` is set. |
+| Missing local scanner behavior | `scripts/scan_secrets.py::main` | If no scanner is available, warns and returns 0 unless findings exist. |
+| Manifest discovery | `scripts/validate_provenance.py::MANIFEST_GLOBS` | Scans `**/provenance.json` and `**/*.provenance.json`. |
+| Directory exclusions | `scripts/validate_provenance.py::SKIP_DIRS` | Skips `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, and `.tox`. |
+| Enforced provenance failures | `scripts/validate_provenance.py::_validate_manifest` | Missing required fields, parse errors, non-object roots, and blacklisted sources fail. |
+| Advisory provenance warnings | `scripts/validate_provenance.py::_validate_manifest` | Sources outside the whitelist warn but do not fail. |
+
+### Local reproduction
+
+```bash
+# Secrets scan. For parity with CI, install Gitleaks and skip TruffleHog.
+python scripts/scan_secrets.py \
+  --gitleaks-config .github/gitleaks.toml \
+  --report-dir pgsa-reports \
+  --report-format markdown \
+  --fail-on-findings \
+  --skip-trufflehog \
+  --verbose
+
+# Provenance validation.
+python scripts/validate_provenance.py \
+  --scan-root . \
+  --config config/pgsa-allowlists.json \
+  --report-dir pgsa-reports \
+  --report-format markdown \
+  --verbose
+```
 
 ---
 
@@ -150,6 +232,15 @@ Each `provenance.json` (or `*.provenance.json`) must include:
 | `source` | ✅ | Origin URL or registry |
 | `build_system` | ✅ | Build tool (`pip`, `npm`, `docker`, etc.) |
 
+### Manifest naming and validation constraints
+
+- File names must match `provenance.json` or `*.provenance.json`.
+- Required fields are checked only at the top level of the JSON object.
+- `source` is matched by case-insensitive substring against the whitelist and
+  blacklist entries.
+- A blacklisted source fails validation even if it also contains a whitelisted
+  substring.
+
 ---
 
 ## PGSA Allowlists (`config/pgsa-allowlists.json`)
@@ -163,6 +254,9 @@ Each `provenance.json` (or `*.provenance.json`) must include:
 
 - **Whitelist** — advisory; sources not on the list generate a warning but do not fail validation.
 - **Blacklist** — enforced; any manifest whose `source` matches a blacklisted origin causes a validation failure.
+- The checked-in allowlist includes common registries such as `github.com`,
+  `pypi.org`, `npmjs.com`, `registry.npmjs.org`, `hub.docker.com`, `ghcr.io`,
+  `pkg.go.dev`, `crates.io`, and `nuget.org`.
 
 ---
 
@@ -195,6 +289,11 @@ To enforce both gates on `main`:
    - `PGSA Gate — Required Status Check`
 4. Enable **"Require branches to be up to date before merging"**
 
+Only `PGSA Gate — Required Status Check` aggregates the PGSA secrets and
+provenance jobs. If branch protection references only `Secrets Scan (Gitleaks)`
+or `Provenance Validation (PGSA)`, it will not capture the full portability
+gate result.
+
 ---
 
 ## Local Development
@@ -224,3 +323,16 @@ curl -sSfL \
   "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
   | tar -xz -C ~/.local/bin gitleaks
 ```
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to check |
+| --- | --- | --- |
+| `redteam-ci.yml` manual run ignores selected `clearance_level` | Workflow jobs currently pass fixed `--level` values | Inspect each `Run Level <N> clearance tests` step before assuming the input changes the job graph. |
+| Level 2 or Level 3 appears to rerun earlier checks | `run_clearance_tests.py --level N` executes levels `1..N` | This is expected script behavior; review the generated report to see which level failed first. |
+| Local secret scan reports no tools available | Neither Gitleaks nor TruffleHog is installed | Install Gitleaks for parity with CI, or run with the scanner available on `PATH`. |
+| PGSA provenance passes with zero manifests | No files matched `**/provenance.json` or `**/*.provenance.json` | Add a manifest only for components that require provenance tracking. |
+| PGSA provenance warns about a source but passes | Source was not on the whitelist | Whitelist misses are advisory; blacklist matches and schema/parse violations fail. |
+| Expected branch-protection check is missing | Branch protection references the component jobs instead of the aggregator | Use `PGSA Gate — Required Status Check` for PGSA enforcement. |

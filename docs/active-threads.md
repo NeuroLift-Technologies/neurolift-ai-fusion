@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0
-**Last updated:** 2026-05-02
+**Last updated:** 2026-05-04
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -18,7 +18,7 @@
 
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
-| — | No active threads at this time. | — | — | — | — | — |
+| TH-008 | Document PR #51 CI harness and PGSA gate | Documentation automation | Cursor GPT-5.5 | cursor/codebase-documentation-alignment-fae9 | 🟡 In Progress | 2026-05-04 |
 
 ---
 
