@@ -1,0 +1,204 @@
+name: Red Team CI — Clearance Rubric
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      clearance_level:
+        description: "Maximum clearance level to run (1–3)"
+        required: false
+        default: "3"
+        type: choice
+        options: ["1", "2", "3"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: redteam-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Level 1 — Basic: syntax, lint, unit tests
+  # --------------------------------------------------------------------------
+  clearance-level-1:
+    name: "Clearance Level 1 — Basic"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 pytest
+
+      - name: Run Level 1 clearance tests
+        run: |
+          python scripts/run_clearance_tests.py \
+            --level 1 \
+            --report-dir clearance-reports \
+            --report-format markdown \
+            --verbose
+
+      - name: Upload Level 1 report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clearance-level-1-report
+          path: clearance-reports/
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # Level 2 — Standard: coverage, type checking
+  # --------------------------------------------------------------------------
+  clearance-level-2:
+    name: "Clearance Level 2 — Standard"
+    runs-on: ubuntu-latest
+    needs: clearance-level-1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov mypy
+
+      - name: Run Level 2 clearance tests
+        run: |
+          python scripts/run_clearance_tests.py \
+            --level 2 \
+            --report-dir clearance-reports \
+            --report-format markdown \
+            --verbose
+
+      - name: Upload Level 2 report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clearance-level-2-report
+          path: clearance-reports/
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # Level 3 — Full: security baseline (secrets + provenance)
+  # --------------------------------------------------------------------------
+  clearance-level-3:
+    name: "Clearance Level 3 — Full"
+    runs-on: ubuntu-latest
+    needs: clearance-level-2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history required for git-based secret scanning
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Gitleaks
+        run: |
+          GITLEAKS_VERSION="8.21.2"
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            -o /tmp/gitleaks.tar.gz
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Run Level 3 clearance tests
+        run: |
+          python scripts/run_clearance_tests.py \
+            --level 3 \
+            --report-dir clearance-reports \
+            --report-format markdown \
+            --verbose
+
+      - name: Upload Level 3 report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clearance-level-3-report
+          path: clearance-reports/
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # PR comment — post aggregated results on pull requests
+  # --------------------------------------------------------------------------
+  report-pr-comment:
+    name: "Post Clearance Summary"
+    runs-on: ubuntu-latest
+    needs: [clearance-level-1, clearance-level-2, clearance-level-3]
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Download all clearance reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clearance-level-*-report
+          path: all-reports/
+          merge-multiple: true
+
+      - name: Post summary comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const reportsDir = 'all-reports';
+
+            const level1 = '${{ needs.clearance-level-1.result }}';
+            const level2 = '${{ needs.clearance-level-2.result }}';
+            const level3 = '${{ needs.clearance-level-3.result }}';
+
+            const icon = (r) => r === 'success' ? '✅' : r === 'skipped' ? '⏭️' : '❌';
+
+            const body = [
+              '## 🔒 Clearance Rubric Results',
+              '',
+              '| Level | Name | Status |',
+              '| ----- | ---- | ------ |',
+              `| 1 | Basic (syntax, lint, unit tests) | ${icon(level1)} ${level1} |`,
+              `| 2 | Standard (coverage, type check) | ${icon(level2)} ${level2} |`,
+              `| 3 | Full (secrets, provenance) | ${icon(level3)} ${level3} |`,
+              '',
+              `_Triggered by commit ${{ github.sha }} on \`${{ github.head_ref }}\`._`,
+              '',
+              'Full reports are available as [workflow artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

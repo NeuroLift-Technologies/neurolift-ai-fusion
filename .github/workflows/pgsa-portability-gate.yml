@@ -1,0 +1,132 @@
+name: PGSA Portability Gate
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pgsa-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Secrets scan — blocks merge on detected secrets
+  # --------------------------------------------------------------------------
+  secrets-scan:
+    name: "Secrets Scan (Gitleaks)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history required for accurate git-based scanning
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Gitleaks
+        run: |
+          GITLEAKS_VERSION="8.21.2"
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            -o /tmp/gitleaks.tar.gz
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Run secrets scan
+        id: secrets_scan
+        run: |
+          python scripts/scan_secrets.py \
+            --gitleaks-config .github/gitleaks.toml \
+            --report-dir pgsa-reports \
+            --report-format markdown \
+            --fail-on-findings \
+            --skip-trufflehog \
+            --verbose
+
+      - name: Upload secrets scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pgsa-secrets-report
+          path: pgsa-reports/
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # Provenance validation — checks manifests against PGSA allow/deny lists
+  # --------------------------------------------------------------------------
+  provenance-check:
+    name: "Provenance Validation (PGSA)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate provenance manifests
+        id: provenance
+        run: |
+          python scripts/validate_provenance.py \
+            --scan-root . \
+            --config config/pgsa-allowlists.json \
+            --report-dir pgsa-reports \
+            --report-format markdown \
+            --verbose
+
+      - name: Upload provenance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pgsa-provenance-report
+          path: pgsa-reports/
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # Gate summary — aggregate job status for branch-protection required check
+  # --------------------------------------------------------------------------
+  pgsa-gate:
+    name: "PGSA Gate — Required Status Check"
+    runs-on: ubuntu-latest
+    needs: [secrets-scan, provenance-check]
+    if: always()
+    steps:
+      - name: Evaluate gate
+        run: |
+          SECRETS="${{ needs.secrets-scan.result }}"
+          PROVENANCE="${{ needs.provenance-check.result }}"
+
+          echo "secrets-scan:      $SECRETS"
+          echo "provenance-check:  $PROVENANCE"
+
+          if [ "$SECRETS" = "success" ] && [ "$PROVENANCE" = "success" ]; then
+            echo "✅ PGSA gate PASSED"
+            exit 0
+          else
+            echo "❌ PGSA gate FAILED — one or more required checks did not pass"
+            exit 1
+          fi
