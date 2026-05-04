@@ -55,7 +55,7 @@ jobs:
 
       - name: Upload Level 1 report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: clearance-level-1-report
           path: clearance-reports/
@@ -94,7 +94,7 @@ jobs:
 
       - name: Upload Level 2 report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: clearance-level-2-report
           path: clearance-reports/
@@ -144,7 +144,7 @@ jobs:
 
       - name: Upload Level 3 report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: clearance-level-3-report
           path: clearance-reports/
@@ -162,7 +162,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Download all clearance reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.3
         with:
           pattern: clearance-level-*-report
           path: all-reports/
