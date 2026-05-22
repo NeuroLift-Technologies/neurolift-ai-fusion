@@ -308,51 +308,94 @@ print(db._is_available())  # True if connected, False otherwise
 
 ---
 
-## 🧹 Repository Maintenance Automation (PR Cleanup)
+## 🧹 Repository Maintenance Automation (PR Cleanup + Governance Sync)
 
-Use this when you need to reproduce or validate pull-request hygiene behavior in GitHub Actions.
+Use this section to reproduce or validate repository hygiene and governance document sync behavior in GitHub Actions.
 
-### What the workflow does
+### PR cleanup workflow quick reference
 
-- Workflow file: `.github/workflows/pr-cleanup.yml`
-- Actions UI name: **PR Cleanup**
-- Runs daily at `06:00 UTC` (`cron: 0 6 * * *`) and supports manual dispatch
-- Marks inactive PRs as `stale` after 30 days, then auto-closes after 7 more days (`auto-closed` label)
-- Deletes branches for merged PRs when the branch belongs to this repository
-- Reads up to 100 closed PRs per run when scanning for merged branch deletion candidates
+**Workflow file:** `.github/workflows/pr-cleanup.yml`  
+**Actions UI name:** **PR Cleanup**
 
-### Safety constraints (from workflow logic)
+- Runs daily at `06:00 UTC` (`cron: 0 6 * * *`) and supports manual dispatch.
+- Marks inactive PRs as `stale` after 30 days, then auto-closes after 7 more days (`auto-closed` label).
+- Deletes branches for merged PRs when the branch belongs to this repository.
+- Reads up to 100 closed PRs per run for branch deletion candidates.
 
-- Draft PRs are exempt from stale marking (`exempt-draft-pr: true`)
-- Issues are never marked stale/closed by this workflow
-- Branch cleanup skips protected branches and common default branch names
-- Branches from fork-based PRs are not deleted by the cleanup job
-- Workflow permissions must include `contents: write`, `pull-requests: write`, and `issues: write`
+Safety constraints (from workflow logic):
 
-### Manual run (Actions UI)
+- Draft PRs are exempt from stale marking (`exempt-draft-pr: true`).
+- Issues are never marked stale/closed by this workflow.
+- Branch cleanup skips protected branches and common default names.
+- Branches from fork-based PRs are not deleted.
+- Required permissions: `contents: write`, `pull-requests: write`, `issues: write`.
 
-1. Go to **Actions** -> **PR Cleanup** -> **Run workflow**
-2. Select the branch/ref
-3. Optionally override:
-   - `days_before_stale` (default `30`)
-   - `days_before_close` (default `7`)
-4. Review logs from:
-   - `stale-prs` (stale/close decisions)
-   - `delete-merged-branches` (branch cleanup actions)
+Manual run:
 
-### Quick verification checklist
+1. Go to **Actions** -> **PR Cleanup** -> **Run workflow**.
+2. Select the branch/ref.
+3. Optionally override `days_before_stale` (default `30`) and `days_before_close` (default `7`).
+4. Review logs from `stale-prs` and `delete-merged-branches`.
 
-After each manual run, confirm:
-
-1. The run used the intended `days_before_stale` and `days_before_close` values.
-2. Draft PRs were skipped and issue staleness was not applied.
-3. Branch cleanup outcomes are expected (`deleted`, `skipped protected`, `fork source`, or `already deleted`).
-4. Any remaining merged branches are not just outside the current 100-PR scan window.
-
-### Common pitfalls
+Common pitfalls:
 
 - **Merged branch not deleted:** branch may already be removed, protected, or from a fork PR.
 - **Unexpected stale label:** any new activity (comment/commit/review) keeps an active PR from closure.
+
+### Governance sync workflow quick reference
+
+**Workflow file:** `.github/workflows/sync-governance-public.yml`  
+**Actions UI name:** **Sync Governance (Public)**
+
+Trigger matrix:
+
+- `repository_dispatch` with type `governance-sync` (writes files, can open a PR)
+- `workflow_dispatch` (validation-only)
+- weekly schedule (`0 8 * * 1`, validation-only)
+
+Payload contract for `repository_dispatch`:
+
+- Required: `client_payload.document_name`, `client_payload.content` (base64 text)
+- Optional: `client_payload.version`, `client_payload.checksum`
+- Allowed document paths only: `NLT-*.md` or `docs/governance/NLT-*.md`
+- Supported checksum verification: `sha256:<hex>`
+
+Dispatch example with `gh api`:
+
+```bash
+DOC_PATH="NLT-DEV-OTOI.md"
+DOC_CONTENT_B64="$(base64 -w 0 "$DOC_PATH")"
+
+cat > /tmp/governance-sync-payload.json <<EOF
+{
+  "event_type": "governance-sync",
+  "client_payload": {
+    "document_name": "${DOC_PATH}",
+    "content": "${DOC_CONTENT_B64}",
+    "version": "manual-sync-test"
+  }
+}
+EOF
+
+gh api \
+  --method POST \
+  repos/NeuroLift-Technologies/neurolift-ai-fusion/dispatches \
+  --input /tmp/governance-sync-payload.json
+```
+
+Quick verification checklist:
+
+1. Confirm event type is `governance-sync`.
+2. Confirm `document_name` matches allowed path patterns.
+3. In workflow logs, confirm base64 decode succeeded and no disallowed-path error was raised.
+4. If no PR is created, verify this was not a manual/scheduled run and confirm decoded content actually changed.
+
+Common pitfalls:
+
+- **Missing required fields:** run fails when `document_name` or `content` is empty.
+- **Disallowed document name:** path does not match the permitted governance patterns.
+- **No PR created after successful run:** expected when event is schedule/manual or when file content is unchanged.
+- **Checksum mismatch (if checksum used):** `sha256` digest does not match decoded content.
 
 ---
 
