@@ -55,6 +55,30 @@ avoid creating an `apps/web/package-lock.json`. For the Cloudflare worker, run
 `npm ci` from `cloudflare-engine/` so local `npx wrangler ...` commands use the
 repo-pinned Wrangler v4 dependency instead of a global install.
 
+Web transitive security overrides are source-controlled in
+`apps/web/pnpm-workspace.yaml` and recorded at the top of
+`apps/web/pnpm-lock.yaml`. The current overrides force:
+
+| Package | Minimum resolved version | Why it is pinned |
+| --- | --- | --- |
+| `postcss` | `>=8.5.14` | Avoid vulnerable 8.4.x transitive resolutions |
+| `glob` | `>=10.5.0` | Keep Next/ESLint transitive glob usage on the remediated line |
+| `minimatch` | `>=9.0.7` | Keep glob matching transitive dependencies on the remediated line |
+
+When changing these overrides, update `apps/web/pnpm-workspace.yaml`, then
+regenerate and verify the lockfile from the web package:
+
+```bash
+corepack enable
+pnpm --dir apps/web install --lockfile-only
+pnpm --dir apps/web install --frozen-lockfile
+```
+
+Do not rely on the nested `pnpm.overrides` block in `apps/web/package.json`
+alone; the current pnpm v9 lockfile contract is the workspace override file plus
+the regenerated lockfile. If npm-based tooling consumes the web package, keep the
+top-level `overrides` block in `apps/web/package.json` aligned as well.
+
 ---
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
