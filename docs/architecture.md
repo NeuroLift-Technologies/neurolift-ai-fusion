@@ -1,21 +1,26 @@
 # NeuroLift Technologies Simulation Environment - Architecture Overview
 
-**Date:** Apr 4, 2026  
-**Version:** 1.1  
+**Date:** Apr 25, 2026  
+**Version:** 1.2  
 **Author:** Cursor AI (Initial Implementation)
 
 ## System Architecture
 
 The NeuroLift Technologies Simulation Environment implements a novel approach to AI training through experiential learning. Unlike traditional machine learning approaches that train on datasets, this system creates realistic simulation environments where AI agents (Avatars) experience authentic challenges and learn through doing.
 
-## Current Runtime Contracts (Source-Verified, Apr 2026)
+## Source-Verified Runtime Contracts (Apr 2026)
 
-The sections below include conceptual architecture. For day-to-day engineering work,
-use the following codepaths as the current contract surface:
+The sections below provide conceptual architecture. For implementation-facing
+work, use this contract map first so docs and code stay aligned.
 
-- `src/avatars/base_avatar.py`
-- `src/aides/base_aide.py`
-- `src/simulation/session_orchestrator.py`
+### Canonical orchestration path
+
+| Contract | Source |
+| --- | --- |
+| Main runtime loop is `SessionOrchestrator.run_session(scenarios)` | `src/simulation/session_orchestrator.py` |
+| Stable interface verification tests | `tests/test_simulation/test_session_orchestrator.py` |
+| Scenario input keys expected by orchestrator loop | `name`, `task_type`, `base_success_rate`, `cognitive_demand` |
+| Session tuning knobs | `SessionConfig` (`max_attempts_per_scenario`, `max_coaching_per_attempt`, `min_attempts_for_success_check`, `success_rate_target`, `burnout_abort_threshold`, `check_fusion_readiness`) |
 
 ### Public constructors and orchestration entrypoints
 
@@ -36,15 +41,53 @@ SessionOrchestrator(
 result = orchestrator.run_session(scenarios: List[Dict[str, Any]])
 ```
 
-Scenario dictionaries are expected to include at least:
-`name`, `task_type`, `base_success_rate`, and `cognitive_demand`.
-
-### Runtime workflow (current path)
+### Avatar-Aide runtime workflow (current path)
 
 1. Create Avatar + Aide with shared or compatible `EventBus`.
 2. `SessionOrchestrator` binds the pair via `aide.bind_to_avatar(avatar)`.
 3. Avatar attempts tasks (`attempt_task`), Aide observes/coaches (`observe_and_coach`).
-4. Session tracks attempts/coaching/independence and (optionally) fusion readiness.
+4. Retry coaching calls `track_intervention_effectiveness(...)` for both successful
+   and failed retries, so strategy effectiveness captures losses as well as wins.
+5. Session tracks attempts/coaching/independence and (optionally) fusion readiness.
+6. Session completion emits `SESSION_COMPLETED` and serializes results through
+   `SessionResult.to_dict()`.
+
+### Fusion and Advocate contracts
+
+| Contract | Source |
+| --- | --- |
+| Fusion readiness scoring | `src/fusion/readiness_assessor.py` |
+| Fusion report/result construction | `src/fusion/fusion_engine.py` |
+| Fused Advocate public support API | `src/advocates/base_advocate.py` |
+| Current fusion package wiring test | `tests/test_fusion/test_exports.py` |
+
+`ReadinessAssessor.assess(avatar, aide)` scores six dimensions:
+`EXPERIENTIAL_DEPTH`, `COACHING_EFFECTIVENESS`, `INDEPENDENCE_LEVEL`,
+`EMOTIONAL_RESILIENCE`, `STRATEGY_INTERNALISATION`, and `BURNOUT_MANAGEMENT`.
+The pair is ready only when every dimension passes its threshold and the overall
+score is at least `0.65`.
+
+`FusionEngine.fuse(avatar, aide, force=False)` returns a `FusionReport`. On a
+successful fusion, the report contains a `FusionResult` with an `advocate_id`,
+`fusion_quality_score`, `AdvocateCapabilities`, validation results, and summaries
+extracted from Avatar experience memory and Aide effectiveness metrics. The
+engine does not instantiate a concrete Advocate subclass; callers pass the
+`FusionResult` into a `BaseAdvocate` subclass.
+
+`BaseAdvocate` subclasses must implement:
+
+```python
+provide_empathic_support(user_context: Dict[str, Any]) -> Dict[str, Any]
+provide_expert_guidance(user_context: Dict[str, Any]) -> Dict[str, Any]
+```
+
+The primary user-facing method is
+`provide_comprehensive_support(user_context) -> SupportResponse`, which selects
+an `AdvocateMode`, combines empathic and expert payloads, caps actionable steps
+to five, and tracks interaction metrics. `activate_rrt_mode(user_context)`
+returns a crisis-mode `SupportResponse` only when
+`AdvocateCapabilities.crisis_intervention` is true; otherwise it returns
+`success=False`.
 
 ### Constraints and known pitfalls
 
@@ -54,6 +97,16 @@ Scenario dictionaries are expected to include at least:
   useful as a reproducible diagnostic, not as a stable "green path."
 - The stable verification target for orchestration behavior is:
   `tests/test_simulation/test_session_orchestrator.py`.
+- Fusion currently has export-level test coverage only in
+  `tests/test_fusion/test_exports.py`; behavior above is source-verified but not
+  protected by dedicated fusion/Advocate behavior tests in this snapshot.
+- RRT is represented in Aide/Advocate capability fields and crisis-mode helper
+  methods, but there is no implemented `rrt_foundation` module exported from
+  `src/aides/__init__.py`.
+- Supabase is optional at runtime. `SupabaseClient` only initializes a live client
+  when both `VITE_SUPABASE_URL` and `VITE_SUPABASE_SUPABASE_ANON_KEY` are present
+  and the `supabase` package is installed; otherwise DB methods return `None`/`[]`
+  and simulation components continue in local mode.
 
 ### High-Level Architecture
 
@@ -106,45 +159,6 @@ Scenario dictionaries are expected to include at least:
 │  └─────────────────────────────────────────────────────────┤
 └─────────────────────────────────────────────────────────────┘
 ```
-
-## Source-Verified Runtime Contracts (Apr 2026)
-
-The sections below provide conceptual architecture. For implementation-facing work,
-use this contract map first so docs and code stay aligned.
-
-### Canonical orchestration path
-
-| Contract | Source |
-| --- | --- |
-| Main runtime loop is `SessionOrchestrator.run_session(scenarios)` | `src/simulation/session_orchestrator.py` |
-| Stable interface verification tests | `tests/test_simulation/test_session_orchestrator.py` |
-| Scenario input keys expected by orchestrator loop | `name`, `task_type`, `base_success_rate`, `cognitive_demand` |
-| Session tuning knobs | `SessionConfig` (`max_attempts_per_scenario`, `max_coaching_per_attempt`, `min_attempts_for_success_check`, `success_rate_target`, `burnout_abort_threshold`, `check_fusion_readiness`) |
-
-### Avatar-Aide runtime interaction (current implementation)
-
-1. `SessionOrchestrator` binds `BaseAide` to `BaseAvatar` via `bind_to_avatar(...)`.
-2. Avatar and Aide share one `EventBus` (`src/core/events.py`) for signal-driven coordination.
-3. Per attempt, Avatar executes `attempt_task(...)`; on failures, Aide runs `observe_and_coach(...)`.
-4. Coaching effectiveness is always tracked after retries (including failed retries) through `track_intervention_effectiveness(...)`.
-5. Session completion emits `SESSION_COMPLETED` and serializes results through `SessionResult.to_dict()`.
-
-### Legacy/diagnostic path (not canonical)
-
-`src/simulation/training_session.py` is a legacy manager that still drives database-oriented
-session flow. It currently builds `CoachingContext` with an older shape (`avatar=...`,
-`current_struggle=...`), while `src/aides/base_aide.py` now defines `CoachingContext`
-as `avatar_id + observation + task_context (+ optional summary/timestamp)`.
-
-Use `SessionOrchestrator` for current integration work and treat `TrainingSession` as a
-diagnostic compatibility path until that interface mismatch is reconciled.
-
-### Persistence behavior constraints
-
-- Supabase is optional at runtime.
-- `SupabaseClient` only initializes a live client when both `VITE_SUPABASE_URL` and
-  `VITE_SUPABASE_SUPABASE_ANON_KEY` are present and the `supabase` package is installed.
-- When unavailable, DB methods return `None`/`[]` and simulation components continue in local mode.
 
 ## Core Components
 
