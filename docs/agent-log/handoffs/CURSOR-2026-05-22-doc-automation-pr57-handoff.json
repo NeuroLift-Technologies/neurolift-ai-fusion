@@ -38,6 +38,6 @@
       "Python source-fact assertion for apps/web/package.json, apps/web/pnpm-lock.yaml, apps/web/package-lock.json, cloudflare-engine/package.json, and cloudflare-engine/package-lock.json"
     ],
     "tests_passing": true,
-    "pr_url": "pending"
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/64"
   }
 }
