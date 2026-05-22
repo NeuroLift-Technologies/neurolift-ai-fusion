@@ -1,0 +1,49 @@
+{
+  "handoff_record": {
+    "session_id": "CURSOR-2026-05-22-doc-automation-pr66",
+    "agent_name": "Cursor GPT-5.5",
+    "date": "2026-05-22",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "cursor/technical-documentation-updates-dc24",
+    "work_completed": [
+      "Reviewed merged PR #66 and confirmed it changed apps/web/pnpm-lock.yaml and added apps/web/pnpm-workspace.yaml for web transitive security overrides.",
+      "Updated README.md with the web override contract, current pinned packages, regeneration commands, and verified pnpm version constraints.",
+      "Updated apps/web/README.md with a dependency and security override workflow for Dependabot/audit follow-up work.",
+      "Registered this automation session and moved TH-011 to completed in docs/active-threads.md."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Updated existing web setup documentation instead of creating a new dependency page because PR #66 only affects the web package-manager workflow.",
+      "Documented pnpm 10 as the verified local toolchain for the current lockfile because pnpm 9.15.9 rejects the override-only pnpm-workspace.yaml and unpinned pnpm 11 failed supply-chain minimum-release-age checks in this environment.",
+      "Kept changes documentation-only and did not modify package manifests or lockfiles."
+    ],
+    "decisions_pending": [
+      "Maintainers should decide whether to pin a packageManager field for apps/web or the repository root so Corepack consistently activates the intended pnpm major.",
+      "Maintainers should decide whether .github/workflows/web.yml should be aligned with pnpm instead of its current npm install workflow."
+    ],
+    "escalations": [],
+    "next_agent_notes": "PR #66 docs now cover the apps/web pnpm-workspace.yaml override source, the top-level lockfile overrides for postcss/glob/minimatch, the pnpm@10 verification path, and observed pnpm@9/pnpm@11 pitfalls. The source files were not changed.",
+    "files_modified": [
+      "README.md",
+      "apps/web/README.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CURSOR-2026-05-22-doc-automation-pr66.json",
+      "docs/agent-log/handoffs/CURSOR-2026-05-22-doc-automation-pr66-handoff.json"
+    ],
+    "tests_run": [
+      "git diff --check HEAD~1..HEAD",
+      "python3 -m json.tool docs/agent-log/registrations/CURSOR-2026-05-22-doc-automation-pr66.json",
+      "python3 source assertion for README.md, apps/web/README.md, apps/web/pnpm-workspace.yaml, apps/web/pnpm-lock.yaml, and .github/workflows/web.yml markers",
+      "corepack enable && pnpm --dir apps/web install --frozen-lockfile --ignore-scripts (failed because unpinned Corepack selected pnpm 11.2.2 and minimum-release-age policy rejected recent lockfile entries)",
+      "corepack prepare pnpm@9 --activate && pnpm --dir apps/web install --frozen-lockfile --ignore-scripts (failed because pnpm 9.15.9 requires a packages field in the override-only pnpm-workspace.yaml)",
+      "corepack prepare pnpm@10 --activate && pnpm --dir apps/web install --frozen-lockfile --ignore-scripts",
+      "git diff --check HEAD~2..HEAD",
+      "python3 -m json.tool docs/agent-log/registrations/CURSOR-2026-05-22-doc-automation-pr66.json",
+      "python3 source assertion for corrected docs and source markers",
+      "corepack prepare pnpm@10 --activate && pnpm --dir apps/web install --frozen-lockfile --ignore-scripts"
+    ],
+    "tests_passing": true
+  }
+}
