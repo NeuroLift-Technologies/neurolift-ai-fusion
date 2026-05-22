@@ -7,7 +7,7 @@ especially those that are repetitive or not immediately engaging.
 """
 
 import random
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 
 from ..base_avatar import BaseAvatar
@@ -37,9 +37,9 @@ class AttentionDeficit(BaseAvatar):
         self.current_focus_level = 0.7
         self.distraction_level = 0.3
         self.mental_fatigue = 0.0
-        self.last_focus_loss = None
+        self.last_focus_loss: Optional[datetime] = None
         self.hyperfocus_active = False
-        self.hyperfocus_start_time = None
+        self.hyperfocus_start_time: Optional[datetime] = None
         
     def get_adhd_trait_impact(self, task_context: Dict[str, Any]) -> Dict[str, Any]:
         """

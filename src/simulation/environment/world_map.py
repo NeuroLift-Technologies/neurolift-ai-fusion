@@ -68,7 +68,7 @@ class GridManager:
         for entity in entities:
             # We assume anything interactable is a solid object for now.
             # In a full system, we'd have a 'Collider' component.
-            if self.registry.has_component(entity, __import__('src.simulation.environment.ecs', fromlist=['Interactable']).Interactable):
+            if self.registry and self.registry.has_component(entity, __import__('src.simulation.environment.ecs', fromlist=['Interactable']).Interactable):
                 return False
                 
         return True
@@ -85,7 +85,7 @@ class GridManager:
         # But standard A* checks goal walkability. If goal is solid, we can't reach it.
         # To handle walking *up to* an interactable, the agent should goal to an adjacent cell.
         
-        frontier = []
+        frontier: List[Tuple[float, int, int]] = []
         heapq.heappush(frontier, (0, start_x, start_y))
         came_from: Dict[Tuple[int, int], Optional[Tuple[int, int]]] = {}
         cost_so_far: Dict[Tuple[int, int], float] = {}
@@ -134,7 +134,7 @@ class GridManager:
         current = goal
         while current != start:
             path.append(current)
-            current = came_from[current]
+            current = came_from[current]  # type: ignore[assignment]
         path.append(start)
         path.reverse()
         
