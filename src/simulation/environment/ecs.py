@@ -8,7 +8,7 @@ with entities using rich object-oriented logic.
 """
 
 import uuid
-from typing import Any, Dict, List, Type, TypeVar, Optional, Set
+from typing import Any, Dict, List, Type, TypeVar, Optional, Set, cast
 
 T = TypeVar('T', bound='Component')
 
@@ -80,7 +80,7 @@ class Registry:
     def get_component(self, entity: Entity, component_type: Type[T]) -> Optional[T]:
         """Get a specific component for an entity, if it exists."""
         if component_type in self._components:
-            return self._components[component_type].get(entity.entity_id)
+            return cast(Optional[T], self._components[component_type].get(entity.entity_id))
         return None
 
     def has_component(self, entity: Entity, component_type: Type[Component]) -> bool:
@@ -125,7 +125,7 @@ class Position(Component):
 
 class Interactable(Component):
     """Component that defines what actions an agent can take on this entity."""
-    def __init__(self, affordances: List[str] = None):
+    def __init__(self, affordances: Optional[List[str]] = None):
         self.affordances = affordances or []
         self.in_use_by: Optional[str] = None  # Agent ID currently using this
 

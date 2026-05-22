@@ -40,7 +40,7 @@ class WorldEngine:
     Advances time, runs systems, and emits global events.
     """
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.simulation_id = str(uuid.uuid4())
         

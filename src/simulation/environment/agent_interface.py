@@ -36,7 +36,7 @@ class PerceptionMap:
             descriptions.append(desc)
             
         # Sort by distance
-        descriptions.sort(key=lambda x: x["distance"])
+        descriptions.sort(key=lambda x: x["distance"])  # type: ignore[arg-type,return-value]
         return descriptions
 
 class AgentInterface:
@@ -70,7 +70,7 @@ class AgentInterface:
             
         return PerceptionMap(pos, nearby, self.engine)
         
-    def submit_intent(self, intent_type: str, target_id: Optional[str] = None, data: Dict[str, Any] = None) -> bool:
+    def submit_intent(self, intent_type: str, target_id: Optional[str] = None, data: Optional[Dict[str, Any]] = None) -> bool:
         """
         Submit an action for the ECS engine to process.
         Returns False if the agent is already busy.
