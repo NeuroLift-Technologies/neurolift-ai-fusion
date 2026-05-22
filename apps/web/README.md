@@ -45,6 +45,7 @@ To review the Next.js app and Simulation Lab route:
 
 ```bash
 corepack enable
+corepack prepare pnpm@10 --activate
 pnpm --dir apps/web install --frozen-lockfile
 pnpm --dir apps/web dev
 ```
@@ -61,9 +62,9 @@ apps/web/pnpm-workspace.yaml
 apps/web/pnpm-lock.yaml
 ```
 
-`apps/web/pnpm-workspace.yaml` is the pnpm v9+ override source for current
-web security pins. PR #66 regenerated `pnpm-lock.yaml` so the lockfile records
-these overrides and resolves the affected transitive packages to safe lines:
+`apps/web/pnpm-workspace.yaml` is the pnpm override source for current web
+security pins. PR #66 regenerated `pnpm-lock.yaml` so the lockfile records these
+overrides and resolves the affected transitive packages to safe lines:
 
 | Package | Override |
 | --- | --- |
@@ -80,12 +81,23 @@ When Dependabot or an audit requires changing these pins:
 
    ```bash
    corepack enable
+   corepack prepare pnpm@10 --activate
    pnpm --dir apps/web install --lockfile-only
    pnpm --dir apps/web install --frozen-lockfile
    ```
 
 4. Review the top-level `overrides:` block in `apps/web/pnpm-lock.yaml` before
    committing.
+
+Verified package-manager constraints:
+
+- Use `pnpm@10` for the current lockfile workflow until the repo pins a
+  `packageManager` field.
+- `pnpm@9.15.9` rejects the current override-only `pnpm-workspace.yaml` because
+  it has no `packages` field.
+- Unpinned Corepack can select newer pnpm majors; pnpm 11 may fail frozen
+  installs on minimum-release-age supply-chain policy checks for very recent
+  lockfile entries.
 
 ## API base URL
 
@@ -112,7 +124,7 @@ Define that global before loading `main.js` if the API runs somewhere else.
   dependency changes and avoid generating `apps/web/package-lock.json`.
 - For pnpm security override changes, edit `apps/web/pnpm-workspace.yaml`; the
   nested `pnpm.overrides` block in `package.json` is not sufficient by itself
-  for the current pnpm v9 lockfile workflow.
+  for the current lockfile workflow.
 - Root npm workspace scripts can start the web package, but they do not update
   the web pnpm lockfile. If a dependency manifest changes, update and review
   `apps/web/package.json` and `apps/web/pnpm-lock.yaml` together.

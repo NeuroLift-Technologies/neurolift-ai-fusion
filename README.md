@@ -18,6 +18,7 @@ PYTHONPATH=../../src uvicorn main:app --reload
 ```bash
 cd apps/web
 corepack enable
+corepack prepare pnpm@10 --activate
 pnpm install --frozen-lockfile
 cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL
 pnpm dev
@@ -70,14 +71,24 @@ regenerate and verify the lockfile from the web package:
 
 ```bash
 corepack enable
+corepack prepare pnpm@10 --activate
 pnpm --dir apps/web install --lockfile-only
 pnpm --dir apps/web install --frozen-lockfile
 ```
 
 Do not rely on the nested `pnpm.overrides` block in `apps/web/package.json`
-alone; the current pnpm v9 lockfile contract is the workspace override file plus
-the regenerated lockfile. If npm-based tooling consumes the web package, keep the
+alone; the current lockfile contract is the workspace override file plus the
+regenerated lockfile. If npm-based tooling consumes the web package, keep the
 top-level `overrides` block in `apps/web/package.json` aligned as well.
+
+Verified local pnpm constraints:
+
+- `pnpm@10` accepts the current override-only `apps/web/pnpm-workspace.yaml`
+  and frozen lockfile.
+- `pnpm@9.15.9` rejects the current `pnpm-workspace.yaml` because it has no
+  `packages` field.
+- Unpinned Corepack can select newer pnpm majors; pnpm 11 may enforce
+  minimum-release-age supply-chain checks against very recent lockfile entries.
 
 ---
 
