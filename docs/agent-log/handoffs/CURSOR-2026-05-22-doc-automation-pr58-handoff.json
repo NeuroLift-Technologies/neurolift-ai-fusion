@@ -36,6 +36,6 @@
       "python3 scripts/run_clearance_tests.py --level 2 --verbose"
     ],
     "tests_passing": true,
-    "pr_url": ""
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/59"
   }
 }
