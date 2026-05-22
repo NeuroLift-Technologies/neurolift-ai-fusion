@@ -1,0 +1,22 @@
+{
+  "agent_name": "Cursor",
+  "session_id": "CURSOR-2026-04-25-docs-alignment",
+  "session_start": "2026-04-25T09:43:00Z",
+  "task_scope": "Documentation automation pass after PR #20 to align governance/onboarding documentation with source-verified workflow behavior.",
+  "branch": "cursor/codebase-documentation-alignment-192d",
+  "thread_id": "TH-002",
+  "otoi_version": "ORG-DEV-OTOI-1.0.0",
+  "trigger_context": {
+    "event_type": "pull_request",
+    "action": "closed",
+    "pr_number": 20,
+    "title": "docs: refresh governance workflow and onboarding documentation",
+    "url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/20",
+    "base_branch": "master"
+  },
+  "related_pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/20",
+  "onboarding_notes": [
+    "NLT-DEV-OTOI.md was not present at repository root during session start; per AGENTS.md/CLAUDE.md this should be refreshed by Sync Governance (Public).",
+    "AGENTS.md, CLAUDE.md, docs/active-threads.md, and docs/architecture.md were reviewed before documentation edits."
+  ]
+}
