@@ -1,6 +1,16 @@
-# Agent Handoff Records
+# Archived Agent Handoff Records
 
-This directory stores handoff JSON files created at the end of each agent session.
+This directory stores historical handoff JSON files that were imported with
+older AI-agent documentation.
+
+For current work, write new session-end handoffs to:
+
+```text
+docs/agent-log/handoffs/
+```
+
+Do not add new files here unless you are preserving or migrating a legacy
+artifact.
 
 ## Purpose
 
@@ -10,6 +20,10 @@ Handoff records preserve session continuity for the next agent by capturing:
 - what remains,
 - blockers/escalations,
 - and the exact branch/context needed to continue.
+
+In this archive path, use existing records as historical context only. Verify any
+branch, PR, or workflow details against the current `docs/agent-log/` record set
+before treating them as active state.
 
 ## File Naming Convention (Repository Usage)
 

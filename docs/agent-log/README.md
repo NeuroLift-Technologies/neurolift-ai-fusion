@@ -8,6 +8,16 @@ session handoff documents.
 
 Format reference: `NeuroLift-Technologies/.github-private` templates directory.
 
+## Canonical path
+
+This `docs/agent-log/` tree is the canonical location for current agent
+coordination records in this repository.
+
+Do not create new registration or handoff files under
+`docs/ai-agent-docs/agent-log/`. That older tree contains archived copies from
+pre-SOP or imported AI-agent documentation and is retained only for historical
+traceability.
+
 ## Historical planning handoffs
 
 Older review, planning, and advisory artifacts live under
