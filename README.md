@@ -441,6 +441,9 @@ To reproduce the Red Team and PGSA harness locally:
 # Clearance Level 1 only: syntax, fatal lint errors, unit tests
 python scripts/run_clearance_tests.py --level 1 --verbose
 
+# Red Team Level 2: reproduces the 60% clearance coverage gate and mypy.ini.
+python scripts/run_clearance_tests.py --level 2 --verbose
+
 # Full clearance through Level 3. Requires flake8, pytest, pytest-cov, mypy,
 # and at least one installed secret scanner for meaningful secret results.
 python scripts/run_clearance_tests.py --level 3 --verbose
@@ -468,7 +471,12 @@ python scripts/validate_provenance.py \
   - `.github/workflows/redteam-ci.yml` (job graph, artifact names, manual inputs)
   - `.github/workflows/pgsa-portability-gate.yml` (required check name, report artifacts)
   - `scripts/run_clearance_tests.py`, `scripts/scan_secrets.py`, and `scripts/validate_provenance.py` (CLI flags, exit behavior, report formats)
+  - `mypy.ini` (Level 2 type-check exclusions and known structural suppressions)
   - `docs/CI_HARNESS_README.md` and this README section
+- **Keep Red Team Level 2 coverage docs aligned** when changing test coverage:
+  - `scripts/run_clearance_tests.py` currently enforces `--cov-fail-under=60`
+  - `pytest.ini` currently enforces `--cov-fail-under=80` for bare `pytest`
+  - `docs/CI_HARNESS_README.md` lists the focused test suites that protect the coverage-sensitive public surfaces
 - **Keep branch trigger filters aligned** in both CI files when changing branch policy.
 - **Treat `shared-ci.yml` behavior as externally defined**: it calls reusable workflows from `.github-private` at `@main`.
 - **Do not remove `security-events: write` from `shared-ci.yml`** unless the reusable security workflow no longer needs upload permissions.
@@ -501,6 +509,8 @@ python scripts/validate_provenance.py \
 - **Governance sync logs checksum mismatch:** recompute checksum from the decoded file content and ensure it is sent as `sha256:<hex>`.
 - **Governance sync did not open a PR:** confirm event was `repository_dispatch` (not schedule/manual) and that the decoded file content actually changed.
 - **Red Team Level 2 or 3 appears to rerun earlier checks:** this is current script behavior. `run_clearance_tests.py --level N` executes every level from `1` through `N`, and the workflow runs each clearance job independently.
+- **Bare `pytest` fails at 80% coverage while Red Team Level 2 passes:** this is expected in the current config. `pytest.ini` sets the standalone threshold to 80%, while the Red Team harness passes `--cov-fail-under=60`.
+- **Mypy results differ between local one-off commands and CI:** run `python scripts/run_clearance_tests.py --level 2 --verbose` for parity; normal Level 2 mypy loads `mypy.ini`, including scoped exclusions for external-service clients, legacy `training_session`, and the known `stay_alert_aide` context mismatch.
 - **Secret scan reports no tools available locally:** install Gitleaks or TruffleHog. CI installs Gitleaks before Red Team Level 3 and PGSA secrets scanning.
 - **PGSA provenance passed with zero manifests:** this is expected; add `provenance.json` or `*.provenance.json` files for components that need explicit provenance tracking.
 - **PGSA provenance shows whitelist warnings but the job passes:** whitelist matches are advisory. Blacklist matches, parse errors, and missing required fields are enforced failures.

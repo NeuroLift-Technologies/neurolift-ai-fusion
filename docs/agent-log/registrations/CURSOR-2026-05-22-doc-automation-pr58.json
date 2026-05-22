@@ -1,0 +1,24 @@
+{
+  "agent_registration": {
+    "agent_name": "Cursor GPT-5.5",
+    "platform": "Cursor Cloud Automation",
+    "version": "GPT-5.5",
+    "session_id": "CURSOR-2026-05-22-doc-automation-pr58",
+    "entry_date": "2026-05-22",
+    "entry_point": "Automation trigger for merged PR #58: fix(ci): boost test coverage to 60% and fix mypy annotations",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "cursor/technical-documentation-updates-42a6",
+    "capabilities_self_reported": [
+      "Source-verified documentation updates",
+      "Repository diff analysis",
+      "Developer workflow and CI documentation"
+    ],
+    "known_limitations": [
+      "No production deployment authority",
+      "No authority to change governance policy or architecture decisions"
+    ],
+    "preferred_handoff_format": "Structured JSON handoff with files changed, verification performed, and remaining gaps"
+  }
+}
