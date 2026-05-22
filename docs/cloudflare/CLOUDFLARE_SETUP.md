@@ -64,11 +64,11 @@ Cloudflare is a global network that provides:
 ### Required Tools
 
 ```bash
-# Node.js (for Wrangler CLI)
+# Node.js 22+ (for the repo-pinned Wrangler 4 toolchain)
 # Install from: https://nodejs.org
 
-# Wrangler CLI (Cloudflare Workers CLI)
-npm install -g wrangler
+# Worker toolchain dependencies and local Wrangler CLI
+(cd cloudflare-engine && npm ci)
 
 # Python 3 (for utility scripts)
 # Install from: https://python.org
@@ -234,6 +234,7 @@ source while keeping `cloudflare-engine/` as the canonical deploy directory.
 | File | Purpose | Notes |
 | --- | --- | --- |
 | `cloudflare-engine/wrangler.toml` | Canonical deploy config for the World Engine Worker | Uses `name = "neurolift-world-engine"`, `main = "src/index.ts"`, and `WORLD_ENGINE` Durable Object binding. |
+| `cloudflare-engine/package.json` | Worker npm manifest | Declares the local Wrangler v4 CLI used by `npm run dev`, `npm run deploy`, and `npx wrangler ...`; currently `wrangler` is `^4.93.1`. |
 | `cloudflare-engine/package-lock.json` | Locked Worker toolchain dependencies | Keep in sync with `cloudflare-engine/package.json`; use `npm ci` in clean environments. |
 | `wrangler.toml` | Root mirror for tooling that expects a root TOML config | Points to `cloudflare-engine/src/index.ts`; comment notes that canonical deployment stays in `cloudflare-engine/`. |
 | `wrangler.jsonc` | Root JSONC mirror with schema reference | Mirrors the same Worker entrypoint and Durable Object binding for editor/tool compatibility. |
@@ -253,7 +254,7 @@ cd cloudflare-engine
 npm ci
 
 # Login to Wrangler (first time only)
-wrangler login
+npx wrangler login
 
 # Deploy active worker
 npx wrangler deploy

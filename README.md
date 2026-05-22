@@ -43,17 +43,27 @@ pytest
 
 The repository currently has multiple JavaScript package-manager surfaces:
 
-| Path | Lockfile | Use for |
+| Path | Canonical lockfile | Use for |
 | --- | --- | --- |
 | `apps/web/` | `pnpm-lock.yaml` | Next.js web surface and `/simulation-lab` |
 | `apps/mobile/` | `package-lock.json` | Expo mobile starter |
 | `cloudflare-engine/` | `package-lock.json` | World Engine Worker and local Wrangler CLI |
 
-Use the lockfile in the package you are changing. For web-only dependency work,
-run pnpm inside `apps/web/` so the checked-in `pnpm-lock.yaml` stays in sync and
-avoid creating an `apps/web/package-lock.json`. For the Cloudflare worker, run
-`npm ci` from `cloudflare-engine/` so local `npx wrangler ...` commands use the
-repo-pinned Wrangler v4 dependency instead of a global install.
+Use the lockfile in the package you are changing. For web-only Next dependency
+work, run pnpm inside `apps/web/` so `apps/web/package.json` and
+`apps/web/pnpm-lock.yaml` stay in sync. Leave `apps/web/package-lock.json`
+untouched unless the legacy Vite prototype is deliberately revived. For the
+Cloudflare worker, run `npm ci` from `cloudflare-engine/` so local
+`npx wrangler ...` commands use the repo-pinned Wrangler v4 dependency instead
+of a global install.
+
+Current constraints to verify before touching dependencies:
+
+- `apps/web/package.json` declares Next 14.2.3/React 18; the tracked
+  `apps/web/package-lock.json` reflects a legacy Vite/React prototype and is not
+  the source of truth for Next dependency changes.
+- `cloudflare-engine/package-lock.json` currently includes Wrangler v4 packages
+  that require Node.js 22+.
 
 ---
 
