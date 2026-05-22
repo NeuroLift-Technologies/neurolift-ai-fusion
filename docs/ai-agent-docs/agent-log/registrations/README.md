@@ -1,13 +1,26 @@
-# Agent Registration Records
+# Archived Agent Registration Records
 
-This directory stores agent registration JSON files created at the start of each
-agent session.
+This directory stores historical agent registration JSON files that were imported
+with older AI-agent documentation.
+
+For current work, write new session-start records to:
+
+```text
+docs/agent-log/registrations/
+```
+
+Do not add new files here unless you are preserving or migrating a legacy
+artifact.
 
 ## Intent
 
 Registration records make active ownership explicit before any implementation
 work begins. They support thread coordination in `docs/active-threads.md` and
 prevent overlapping work by multiple agents.
+
+In this archive path, use existing records as historical context only. Verify any
+branch, PR, or workflow details against the current `docs/agent-log/` record set
+before treating them as active state.
 
 ## File naming convention
 
@@ -44,7 +57,7 @@ If available in your runtime, also include:
 
 1. Read required governance docs (`.github-private/NLT-DEV-OTOI.md`,
    `AGENTS.md`, `CLAUDE.md`, `docs/active-threads.md`).
-2. Create registration JSON in this directory.
+2. Create registration JSON in `docs/agent-log/registrations/`.
 3. Add/update an entry in `docs/active-threads.md`.
 4. Continue implementation work.
 
