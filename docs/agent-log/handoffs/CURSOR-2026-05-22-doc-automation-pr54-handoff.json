@@ -37,6 +37,6 @@
       "npm ci --dry-run --prefix cloudflare-engine"
     ],
     "tests_passing": true,
-    "pr_url": "Pending OpenGitPr after final handoff commit"
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/57"
   }
 }
