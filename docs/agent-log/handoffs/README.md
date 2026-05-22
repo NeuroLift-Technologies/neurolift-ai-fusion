@@ -33,19 +33,22 @@ CLAUDE-2026-04-05-pull-fusion-files-handoff.json
 The authoritative schema is defined in SOP-NLT-001 Step 8 (`handoff-record.json`).  
 At minimum, include fields that let another contributor resume work without guesswork:
 
-- `agent_name`, `session_id`, `session_end`
-- `task_scope`
+- `session_id`, `agent_name`, `date`
+- `otoi_version`, `repo`, `branch`
 - `work_completed` (what is done)
-- `work_not_completed` (what still needs work)
+- `work_in_progress` (what still needs work)
 - `blockers` (if any)
-- `next_steps` (ordered, executable)
-- `files_changed`
-- `branch`, `pr_url` (or `null` if none)
+- `decisions_made` and `decisions_pending`
+- `escalations`
+- `next_agent_notes` (ordered, executable context)
+- `files_modified`
+- `tests_run`, `tests_passing`
+- `pr_url` (or `null` if none)
 
 ## Common pitfalls
 
 - **Writing to the wrong directory:** new handoffs belong in `docs/agent-log/handoffs/`; `docs/ai-agent-docs/handoffs/` is the legacy archive.
-- **Missing resumability details:** include exact file paths, command hints, and branch names in `next_steps`.
+- **Missing resumability details:** include exact file paths, command hints, and branch names in `next_agent_notes`.
 - **Silent blockers:** if access, policy, or scope prevents completion, record it explicitly in `blockers`.
 
 ## Related docs
