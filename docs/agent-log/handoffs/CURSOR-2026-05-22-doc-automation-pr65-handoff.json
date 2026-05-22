@@ -32,7 +32,8 @@
     "tests_run": [
       "git diff HEAD^..HEAD --check",
       "npm audit --prefix apps/web --audit-level=moderate",
-      "npm audit --prefix apps/mobile --audit-level=moderate"
+      "npm audit --prefix apps/mobile --audit-level=moderate",
+      "bash .nltotoi/scripts/validate-governance.sh"
     ],
     "tests_passing": true,
     "pr_url": "pending"
