@@ -235,13 +235,15 @@ source while keeping `cloudflare-engine/` as the canonical deploy directory.
 | --- | --- | --- |
 | `cloudflare-engine/wrangler.toml` | Canonical deploy config for the World Engine Worker | Uses `name = "neurolift-world-engine"`, `main = "src/index.ts"`, and `WORLD_ENGINE` Durable Object binding. |
 | `cloudflare-engine/package-lock.json` | Locked Worker toolchain dependencies | Keep in sync with `cloudflare-engine/package.json`; use `npm ci` in clean environments. |
-| `wrangler.toml` | Root mirror for tooling that expects a root TOML config | Points to `cloudflare-engine/src/index.ts`; comment notes that canonical deployment stays in `cloudflare-engine/`. |
-| `wrangler.jsonc` | Root JSONC mirror with schema reference | Mirrors the same Worker entrypoint and Durable Object binding for editor/tool compatibility. |
+| `wrangler.toml` | Root mirror for tooling that expects a root TOML config | Points to `cloudflare-engine/src/index.ts` and uses root Worker name `neurolift-ai-fusion`; comment notes that canonical deployment stays in `cloudflare-engine/`. |
+| `wrangler.jsonc` | Root JSONC mirror with schema reference | Mirrors the same Worker entrypoint and Durable Object binding with root Worker name `neurolift-ai-fusion` for editor/tool compatibility. |
 
 When editing Worker configuration, update the canonical file first
 (`cloudflare-engine/wrangler.toml`) and keep both root mirrors aligned only if
-the intended tooling surface still requires them. Do not store Cloudflare
-tokens, account IDs, or other credentials in any Wrangler config.
+the intended tooling surface still requires them. Run deploy and tail commands
+from `cloudflare-engine/` when targeting the `neurolift-world-engine` script;
+root-level Wrangler commands target the mirror name instead. Do not store
+Cloudflare tokens, account IDs, or other credentials in any Wrangler config.
 
 ### Deploy Workers
 
