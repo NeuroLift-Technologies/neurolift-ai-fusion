@@ -43,17 +43,42 @@ pytest
 
 The repository currently has multiple JavaScript package-manager surfaces:
 
-| Path | Lockfile | Use for |
+| Path | Lockfile(s) | Use for |
 | --- | --- | --- |
-| `apps/web/` | `pnpm-lock.yaml` | Next.js web surface and `/simulation-lab` |
-| `apps/mobile/` | `package-lock.json` | Expo mobile starter |
+| `apps/web/` | `pnpm-lock.yaml`, `package-lock.json` | Next.js web surface, `/simulation-lab`, and npm audit checks |
+| `apps/mobile/` | `package-lock.json` | Expo mobile starter and npm audit checks |
 | `cloudflare-engine/` | `package-lock.json` | World Engine Worker and local Wrangler CLI |
 
-Use the lockfile in the package you are changing. For web-only dependency work,
-run pnpm inside `apps/web/` so the checked-in `pnpm-lock.yaml` stays in sync and
-avoid creating an `apps/web/package-lock.json`. For the Cloudflare worker, run
-`npm ci` from `cloudflare-engine/` so local `npx wrangler ...` commands use the
-repo-pinned Wrangler v4 dependency instead of a global install.
+Use the lockfile in the package you are changing. For routine web development,
+run pnpm inside `apps/web/` so the checked-in `pnpm-lock.yaml` stays in sync.
+`apps/web/package-lock.json` is also checked in because npm audit reads that
+workspace's npm lockfile; keep it aligned when editing web dependency security
+overrides. For the Cloudflare worker, run `npm ci` from `cloudflare-engine/` so
+local `npx wrangler ...` commands use the repo-pinned Wrangler v4 dependency
+instead of a global install.
+
+### JavaScript security overrides
+
+PR #65 added workspace-scoped npm `overrides` to force safe minimum versions for
+transitive packages flagged by Dependabot. The current override surfaces are:
+
+| Workspace | Override source | Packages pinned |
+| --- | --- | --- |
+| `apps/web/package.json` | `overrides` and mirrored `pnpm.overrides` | `postcss`, `glob`, `minimatch` |
+| `apps/mobile/package.json` | `overrides` | `@xmldom/xmldom`, `uuid` |
+
+Use overrides only when a vulnerable transitive package cannot be resolved by a
+direct dependency upgrade yet. When changing or removing an override, update the
+matching lockfile(s) and verify the audited workspaces directly:
+
+```bash
+npm audit --prefix apps/web --audit-level=moderate
+npm audit --prefix apps/mobile --audit-level=moderate
+```
+
+Do not treat the root `package-lock.json` as the audit source for web or mobile;
+it is a minimal root lockfile and does not encode those workspace dependency
+trees.
 
 ---
 

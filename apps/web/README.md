@@ -72,11 +72,16 @@ Define that global before loading `main.js` if the API runs somewhere else.
   `POST /sessions/run` yet.
 - `npm run dev --workspace=apps/web` starts the Next.js surface, not the static
   console described above.
-- The checked-in web lockfile is `apps/web/pnpm-lock.yaml`. Use pnpm for web
-  dependency changes and avoid generating `apps/web/package-lock.json`.
-- Root npm workspace scripts can start the web package, but they do not update
-  the web pnpm lockfile. If a dependency manifest changes, update and review
-  `apps/web/package.json` and `apps/web/pnpm-lock.yaml` together.
+- The Next.js workflow uses `apps/web/pnpm-lock.yaml`; use pnpm for routine web
+  dependency installs and development.
+- `apps/web/package-lock.json` is also checked in for npm audit coverage after
+  PR #65. If security overrides change, review `apps/web/package.json`,
+  `apps/web/pnpm-lock.yaml`, and `apps/web/package-lock.json` together.
+- Web dependency security overrides currently live in both `overrides` and
+  `pnpm.overrides` in `apps/web/package.json` so npm audit and pnpm installs
+  resolve the same safe transitive minimums.
+- Verify web dependency security changes with
+  `npm audit --prefix apps/web --audit-level=moderate`.
 - `/simulation-lab` is fixture-driven. Its state model lives in
   `apps/web/src/simulation/lab/stayAlertMorningRoutine.ts` so a future renderer can
   project the same state without becoming the source of truth.

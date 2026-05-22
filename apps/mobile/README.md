@@ -77,3 +77,9 @@ is restricted.
   separate surface.
 - The app is included in the root npm workspace (`apps/mobile`), so root
   scripts such as `npm run dev:mobile` and `npm run type-check` can target it.
+- Mobile dependency security overrides live in `apps/mobile/package.json` under
+  `overrides`; PR #65 pins vulnerable transitive `@xmldom/xmldom` and `uuid`
+  ranges while the upstream dependency tree catches up.
+- When dependency overrides or direct dependencies change, update and review
+  `apps/mobile/package.json` and `apps/mobile/package-lock.json` together, then
+  verify with `npm audit --prefix apps/mobile --audit-level=moderate`.
