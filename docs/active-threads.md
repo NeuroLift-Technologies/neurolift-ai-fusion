@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0
-**Last updated:** 2026-05-02
+**Last updated:** 2026-05-04
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -39,6 +39,7 @@ _No blocked threads at this time._
 | TH-005 | Document PR #30 full-stack simulation app foundation | Cursor Automation | 2026-04-30 | `docs/agent-log/handoffs/CURSOR-2026-04-30-doc-automation-pr30-handoff.json` |
 | TH-006 | Sync Simulation Lab milestone onto current main | Codex | 2026-05-01 | `docs/agent-log/handoffs/2026-05-01-codex-main-sync-simulation-lab-handoff.json` |
 | TH-007 | Open-items review report for next agent | GitHub Copilot | 2026-05-02 | `docs/reviews/2026-05-02-copilot-open-items-review.md` |
+| TH-008 | Document PR #51 CI harness and PGSA gate | Cursor GPT-5.5 | 2026-05-04 | `docs/agent-log/handoffs/CURSOR-2026-05-04-doc-automation-pr51-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
