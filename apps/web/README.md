@@ -44,8 +44,9 @@ Then open `http://localhost:4173`.
 To review the Next.js app and Simulation Lab route:
 
 ```bash
-npm install
-npm run dev --workspace=apps/web
+corepack enable
+pnpm --dir apps/web install --frozen-lockfile
+pnpm --dir apps/web dev
 ```
 
 Then open `http://localhost:3000/simulation-lab`.
@@ -71,6 +72,11 @@ Define that global before loading `main.js` if the API runs somewhere else.
   `POST /sessions/run` yet.
 - `npm run dev --workspace=apps/web` starts the Next.js surface, not the static
   console described above.
+- The checked-in web lockfile is `apps/web/pnpm-lock.yaml`. Use pnpm for web
+  dependency changes and avoid generating `apps/web/package-lock.json`.
+- Root npm workspace scripts can start the web package, but they do not update
+  the web pnpm lockfile. If a dependency manifest changes, update and review
+  `apps/web/package.json` and `apps/web/pnpm-lock.yaml` together.
 - `/simulation-lab` is fixture-driven. Its state model lives in
   `apps/web/src/simulation/lab/stayAlertMorningRoutine.ts` so a future renderer can
   project the same state without becoming the source of truth.
