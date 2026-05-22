@@ -1,0 +1,40 @@
+{
+  "handoff_record": {
+    "session_id": "CURSOR-2026-05-22-doc-automation-pr65",
+    "agent_name": "Cursor GPT-5.5",
+    "date": "2026-05-22",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "cursor/technical-documentation-updates-255b",
+    "work_completed": [
+      "Documented PR #65 JavaScript dependency security override behavior in the root README.",
+      "Updated apps/web README to reflect the checked-in npm audit lockfile alongside the pnpm development lockfile.",
+      "Updated apps/mobile README with dependency override and npm audit verification guidance.",
+      "Moved active thread TH-011 to completed status."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Kept the documentation update scoped to existing setup and app README files instead of creating a new dependency-security page.",
+      "Documented workspace-level npm audit commands because PR #65 verified `apps/web` and `apps/mobile` as the audited surfaces."
+    ],
+    "decisions_pending": [],
+    "escalations": [],
+    "next_agent_notes": "PR #65 added overrides in apps/web/package.json and apps/mobile/package.json. Keep web pnpm and npm lockfiles aligned when editing web dependency security overrides; verify with workspace-specific npm audit commands.",
+    "files_modified": [
+      "README.md",
+      "apps/web/README.md",
+      "apps/mobile/README.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CURSOR-2026-05-22-doc-automation-pr65-registration.json",
+      "docs/agent-log/handoffs/CURSOR-2026-05-22-doc-automation-pr65-handoff.json"
+    ],
+    "tests_run": [
+      "git diff HEAD^..HEAD --check",
+      "npm audit --prefix apps/web --audit-level=moderate",
+      "npm audit --prefix apps/mobile --audit-level=moderate"
+    ],
+    "tests_passing": true,
+    "pr_url": "pending"
+  }
+}
