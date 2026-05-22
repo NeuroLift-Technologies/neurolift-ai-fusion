@@ -17,9 +17,10 @@ PYTHONPATH=../../src uvicorn main:app --reload
 ### Web App (Next.js)
 ```bash
 cd apps/web
-npm install
+corepack enable
+pnpm install --frozen-lockfile
 cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL
-npm run dev
+pnpm dev
 # → http://localhost:3000
 ```
 
@@ -37,6 +38,22 @@ npx expo start
 pip install -r requirements.txt
 pytest
 ```
+
+### JavaScript dependency boundaries
+
+The repository currently has multiple JavaScript package-manager surfaces:
+
+| Path | Lockfile | Use for |
+| --- | --- | --- |
+| `apps/web/` | `pnpm-lock.yaml` | Next.js web surface and `/simulation-lab` |
+| `apps/mobile/` | `package-lock.json` | Expo mobile starter |
+| `cloudflare-engine/` | `package-lock.json` | World Engine Worker and local Wrangler CLI |
+
+Use the lockfile in the package you are changing. For web-only dependency work,
+run pnpm inside `apps/web/` so the checked-in `pnpm-lock.yaml` stays in sync and
+avoid creating an `apps/web/package-lock.json`. For the Cloudflare worker, run
+`npm ci` from `cloudflare-engine/` so local `npx wrangler ...` commands use the
+repo-pinned Wrangler v4 dependency instead of a global install.
 
 ---
 
