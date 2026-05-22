@@ -262,6 +262,23 @@ Important constraint:
 
 - No workflow in `.github/workflows/` currently imports or executes `.agent.md` files directly. Runtime automation behavior is defined by workflow YAML (plus external automation tooling), while `.agent.md` files define prompt/behavior expectations.
 
+For PR queue scans run by the PR Cleanup Agent, treat the output as an
+advisory report unless a maintainer explicitly approves write actions. The scan
+contract established by TH-009 (`docs/agent-log/handoffs/2026-05-02-copilot-pr-cleanup-scan-handoff.json`)
+is:
+
+- inspect all open PRs, not only already-stale PRs;
+- separate non-draft PRs from draft PRs because draft PRs are exempt from stale
+  marking;
+- record mergeability, unresolved review/security concerns, dependency risk, and
+  branch ownership before recommending any action;
+- list orphaned branch candidates separately from merged branches that
+  `.github/workflows/pr-cleanup.yml` can delete;
+- preserve human decisions in `blockers`, `decisions_pending`, and
+  `escalations`, and write scan details under a `pr_cleanup_report` handoff
+  object with `scan_date`, queue totals, `non_draft_prs`, `draft_prs`, and
+  `orphaned_branches`.
+
 ### PR Cleanup runbook (`.github/workflows/pr-cleanup.yml`)
 
 **Subsystems covered:**

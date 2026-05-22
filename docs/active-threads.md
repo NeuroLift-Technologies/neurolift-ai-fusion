@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0
-**Last updated:** 2026-05-04
+**Last updated:** 2026-05-22
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -19,6 +19,7 @@
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
+| TH-010 | Documentation automation for PR #49 governance cleanup context | Automation | Cursor GPT-5.5 | cursor/technical-documentation-updates-cd3e | 🟡 In Progress | 2026-05-22 |
 
 ---
 
