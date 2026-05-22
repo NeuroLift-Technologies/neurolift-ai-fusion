@@ -1,0 +1,48 @@
+{
+  "handoff_record": {
+    "session_id": "CURSOR-2026-04-30-doc-automation-pr37",
+    "agent_name": "Cursor Automation",
+    "date": "2026-04-30",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "cursor/codebase-documentation-alignment-a618",
+    "work_completed": [
+      "Documented the PR #37 platform API in apps/api/README.md with source-verified routes, environment variables, local run commands, and operational pitfalls.",
+      "Updated apps/web/README.md to describe the Next.js App Router platform UI, its apps/api route contract, and the current missing @/lib client/type module blocker.",
+      "Updated apps/mobile/README.md to describe the Expo Router platform UI, API base URL expectations, emulator/device networking constraints, and the current missing @/lib client/type module blocker.",
+      "Updated README.md to map current app/API surfaces and refresh GitHub Actions workflow coverage after the monorepo restructure.",
+      "Registered and completed active thread TH-006 for PR #37 documentation alignment."
+    ],
+    "work_in_progress": [],
+    "blockers": [
+      "The App Router and Expo Router screens import @/lib/api and @/lib/types, but apps/web/lib and apps/mobile/lib are absent in this checkout. This was documented as a setup/build pitfall rather than fixed because this automation is documentation-only."
+    ],
+    "decisions_made": [
+      "Treated apps/api as the current PR #37 platform API for web/mobile docs and services/api as a separate older demo simulation API.",
+      "Updated existing app READMEs instead of creating duplicate high-level docs, except for adding a missing apps/api/README.md runbook at the API source boundary."
+    ],
+    "decisions_pending": [
+      "A future implementation pass should decide whether to restore apps/web/lib and apps/mobile/lib or update imports to the existing src/api clients.",
+      "A future CI/docs pass should reconcile web.yml and mobile.yml branch filters if main is the intended base branch."
+    ],
+    "escalations": [],
+    "next_agent_notes": "Docs are aligned to the current source tree for PR #37. Do not assume web/mobile builds are green until the missing @/lib/api and @/lib/types imports are resolved.",
+    "files_modified": [
+      "README.md",
+      "apps/api/README.md",
+      "apps/web/README.md",
+      "apps/mobile/README.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CURSOR-2026-04-30-doc-automation-pr37.json",
+      "docs/agent-log/handoffs/CURSOR-2026-04-30-doc-automation-pr37-handoff.json"
+    ],
+    "tests_run": [
+      "git diff --check",
+      "python3 -m json.tool docs/agent-log/registrations/CURSOR-2026-04-30-doc-automation-pr37.json",
+      "python3 -m json.tool package.json turbo.json apps/mobile/package.json apps/mobile/app.json apps/web/package.json",
+      "python3 -m compileall apps/api"
+    ],
+    "tests_passing": true,
+    "pr_url": ""
+  }
+}

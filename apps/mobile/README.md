@@ -1,53 +1,79 @@
-# Mobile App (Android + iOS)
+# Mobile App (Expo Router)
 
-This is now a runnable Expo starter app connected to the simulation API.
+This is the React Native client for the PR #37 full-stack platform. It uses
+Expo Router and talks to the platform API in `apps/api/`.
 
 ## Intent and architecture
 
-`apps/mobile/` is the cross-platform client starter for Android and iOS. It currently uses
-Expo + React Native and calls the same API endpoints as the web starter:
+Current source path:
 
 ```text
-apps/mobile/App.tsx
-  -> GET /health
-  -> GET /sessions/demo-run
-  -> services/api/app/main.py
+apps/mobile/app/_layout.tsx          # Expo Router stack
+apps/mobile/app/(tabs)/dashboard.tsx # session list
+apps/mobile/app/session/new.tsx      # Avatar/Aide picker + session creation
+apps/mobile/app/session/[id].tsx     # session result/live status view
+apps/mobile/src/api/client.ts        # older REST client kept for prototype screens
+apps/api/main.py                     # FastAPI platform API
 ```
 
-The app renders raw JSON responses so mobile developers can verify connectivity before richer
-session workflows are implemented.
+The Expo entrypoint is configured by `package.json` as `expo-router/entry`.
+`App.tsx` and `index.ts` are older demo entrypoints that call `/health` and
+`/sessions/demo-run`; they are not the current router path.
 
 ## Current capabilities
 
-- check API health
-- run demo simulation session from mobile UI
+- list sessions through `GET /api/v1/sessions/`
+- create a session through `POST /api/v1/sessions/`
+- view a session through `GET /api/v1/sessions/{session_id}`
+- open a WebSocket for live updates at `/api/v1/sessions/{session_id}/ws`
 
 ## Local run
+
+From the repository root:
+
+```bash
+npm install
+npm run dev:mobile
+```
+
+Or from this workspace:
 
 ```bash
 cd apps/mobile
 npm install
+cp .env.example .env
 npm run start
 ```
 
-Then launch Android or iOS from Expo.
+Then launch Android, iOS, or web from Expo.
 
 ## API configuration
 
-The API base URL is read from `EXPO_PUBLIC_API_URL`:
+Set the base API URL in `EXPO_PUBLIC_API_URL`:
 
 ```bash
 EXPO_PUBLIC_API_URL=http://localhost:8000 npm run start
 ```
 
-If the app runs on a physical device or an emulator that cannot resolve the host machine's
-`localhost`, use the host LAN IP or the emulator-specific host address.
+The router screens expect the platform API root (`http://localhost:8000`) and
+append `/api/v1/...` paths for session, avatar, and aide calls.
+
+If the app runs on a physical device or emulator that cannot resolve the host
+machine's `localhost`, use the host LAN IP or the emulator-specific host
+address. Keep `ALLOWED_ORIGINS` in `apps/api` aligned with that origin if CORS
+is restricted.
 
 ## Developer pitfalls
 
-- Start the FastAPI service first: `uvicorn services.api.app.main:app --reload`.
-- Browser/mobile cross-origin access still depends on API CORS support, which is not configured
-  in the starter yet.
-- The starter calls only the demo endpoint. Custom session payloads should use
-  `POST /sessions/run` after the UI adds scenario editing.
-- `npm install` is local to `apps/mobile/`; this directory is not wired into a root workspace yet.
+- Start `apps/api` first with `PYTHONPATH=../.. uvicorn main:app --reload`
+  from `apps/api`, or run its Dockerfile from the repo root.
+- Current router screens import `@/lib/api` and `@/lib/types`, but this checkout
+  does not include `apps/mobile/lib/`; either restore those files or update the
+  imports before expecting `npm run type-check` or Expo bundling to pass.
+- The current session store is in-memory. Restarting the API clears sessions and
+  makes old detail links return `404`.
+- Mobile and web both depend on `apps/api`'s `/api/v1` routes. The older
+  `services/api` demo routes (`/sessions/demo-run`, `/sessions/run`) are a
+  separate surface.
+- The app is included in the root npm workspace (`apps/mobile`), so root
+  scripts such as `npm run dev:mobile` and `npm run type-check` can target it.
