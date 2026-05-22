@@ -1,0 +1,43 @@
+{
+  "handoff_record": {
+    "session_id": "CURSOR-2026-05-22-doc-automation-pr49",
+    "agent_name": "Cursor GPT-5.5",
+    "date": "2026-05-22",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "cursor/technical-documentation-updates-cd3e",
+    "work_completed": [
+      "Inspected merged PR #49 and verified it added TH-009 PR queue cleanup scan governance records.",
+      "Updated README.md with the advisory PR Cleanup Agent queue-scan contract established by the TH-009 handoff.",
+      "Aligned .github/agents/pr-cleanup.agent.md with read-only scan behavior, queue grouping, handoff fields, and escalation boundaries.",
+      "Registered this documentation automation session and moved TH-010 to the completed threads table."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Updated existing automation/governance docs instead of creating a redundant standalone PR cleanup page.",
+      "Documented the distinction between advisory agent scans and the write-capable .github/workflows/pr-cleanup.yml workflow."
+    ],
+    "decisions_pending": [],
+    "escalations": [],
+    "next_agent_notes": "Keep README.md and .github/agents/pr-cleanup.agent.md aligned with .github/workflows/pr-cleanup.yml and future queue-scan handoff records. The TH-009 handoff is an example snapshot, not a current open-PR source of truth.",
+    "files_modified": [
+      ".github/agents/pr-cleanup.agent.md",
+      "README.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CURSOR-2026-05-22-doc-automation-pr49.json",
+      "docs/agent-log/handoffs/CURSOR-2026-05-22-doc-automation-pr49-handoff.json"
+    ],
+    "tests_run": [
+      "gh pr view 49 --json number,title,state,mergedAt,closedAt,author,baseRefName,headRefName,files,commits,url",
+      "gh pr list --state open --limit 50 --json number,title,isDraft,headRefName,updatedAt,mergeStateStatus",
+      "rg pr_cleanup_report|PR queue scans|advisory report|orphaned_branches|non_draft_prs",
+      "rg 2026-05-02-copilot-pr-cleanup-scan-handoff.json|pr-cleanup.agent.md|PR Cleanup Agent README.md",
+      "python3 -m json.tool docs/agent-log/registrations/CURSOR-2026-05-22-doc-automation-pr49.json",
+      "python3 -m json.tool docs/agent-log/handoffs/2026-05-02-copilot-pr-cleanup-scan-handoff.json",
+      "python3 -m json.tool docs/agent-log/handoffs/CURSOR-2026-05-22-doc-automation-pr49-handoff.json"
+    ],
+    "tests_passing": true,
+    "pr_url": null
+  }
+}
