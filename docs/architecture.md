@@ -52,6 +52,37 @@ result = orchestrator.run_session(scenarios: List[Dict[str, Any]])
 6. Session completion emits `SESSION_COMPLETED` and serializes results through
    `SessionResult.to_dict()`.
 
+### Browser World Engine prototype (frontend-only path)
+
+PR #69 added a standalone browser prototype under `prototypes/world-engine/`.
+It visualizes the Avatar/Aide/Scenario world and runs its own local React tick
+loop; it is not a client for `src/simulation/environment/world_engine.py`, the
+FastAPI app, or the Cloudflare Worker.
+
+| Contract | Source |
+| --- | --- |
+| Static runbook | `prototypes/world-engine/README.md` |
+| Entry point and script order | `prototypes/world-engine/index.html` |
+| Static data namespace | `prototypes/world-engine/data.js` (`window.WE_DATA`) |
+| Local simulation hook | `prototypes/world-engine/sim.jsx` (`window.useWorldEngine`) |
+| Isometric renderer | `prototypes/world-engine/world-view.jsx` |
+| HUD panels and scenario controls | `prototypes/world-engine/hud.jsx` |
+| Live tuning shell | `prototypes/world-engine/tweaks-panel.jsx` |
+| Data/runtime contract | `docs/specs/world-engine-prototype-schema.md` |
+
+Current prototype constraints:
+
+- Run with a static file server (`cd prototypes/world-engine && python3 -m
+  http.server 8765`); there is no package manager, bundler, or test runner.
+- The page depends on CDN-loaded React 18 and Babel from `unpkg.com`.
+- State is in-browser only. `sim.jsx` emits `EventKind` objects and coaching
+  interventions, but no events are sent to Python or Cloudflare.
+- `data.js` defines 19 avatar ids and 11 room-aware scenarios. Only
+  `stay_alert` and `task_kickstart` have Python avatar classes today; only
+  `stay_alert` has a JSON avatar config.
+- Future wiring still needs human decisions for avatar source-of-truth, scenario
+  synchronization, transport, and a shared runtime DTO.
+
 ### Fusion and Advocate contracts
 
 | Contract | Source |

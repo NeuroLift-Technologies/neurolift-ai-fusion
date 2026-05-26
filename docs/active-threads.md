@@ -19,6 +19,7 @@
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
+| TH-012 | Documentation automation for PR #69 World Engine frontend prototype | Automation | Cursor GPT-5.5 | cursor/technical-documentation-updates-2144 | 🟡 In Progress | 2026-05-26 |
 
 ---
 

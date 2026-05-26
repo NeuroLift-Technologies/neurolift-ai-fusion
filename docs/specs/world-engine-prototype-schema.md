@@ -297,11 +297,15 @@ type Tweaks = {
   dysfunctionOn: boolean;     // gate for trait-driven dysfunction injection
   theme: 'dark' | 'light' | 'brand';
   density: 'comfortable' | 'compact';
-  accent: [string, string];   // [primary, secondary]
+  accentName: number;         // index into app.jsx ACCENT_PALETTES
   urgencyThreshold: number;   // 0.2 – 0.95
   showLabels: boolean;
 };
 ```
+
+`app.jsx` derives the actual `[primary, secondary]` accent pair from
+`ACCENT_PALETTES[accentName]` and writes the result into the CSS variables
+`--accent` and `--accent-2`.
 
 ---
 

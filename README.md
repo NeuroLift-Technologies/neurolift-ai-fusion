@@ -39,6 +39,19 @@ pip install -r requirements.txt
 pytest
 ```
 
+### World Engine Frontend Prototype (static React)
+```bash
+cd prototypes/world-engine
+python3 -m http.server 8765
+# -> http://127.0.0.1:8765/
+```
+
+This is a browser-only design prototype. It loads React 18 and Babel from
+`unpkg.com`, reads static data from `prototypes/world-engine/data.js`, and is
+not wired to the Python simulation engine or Cloudflare Worker. See
+`prototypes/world-engine/README.md` for the local runbook and
+`docs/specs/world-engine-prototype-schema.md` for the data/runtime contract.
+
 ### JavaScript dependency boundaries
 
 The repository currently has multiple JavaScript package-manager surfaces:
@@ -48,12 +61,15 @@ The repository currently has multiple JavaScript package-manager surfaces:
 | `apps/web/` | `pnpm-lock.yaml` | Next.js web surface and `/simulation-lab` |
 | `apps/mobile/` | `package-lock.json` | Expo mobile starter |
 | `cloudflare-engine/` | `package-lock.json` | World Engine Worker and local Wrangler CLI |
+| `prototypes/world-engine/` | none | Static World Engine browser prototype; no install or build step |
 
 Use the lockfile in the package you are changing. For web-only dependency work,
 run pnpm inside `apps/web/` so the checked-in `pnpm-lock.yaml` stays in sync and
 avoid creating an `apps/web/package-lock.json`. For the Cloudflare worker, run
 `npm ci` from `cloudflare-engine/` so local `npx wrangler ...` commands use the
-repo-pinned Wrangler v4 dependency instead of a global install.
+repo-pinned Wrangler v4 dependency instead of a global install. For
+`prototypes/world-engine/`, do not add package-manager files unless the
+prototype is intentionally promoted into an application workspace.
 
 ---
 
@@ -113,28 +129,35 @@ This simulation approach addresses both gaps through authentic experiential lear
 
 ## 🎮 The 19 Avatar-Aide-Advocate Pairs
 
-### Executive Function Focused (16 pairs):
-1. **StayAlert** - Sustained attention deficit
-2. **ImpulseGuard** - Impulsivity control
-3. **FocusFlow** - Hyperfocus management
-4. **Timely** - Time blindness
-5. **MemoryMate** - Working memory deficits
-6. **MoodEase** - Emotional regulation
-7. **TaskKickstart** - Task initiation difficulty
-8. **CalmCore** - Low frustration tolerance
-9. **Planner Pro** - Prioritization and planning
-10. **SmoothSwitch** - Transition difficulties
-11. **AwareMate** - Self-monitoring challenges
-12. **SteadyMind** - Poor impulse control
-13. **FocusRecharge** - Effortful focus fatigue
-14. **EffortAlign** - Effort vs. productivity perception
+The current browser prototype roster is defined in
+`prototypes/world-engine/data.js` and documented in
+`docs/specs/world-engine-prototype-schema.md`. Avatar ids are snake_case so
+future wiring can map them to Python modules/configs. As of PR #69,
+`stay_alert` and `task_kickstart` have Python classes in
+`src/avatars/adhd_traits/`; the remaining 17 are design proposals, and only
+`stay_alert` has a checked-in JSON config under `src/avatars/avatar_configs/`.
 
-### Non-Executive Function (3 pairs):
-15. **StressShield** - Stress sensitivity
-16. **SensoryBalance** - Sensory sensitivity
-17. **SocialSync** - Social challenges
-18. **SensorySeeker** - Sensory seeking behavior
-19. **ConfidenceCoach** - Self-esteem and identity
+| # | id | Display name | Trait |
+|---|---|---|---|
+| 1 | `stay_alert` | StayAlert | Sustained Attention |
+| 2 | `task_kickstart` | TaskKickstart | Task Initiation |
+| 3 | `focus_flow` | FocusFlow | Hyperfocus / Switching |
+| 4 | `memory_mate` | MemoryMate | Working Memory |
+| 5 | `time_keeper` | TimeKeeper | Time Perception |
+| 6 | `prioritize_it` | PrioritizeIt | Prioritization |
+| 7 | `emo_steady` | EmoSteady | Emotional Regulation |
+| 8 | `impulse_guard` | ImpulseGuard | Impulse Control |
+| 9 | `social_cue` | SocialCue | Social Cues |
+| 10 | `transition_ease` | TransitionEase | Task Switching |
+| 11 | `organize_well` | OrganizeWell | Organization |
+| 12 | `follow_through` | FollowThrough | Task Completion |
+| 13 | `listen_in` | ListenIn | Active Listening |
+| 14 | `fidget_flow` | FidgetFlow | Physical Restlessness |
+| 15 | `restore_calm` | RestoreCalm | Stress Recovery |
+| 16 | `boundary_set` | BoundarySet | Boundary Setting |
+| 17 | `plan_ahead` | PlanAhead | Forward Planning |
+| 18 | `self_monitor` | SelfMonitor | Self-Awareness |
+| 19 | `motivate_me` | MotivateMe | Motivation |
 
 
 ## 🧹 Repository Cleanup Update (2026-04-25)

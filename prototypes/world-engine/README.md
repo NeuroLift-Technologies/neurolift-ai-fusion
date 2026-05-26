@@ -14,6 +14,14 @@ python3 -m http.server 8765
 
 The page boots React 18 + Babel from a CDN and loads the `.jsx` files in-browser via `<script type="text/babel">`.
 
+## Runtime model
+
+- `index.html` must load files in this order: `data.js`, `tweaks-panel.jsx`, `sim.jsx`, `world-view.jsx`, `hud.jsx`, then `app.jsx`.
+- `data.js` exposes the only data source as `window.WE_DATA`; there are no fetches, API clients, or environment variables.
+- `sim.jsx` exposes `window.useWorldEngine(...)` and keeps runtime state in React. It advances a local tick loop, assigns scenarios, emits event objects, and records coaching interventions.
+- `world-view.jsx` renders a 24 x 18 isometric tile map using DOM/CSS; it does not use Canvas or WebGL.
+- `tweaks-panel.jsx` starts open when run standalone and listens for the `__activate_edit_mode` / `__deactivate_edit_mode` host protocol only when embedded in a parent frame.
+
 ## What's here
 
 | File | Role |
@@ -50,3 +58,11 @@ The richer schema (blurb, flavor, tag) came from `engine/data.js`. The `_drafts/
 - **No API wiring.** No fetch calls; all state is in-browser. The `mkEvent` payloads and the `AvatarRuntime` shape (in `sim.jsx`) are the eventual API contract — see the open questions in the schema doc.
 - **No tests.** This is a design prototype, not production code.
 - **No changes to `src/`.** The Python simulation engine is untouched. The two are reconciled later through an explicit transport decision.
+
+## Common pitfalls
+
+- Do not open `index.html` with `file://`; serve the directory so Babel can fetch the `.jsx` files consistently.
+- The page needs network access to `unpkg.com` for React 18 and Babel. An offline browser will stay on the boot screen unless those CDN assets are made local.
+- If the screen stays on "booting world engine prototype...", check the browser console first. Missing globals usually mean the script order changed or a `.jsx` file failed to load.
+- Scenario routing is prototype-only: `data.js` has 11 room-aware scenarios, while `src/simulation/environment/scenarios.py` has 13 Python scenarios without room layout.
+- The first two avatar ids (`stay_alert`, `task_kickstart`) have Python classes; only `stay_alert` has a checked-in JSON config under `src/avatars/avatar_configs/`.
