@@ -152,29 +152,39 @@ const WE_VIEW = (function () {
             .map(({ p, room }, i) => (
               <Prop key={`${room.id}-p-${i}`} prop={p} room={room} />
             ))}
-          {/* NPCs */}
-          {WE.NPCS.filter(n => !n.invisible).map(npc => {
-            const room = WE.ROOMS.find(r => r.id === npc.room);
-            if (!room) return null;
-            return (
-              <Character key={npc.id}
-                x={room.x + npc.x} y={room.y + npc.y}
-                hue={npc.hue} label={showLabels ? npc.name : ''}
+          {/* Avatars + NPCs depth-sorted together so back-to-front compositing
+              respects iso ordering regardless of source list. */}
+          {[
+            ...avatars.map(av => ({
+              kind: 'avatar', id: av.id, x: av.px, y: av.py,
+              hue: av.hue, facing: av.facing, name: av.name, state: av.state,
+              selected: av.id === selectedId,
+            })),
+            ...WE.NPCS.filter(n => !n.invisible).map(npc => {
+              const room = WE.ROOMS.find(r => r.id === npc.room);
+              if (!room) return null;
+              return {
+                kind: 'npc', id: `npc-${npc.id}`,
+                x: room.x + npc.x, y: room.y + npc.y,
+                hue: npc.hue, name: npc.name, state: 'npc',
+              };
+            }).filter(Boolean),
+          ]
+            .sort((a, b) => (a.x + a.y) - (b.x + b.y))
+            .map(c => c.kind === 'avatar' ? (
+              <Character key={c.id}
+                x={c.x} y={c.y}
+                hue={c.hue}
+                facing={c.facing}
+                label={showLabels ? c.name : ''}
+                state={c.state}
+                selected={c.selected}
+                onClick={() => onSelectAvatar && onSelectAvatar(c.id)} />
+            ) : (
+              <Character key={c.id}
+                x={c.x} y={c.y}
+                hue={c.hue} label={showLabels ? c.name : ''}
                 state="npc" kind="npc" />
-            );
-          })}
-          {/* Avatars (sorted by py for depth) */}
-          {[...avatars]
-            .sort((a, b) => (a.py + a.px) - (b.py + b.px))
-            .map(av => (
-              <Character key={av.id}
-                x={av.px} y={av.py}
-                hue={av.hue}
-                facing={av.facing}
-                label={showLabels ? av.name : ''}
-                state={av.state}
-                selected={av.id === selectedId}
-                onClick={() => onSelectAvatar && onSelectAvatar(av.id)} />
             ))}
         </div>
       </div>

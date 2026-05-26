@@ -23,8 +23,8 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "dysfunctionOn": true,
   "theme": "dark",
   "density": "comfortable",
-  "accent": ["#f5a623", "#ffd66b"],
-  "urgencyThreshold": 60,
+  "accentName": 0,
+  "urgencyThreshold": 0.6,
   "showLabels": true
 }/*EDITMODE-END*/;
 
@@ -35,7 +35,7 @@ function WorldEngineApp() {
   useEffect(() => {
     document.documentElement.dataset.theme = t.theme;
     document.documentElement.dataset.density = t.density;
-    const pal = ACCENT_PALETTES[t.accentName] || ACCENT_PALETTES.amber;
+    const pal = ACCENT_PALETTES[t.accentName] || ACCENT_PALETTES[0];
     document.documentElement.style.setProperty('--accent', pal[0]);
     document.documentElement.style.setProperty('--accent-2', pal[1]);
   }, [t.theme, t.density, t.accentName]);
@@ -49,7 +49,10 @@ function WorldEngineApp() {
 
   const selected = sim.avatars.find(a => a.id === t.selectedAvatar) || sim.avatars[0];
 
-  const accent = useMemo(() => (ACCENT_PALETTES[t.accentName] || ACCENT_PALETTES.amber)[0], [t.accentName]);
+  const accent = useMemo(
+    () => (ACCENT_PALETTES[t.accentName] || ACCENT_PALETTES[0])[0],
+    [t.accentName]
+  );
 
   // zoom + pan
   const [zoom, setZoom] = useState(1.0);
@@ -58,35 +61,8 @@ function WorldEngineApp() {
   const handleSelect = (id) => setTweak('selectedAvatar', id);
 
   const handleAssign = (avatarId, scenarioId) => {
-    // imperative override: directly set scenario on next state
-    const sc = WE.SCENARIOS.find(s => s.id === scenarioId);
-    if (!sc) return;
-    // Reach into the sim — we expose setAvatars via a side channel:
-    window.__WE_assign && window.__WE_assign(avatarId, sc);
+    sim.assignScenario(avatarId, scenarioId);
   };
-
-  // hacky bridge: expose an assign fn from the sim (we patch via useEffect)
-  useEffect(() => {
-    window.__WE_assign = (id, sc) => {
-      // patch by re-creating via React doesn't work directly here;
-      // we just inject an event into the running engine instead, by
-      // dispatching an event the sim hook can listen for. For demo simplicity
-      // we mutate the avatar in-place — React state still re-renders via tick.
-      const av = sim.avatars.find(a => a.id === id);
-      if (av) {
-        av.scenarioId = sc.id;
-        av.expected = sc.minutes;
-        av.elapsed = 0;
-        av.state = 'working';
-        const room = WE.ROOMS.find(r => r.id === sc.room);
-        if (room) {
-          av.room = room.id;
-          av.tx = room.x + Math.floor(room.w / 2);
-          av.ty = room.y + Math.floor(room.h / 2);
-        }
-      }
-    };
-  }, [sim.avatars]);
 
   return (
     <div className="we-app">
@@ -163,26 +139,23 @@ function WorldEngineApp() {
       </div>
 
       <TweaksPanel title="Tweaks">
-        <TweakSection title="Simulation">
+        <TweakSection label="Simulation">
           <TweakSelect label="Active Avatar"
             value={t.selectedAvatar}
             onChange={v => setTweak('selectedAvatar', v)}
             options={WE.AVATARS.map(a => ({ value: a.id, label: `${a.name} — ${a.trait}` }))}
           />
           <TweakSlider label="Time scale" value={t.timeScale}
-            min={0.25} max={6} step={0.25}
+            min={0.25} max={6} step={0.25} unit="× min/tick"
             onChange={v => setTweak('timeScale', v)}
-            format={v => `${v.toFixed(2)}× min/tick`}
           />
           <TweakSlider label="Tick rate" value={t.tickHz}
-            min={1} max={12} step={1}
+            min={1} max={12} step={1} unit=" Hz"
             onChange={v => setTweak('tickHz', v)}
-            format={v => `${v} Hz`}
           />
           <TweakSlider label="Urgency threshold" value={t.urgencyThreshold}
             min={0.2} max={0.95} step={0.05}
             onChange={v => setTweak('urgencyThreshold', v)}
-            format={v => `${Math.round(v * 100)}%`}
           />
           <TweakToggle label="Dysfunction injection"
             value={t.dysfunctionOn}
@@ -190,7 +163,7 @@ function WorldEngineApp() {
           />
         </TweakSection>
 
-        <TweakSection title="Appearance">
+        <TweakSection label="Appearance">
           <TweakRadio label="Theme"
             value={t.theme} onChange={v => setTweak('theme', v)}
             options={[
@@ -207,9 +180,12 @@ function WorldEngineApp() {
             ]}
           />
           <TweakColor label="Accent"
-            value={t.accentName}
-            onChange={v => setTweak('accentName', v)}
-            options={Object.entries(ACCENT_PALETTES).map(([k, p]) => ({ value: k, color: p[0] }))}
+            value={ACCENT_PALETTES[t.accentName] || ACCENT_PALETTES[0]}
+            onChange={(pal) => {
+              const idx = ACCENT_PALETTES.findIndex(p => p[0] === pal[0]);
+              setTweak('accentName', idx >= 0 ? idx : 0);
+            }}
+            options={ACCENT_PALETTES}
           />
           <TweakToggle label="Show name tags"
             value={t.showLabels}
@@ -217,7 +193,7 @@ function WorldEngineApp() {
           />
         </TweakSection>
 
-        <TweakSection title="World">
+        <TweakSection label="World">
           <TweakButton label="Reset simulation" onClick={sim.reset} />
           <TweakButton label="Run 50 ticks" onClick={() => {
             for (let i = 0; i < 50; i++) sim.stepOnce();

@@ -184,7 +184,11 @@ function useTweaks(defaults) {
 // flips off in lockstep; the host echoes __deactivate_edit_mode back which
 // is what actually hides the panel.
 function TweaksPanel({ title = 'Tweaks', children }) {
-  const [open, setOpen] = React.useState(false);
+  // Default-open when running standalone (no host frame). The host protocol
+  // can still toggle via postMessage when this prototype is embedded.
+  const [open, setOpen] = React.useState(() => {
+    try { return window === window.parent; } catch (e) { return true; }
+  });
   const dragRef = React.useRef(null);
   const offsetRef = React.useRef({ x: 16, y: 16 });
   const PAD = 16;
@@ -217,12 +221,18 @@ function TweaksPanel({ title = 'Tweaks', children }) {
 
   React.useEffect(() => {
     const onMsg = (e) => {
+      // Only honor messages from the embedding host (window.parent). In
+      // standalone mode parent === self and we shouldn't be receiving these
+      // at all, so this guard also closes the door on cross-origin senders.
+      if (e.source !== window.parent || e.source === window) return;
       const t = e?.data?.type;
       if (t === '__activate_edit_mode') setOpen(true);
       else if (t === '__deactivate_edit_mode') setOpen(false);
     };
     window.addEventListener('message', onMsg);
-    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    if (window !== window.parent) {
+      window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    }
     return () => window.removeEventListener('message', onMsg);
   }, []);
 

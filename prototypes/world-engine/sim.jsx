@@ -1,7 +1,7 @@
 // World Engine simulation core — tick loop, avatar state, event emission.
 // Pure React state, no external deps. Runs at a configurable tick rate.
 
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
+const { useState, useEffect, useRef, useCallback, useMemo, useReducer } = React;
 const WE = window.WE_DATA;
 
 // -------- helpers --------
@@ -69,58 +69,24 @@ function spawnAvatar(def, room) {
   };
 }
 
-// ---------- the main simulation hook ----------
-window.useWorldEngine = function useWorldEngine(opts = {}) {
-  const {
-    tickHz = 4,
-    timeScale = 1.0,           // sim minutes per tick at scale 1.0
-    dysfunctionOn = true,
-    urgencyThreshold = 0.6,
-    activeAvatarIds = WE.AVATARS.map(a => a.id),
-  } = opts;
+// ---------- initial state + reducer ----------
+// Reducer combines avatars/events/interventions so a tick produces all three
+// updates in one transition — no setState inside a setState updater.
+function makeInitialWorldState() {
+  return {
+    avatars: WE.AVATARS.map((def, i) => spawnAvatar(def, WE.ROOMS[i % WE.ROOMS.length])),
+    events: [],
+    interventions: [],
+  };
+}
 
-  const [tickCount, setTickCount] = useState(0);
-  const [simTime, setSimTime] = useState(0);       // minutes since boot
-  const [running, setRunning] = useState(true);
-  const [avatars, setAvatars] = useState(() => {
-    return WE.AVATARS.map((def, i) => {
-      // distribute initial spawn across rooms
-      const room = WE.ROOMS[i % WE.ROOMS.length];
-      return spawnAvatar(def, room);
-    });
-  });
-  const [events, setEvents] = useState([]);        // ring buffer of recent events
-  const [interventions, setInterventions] = useState([]); // aide coaching cards
-
-  // Mutable refs so the interval callback always sees fresh values.
-  const stateRef = useRef({ avatars, events, interventions, dysfunctionOn, urgencyThreshold, timeScale });
-  stateRef.current = { avatars, events, interventions, dysfunctionOn, urgencyThreshold, timeScale };
-
-  const pushEvent = useCallback((evt) => {
-    setEvents(prev => {
-      const next = [evt, ...prev];
-      return next.slice(0, 80);
-    });
-  }, []);
-
-  const pushIntervention = useCallback((ev) => {
-    setInterventions(prev => [ev, ...prev].slice(0, 40));
-  }, []);
-
-  // Run a single tick.
-  const stepOnce = useCallback(() => {
-    const nowTick = stateRef.current.__tick = (stateRef.current.__tick || 0) + 1;
-    setTickCount(t => t + 1);
-    setSimTime(t => t + stateRef.current.timeScale);
-
-    setAvatars(prev => {
-      const ts = stateRef.current.timeScale;
-      const dysOn = stateRef.current.dysfunctionOn;
-      const threshold = stateRef.current.urgencyThreshold;
+function worldReducer(state, action) {
+  switch (action.type) {
+    case 'tick': {
+      const { ts, dysOn, threshold } = action;
       const newEvents = [];
       const newInterventions = [];
-
-      const next = prev.map(av => {
+      const nextAvatars = state.avatars.map(av => {
         const a = { ...av };
         const bias = FLAVOR_BIAS[a.flavor] || FLAVOR_BIAS.attention;
 
@@ -196,10 +162,11 @@ window.useWorldEngine = function useWorldEngine(opts = {}) {
             newEvents.push(mkEvent('COGNITIVE_LOAD_HIGH', a, 'cognitive load critical'));
           }
 
-          // NPC interruption — workplace + meeting + lounge
+          // NPC interruption — only fires if a real NPC is co-located in the room.
           if (['office', 'meeting', 'lounge'].includes(a.room) && rng() < 0.04 * ts && dysOn) {
-            const npc = pick(WE.NPCS.filter(n => n.room === a.room && !n.invisible)) || WE.NPCS[0];
-            if (npc) {
+            const roomNpcs = WE.NPCS.filter(n => n.room === a.room && !n.invisible);
+            if (roomNpcs.length > 0) {
+              const npc = pick(roomNpcs);
               a.focus = clamp(a.focus - 0.08);
               a.cogLoad = clamp(a.cogLoad + 0.05);
               newEvents.push(mkEvent('NPC_INTERRUPT', a, `${npc.name} interrupted`, null, npc.name));
@@ -261,15 +228,78 @@ window.useWorldEngine = function useWorldEngine(opts = {}) {
         return a;
       });
 
-      // flush events / interventions (outside React update cycle)
-      if (newEvents.length) {
-        setEvents(prev => [...newEvents.reverse(), ...prev].slice(0, 80));
-      }
-      if (newInterventions.length) {
-        setInterventions(prev => [...newInterventions.reverse(), ...prev].slice(0, 40));
-      }
-      return next;
+      return {
+        avatars: nextAvatars,
+        events: newEvents.length
+          ? [...newEvents.reverse(), ...state.events].slice(0, 80)
+          : state.events,
+        interventions: newInterventions.length
+          ? [...newInterventions.reverse(), ...state.interventions].slice(0, 40)
+          : state.interventions,
+      };
+    }
+    case 'assign': {
+      const { avatarId, scenario, room } = action;
+      return {
+        ...state,
+        avatars: state.avatars.map(a => {
+          if (a.id !== avatarId) return a;
+          const next = { ...a, scenarioId: scenario.id, expected: scenario.minutes, elapsed: 0, state: 'working' };
+          if (room) {
+            next.room = room.id;
+            next.tx = room.x + Math.floor(room.w / 2);
+            next.ty = room.y + Math.floor(room.h / 2);
+          }
+          return next;
+        }),
+      };
+    }
+    case 'reset':
+      return makeInitialWorldState();
+    default:
+      return state;
+  }
+}
+
+// ---------- the main simulation hook ----------
+window.useWorldEngine = function useWorldEngine(opts = {}) {
+  const {
+    tickHz = 4,
+    timeScale = 1.0,           // sim minutes per tick at scale 1.0
+    dysfunctionOn = true,
+    urgencyThreshold = 0.6,
+  } = opts;
+
+  const [tickCount, setTickCount] = useState(0);
+  const [simTime, setSimTime] = useState(0);       // minutes since boot
+  const [running, setRunning] = useState(true);
+  const [world, dispatch] = useReducer(worldReducer, undefined, makeInitialWorldState);
+
+  // Mutable ref so the tick callback always sees the latest tunables without
+  // recreating stepOnce (which would churn the setInterval in the effect below).
+  const optsRef = useRef({ dysfunctionOn, urgencyThreshold, timeScale });
+  optsRef.current = { dysfunctionOn, urgencyThreshold, timeScale };
+
+  // Run a single tick.
+  const stepOnce = useCallback(() => {
+    const cur = optsRef.current;
+    setTickCount(t => t + 1);
+    setSimTime(t => t + cur.timeScale);
+    dispatch({
+      type: 'tick',
+      ts: cur.timeScale,
+      dysOn: cur.dysfunctionOn,
+      threshold: cur.urgencyThreshold,
     });
+  }, []);
+
+  // Imperative scenario assignment from the HUD. Looks up scenario + room
+  // and dispatches a single immutable update — no state mutation, no globals.
+  const assignScenario = useCallback((avatarId, scenarioId) => {
+    const scenario = WE.SCENARIOS.find(s => s.id === scenarioId);
+    if (!scenario) return;
+    const room = WE.ROOMS.find(r => r.id === scenario.room);
+    dispatch({ type: 'assign', avatarId, scenario, room });
   }, []);
 
   // tick loop
@@ -282,16 +312,17 @@ window.useWorldEngine = function useWorldEngine(opts = {}) {
 
   const toggleRun = useCallback(() => setRunning(r => !r), []);
   const reset = useCallback(() => {
-    setAvatars(WE.AVATARS.map((def, i) => spawnAvatar(def, WE.ROOMS[i % WE.ROOMS.length])));
-    setEvents([]);
-    setInterventions([]);
+    dispatch({ type: 'reset' });
     setTickCount(0);
     setSimTime(0);
   }, []);
 
   return {
-    avatars, events, interventions, tickCount, simTime, running,
-    toggleRun, reset, stepOnce,
+    avatars: world.avatars,
+    events: world.events,
+    interventions: world.interventions,
+    tickCount, simTime, running,
+    toggleRun, reset, stepOnce, assignScenario,
   };
 };
 
