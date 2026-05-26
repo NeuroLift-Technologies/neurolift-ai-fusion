@@ -210,6 +210,40 @@ likely to affect pull requests:
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
 | `.github/workflows/sync-governance-public.yml` | **Sync Governance (Public)** | Syncs governance documents (for example `NLT-DEV-OTOI.md`) from `NeuroLift-Technologies/.github-private` via `repository_dispatch`, and runs weekly presence validation | single `sync-governance` job (checkout -> apply payload doc -> validate -> optional commit/PR) |
 
+### Claude Code session governance layer (PR #70)
+
+PR #70 added a repo-local `.claude/` template and staged validation workflow
+proposals for agent operations. This layer is developer tooling: it guides
+Claude Code sessions and stores proposed CI definitions, but it does **not**
+activate any new `.github/workflows/*.yml` files by itself. The active workflow
+count in `.github/workflows/` remains ten.
+
+| Surface | Source path | Runtime behavior |
+| --- | --- | --- |
+| Session startup hook | `.claude/settings.json` -> `.claude/hooks/session-start.sh` | Runs on Claude Code `SessionStart`, prints the mandatory OTOI reading order, checks for `NLT-DEV-OTOI.md`, `AGENTS.md`, `CLAUDE.md`, and `nltotoi.json`, then always exits `0`. |
+| Claude subagent profiles | `.claude/agents/` | Provides NLT Governance Steward, NLT Code Reviewer, and SWE profiles with NLT frontmatter markers. |
+| Claude slash commands | `.claude/commands/` | Documents `/register-session`, `/handoff`, `/escalate`, `/intent-log`, and `/governance-check` workflows. |
+| Claude skills | `.claude/skills/*/SKILL.md` | Provides loadable guidance for OTOI, registration, handoffs, escalations, intent logs, commit format, and incident response. |
+| Staged validation workflows | `.nltotoi/proposals/*.yml.proposed` | Holds proposed workflow YAML for commit-format, handoff-record, agent-profile, and skill-profile validation. These files are not active CI until moved into `.github/workflows/`. |
+
+Operational constraints:
+
+- `.claude/` is synced from `NeuroLift-Technologies/.github-private/.claude/`
+  by the upstream governance propagation process. Do not edit files in this
+  repo's `.claude/` directory for normal repo-specific behavior.
+- Repo-specific Claude Code overrides belong in `.claude/settings.local.json`,
+  which the propagation workflow is documented not to overwrite.
+- The session-start hook is advisory. Missing governance files are printed as
+  warnings for the agent to investigate; the hook intentionally does not block
+  the session.
+- Proposed workflow files include their own `git mv` instructions, but applying
+  them is a human/governance action because it changes active GitHub Actions
+  behavior and may require `workflows-write` capability.
+- If the staged profile validators are activated later, agent profiles require
+  `name`, `description`, `version`, `nlt-otoi-version`,
+  `nlt-solidarity-framework`, `nlt-haief`, and `nlt-authority` frontmatter.
+  Skill profiles require the same NLT fields except `version`.
+
 Other workflow files are subsystem-specific (`web.yml`, `mobile.yml`,
 `test-cloudflare.yml`, `validate-governance.yml`) or support repository
 maintenance. Python versions are workflow-specific: `shared-ci.yml` currently
@@ -395,6 +429,20 @@ For governance validation (`Sync Governance (Public)`):
    - `Validate governance documents` (presence/warnings)
    - `Apply synced governance document` and `Create pull request for governance update` on repository-dispatch runs.
 
+For local Claude Code governance checks:
+
+```bash
+# Reproduce the informational session-start banner/check.
+bash .claude/hooks/session-start.sh
+
+# Run the current repo governance validator directly.
+bash .nltotoi/scripts/validate-governance.sh --strict
+```
+
+Use `/governance-check` inside Claude Code when slash commands are available;
+it delegates to the same `.nltotoi/scripts/validate-governance.sh --strict`
+path when the script exists.
+
 PR cleanup verification checklist:
 
 1. Confirm the run used the expected `days_before_stale` and `days_before_close` values.
@@ -494,6 +542,14 @@ python scripts/validate_provenance.py \
 - **Keep governance source-of-truth explicit**:
   - upstream governance authoring lives in `NeuroLift-Technologies/.github-private`
   - this repository consumes synced copies (for example `NLT-DEV-OTOI.md`) via `Sync Governance (Public)`
+- **Keep Claude Code session governance docs aligned** when `.claude/` changes:
+  - `.claude/README.md`, `.claude/settings.json`, and `.claude/hooks/session-start.sh` define the local Claude Code session behavior
+  - upstream source-of-truth remains `NeuroLift-Technologies/.github-private/.claude/`
+  - repo-specific behavior should use `.claude/settings.local.json`, not edits to synced files
+- **When promoting staged governance workflows**, update both code and docs:
+  - move the relevant `.nltotoi/proposals/*.yml.proposed` file into `.github/workflows/`
+  - update this README's active workflow table and the operational constraints above
+  - verify whether the change needs explicit human approval before altering active CI behavior
 - **If checksum algorithms change**, update both workflow verification logic and this runbook's payload guidance at the same time.
 
 ### Troubleshooting and common pitfalls
@@ -508,6 +564,9 @@ python scripts/validate_provenance.py \
 - **Governance sync run fails with "Disallowed document name":** path must match `NLT-*.md` or `docs/governance/NLT-*.md`.
 - **Governance sync logs checksum mismatch:** recompute checksum from the decoded file content and ensure it is sent as `sha256:<hex>`.
 - **Governance sync did not open a PR:** confirm event was `repository_dispatch` (not schedule/manual) and that the decoded file content actually changed.
+- **Claude Code session start reports missing governance files:** treat the hook output as an advisory warning, then verify whether `NLT-DEV-OTOI.md`, `AGENTS.md`, `CLAUDE.md`, or `nltotoi.json` is actually missing from the repo root. Use Sync Governance (Public) or the upstream governance propagation process for recovery.
+- **A staged agent validation workflow is not running:** files under `.nltotoi/proposals/*.yml.proposed` are intentionally inactive. They must be moved into `.github/workflows/` before GitHub Actions can run them.
+- **Local Claude Code behavior was overwritten after a sync:** synced files in `.claude/` can be replaced by upstream propagation. Move repo-specific overrides into `.claude/settings.local.json`.
 - **Red Team Level 2 or 3 appears to rerun earlier checks:** this is current script behavior. `run_clearance_tests.py --level N` executes every level from `1` through `N`, and the workflow runs each clearance job independently.
 - **Bare `pytest` fails at 80% coverage while Red Team Level 2 passes:** this is expected in the current config. `pytest.ini` sets the standalone threshold to 80%, while the Red Team harness passes `--cov-fail-under=60`.
 - **Mypy results differ between local one-off commands and CI:** run `python scripts/run_clearance_tests.py --level 2 --verbose` for parity; normal Level 2 mypy loads `mypy.ini`, including scoped exclusions for external-service clients, legacy `training_session`, and the known `stay_alert_aide` context mismatch.

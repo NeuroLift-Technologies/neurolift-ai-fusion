@@ -4,6 +4,35 @@ This directory contains documentation and guidance materials specifically design
 
 ## Contents
 
+### Claude Code session governance (`.claude/`)
+
+The repository includes a Claude Code session-governance template under
+`.claude/`. It is a synced copy from
+`NeuroLift-Technologies/.github-private/.claude/`, so agents should read it but
+should not edit it in this repo unless explicitly directed by a human.
+
+Key entry points:
+
+| Path | Purpose |
+| --- | --- |
+| `.claude/README.md` | Explains the synced template, source of truth, and repo-specific override path. |
+| `.claude/settings.json` | Wires the `SessionStart` hook and Claude Code permission/env defaults. |
+| `.claude/hooks/session-start.sh` | Prints mandatory OTOI reading order and checks required governance files; exits `0` even when it warns. |
+| `.claude/commands/` | Slash-command guidance for session registration, handoff, escalation, intent logs, and governance checks. |
+| `.claude/skills/` | Task-specific OTOI guidance that can be loaded on demand. |
+| `.claude/agents/` | NLT Governance Steward, NLT Code Reviewer, and SWE subagent profiles. |
+
+Repo-specific Claude Code overrides belong in `.claude/settings.local.json`;
+the propagation workflow is documented not to overwrite that file.
+
+### Staged governance validation proposals
+
+`.nltotoi/proposals/*.yml.proposed` contains proposed GitHub Actions workflow
+definitions for agent commit-format, session handoff, agent-profile, and
+skill-profile validation. These files are source material only while they keep
+the `.proposed` suffix. They do not run in CI unless a human/governance-approved
+change moves them into `.github/workflows/`.
+
 ### GEMINI_TOPOGRAPHY.py
 
 A comprehensive Python file that provides:
@@ -34,3 +63,5 @@ AI assistants should reference these files when:
 - Implementing Avatar, Aide, or Advocate components
 - Integrating with other NeuroLift systems
 - Validating implementations against specifications
+- Beginning a Claude Code session that must follow OTOI registration, handoff,
+  escalation, or governance-check protocols
