@@ -1,0 +1,56 @@
+# PROPOSED VALIDATION WORKFLOW — NOT YET APPLIED
+#
+# Source: NeuroLift-Technologies/.github-private/.github/workflows/agent-session-check.yml
+# Reason for staging: GitHub token lacks `workflows-write` scope.
+#
+# To apply:
+#   git mv .nltotoi/proposals/agent-session-check.yml.proposed \
+#          .github/workflows/agent-session-check.yml
+#   git commit -m '[HUMAN] ci(agent-session-check): adopt NLT handoff record check (ORG-DEV-OTOI-1.0.0)'
+# ===================================================================
+
+name: Agent Session Handoff Check
+
+# Verifies that at least one handoff record exists in docs/agent-log/handoffs/
+# before a PR is merged, ensuring agents document their session state.
+# Governed by: ORG-DEV-OTOI-1.0.0
+
+on:
+  pull_request:
+    branches: ["**"]
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  handoff-check:
+    name: Check Agent Handoff Record (SOP-NLT-001)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check docs/agent-log/handoffs/ directory
+        run: |
+          if [[ ! -d "docs/agent-log/handoffs" ]]; then
+            echo "MISSING: docs/agent-log/handoffs/ directory not found."
+            echo "  Per SOP-NLT-001 Step 8, agents must write a handoff record at session end."
+            echo "  Create the directory and add a handoff record using templates/handoff-record.json"
+            echo "  Store at: docs/agent-log/handoffs/[date]-[session-id].json"
+            exit 1
+          fi
+          echo "OK: docs/agent-log/handoffs/ exists"
+
+      - name: Check for handoff record files
+        run: |
+          COUNT=$(find docs/agent-log/handoffs -maxdepth 1 -name "*.json" ! -name ".gitkeep" | wc -l)
+          if [[ "$COUNT" -eq 0 ]]; then
+            echo "NO HANDOFF RECORDS in docs/agent-log/handoffs/"
+            echo "  Per SOP-NLT-001 Step 8, agents must write a handoff record before ending their session."
+            echo "  Use templates/handoff-record.json and store at:"
+            echo "  docs/agent-log/handoffs/[date]-[session-id].json"
+            exit 1
+          fi
+          echo "OK: Found ${COUNT} handoff record(s)"
+          echo ""
+          echo "Handoff records present:"
+          find docs/agent-log/handoffs -maxdepth 1 -name "*.json" ! -name ".gitkeep" | sort
