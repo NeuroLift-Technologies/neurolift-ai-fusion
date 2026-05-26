@@ -43,6 +43,6 @@
       "python3 ThreadingHTTPServer smoke test serving prototypes/world-engine assets: index.html, data.js, app.jsx, sim.jsx, hud.jsx, world-view.jsx, tweaks-panel.jsx, world.css"
     ],
     "tests_passing": true,
-    "pr_url": "Pending OpenGitPr creation for cursor/technical-documentation-updates-2144"
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/71"
   }
 }
