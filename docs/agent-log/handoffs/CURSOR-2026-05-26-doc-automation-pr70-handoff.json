@@ -1,0 +1,40 @@
+{
+  "handoff_record": {
+    "session_id": "CURSOR-2026-05-26-doc-automation-pr70",
+    "agent_name": "Cursor GPT-5.5",
+    "date": "2026-05-26",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "cursor/technical-documentation-upkeep-5aed",
+    "work_completed": [
+      "Inspected merged PR #70 and verified it added the synced `.claude/` Claude Code governance template, staged `.nltotoi/proposals/*.yml.proposed` validation workflows, and updated `CLAUDE.md`.",
+      "Updated `README.md` with a source-verified runbook for the Claude Code session governance layer, staged workflow proposals, local governance checks, maintenance constraints, and troubleshooting pitfalls.",
+      "Updated `docs/ai-guidance/README.md` so AI assistants can find the `.claude/` entry points and understand that `.nltotoi/proposals/*.yml.proposed` files are inactive until promoted to `.github/workflows/`.",
+      "Created the session registration and moved TH-012 to completed in `docs/active-threads.md`."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Updated existing contributor and AI guidance docs instead of creating a redundant page.",
+      "Did not edit `.claude/**`, `.nltotoi/proposals/**`, `.github/workflows/**`, `NLT-DEV-OTOI.md`, or `AGENTS.md` because those files are governance-synced or active governance surfaces.",
+      "Documented proposed validation workflows as inactive staged files, not active CI."
+    ],
+    "decisions_pending": [
+      "A human/governance-approved action is still required before any `.nltotoi/proposals/*.yml.proposed` workflow is promoted into `.github/workflows/`."
+    ],
+    "escalations": [],
+    "next_agent_notes": "PR #70 documentation coverage is now concentrated in README.md and docs/ai-guidance/README.md. If future work activates any staged validation workflow, update the active workflow table, troubleshooting notes, and handoff guidance at the same time.",
+    "files_modified": [
+      "README.md",
+      "docs/ai-guidance/README.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CURSOR-2026-05-26-doc-automation-pr70.json",
+      "docs/agent-log/handoffs/CURSOR-2026-05-26-doc-automation-pr70-handoff.json"
+    ],
+    "tests_run": [
+      "bash .nltotoi/scripts/validate-governance.sh --strict",
+      "bash .claude/hooks/session-start.sh"
+    ],
+    "tests_passing": true
+  }
+}
