@@ -1,0 +1,70 @@
+{
+  "handoff_record": {
+    "session_id": "01Gh6soou53cqfWxmF33nTRQ",
+    "agent_name": "Claude Code",
+    "date": "2026-05-26",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "claude/world-engine-status-dDPKG",
+    "thread_id": "TH-011",
+    "task_scope": "Stand up the Claude-design React World Engine prototype as a standalone browser artifact; preserve original drafts; merge the two conflicting design rosters into one canonical 19-avatar set with snake_case ids matching the Python repo convention; extract the data schema as a spec doc. Leave src/ untouched. No API wiring.",
+    "work_completed": [
+      "Dropped the modular prototype under prototypes/world-engine/ (app.jsx, sim.jsx, hud.jsx, world-view.jsx, tweaks-panel.jsx, world.css, data.js, index.html, README.md).",
+      "Preserved the original drafts verbatim under prototypes/world-engine/_drafts/ (world-engine.jsx single-file version, top-level tweaks-panel.jsx, design-canvas.jsx, scraps/).",
+      "Reconciled the two conflicting design rosters into one canonical 19-avatar set. Kept the cleaner snake_case ids from world-engine.jsx (stay_alert, task_kickstart, focus_flow, ...) and the richer schema from engine/data.js (blurb, flavor, tag, paired aide). Applied three corrections: transition -> transition_ease, follow_thru -> follow_through, Physical Restless. -> Physical Restlessness.",
+      "Validated the data contract via a Node script: 19 unique avatar ids, 19 matching aide entries, every avatar.flavor is a STRATEGIES key, every scenario.room and npc.room resolves to a ROOMS entry, no duplicate ids.",
+      "Verified the prototype boots cleanly: 'python3 -m http.server 8765' served all 8 assets (index.html, data.js, app.jsx, sim.jsx, hud.jsx, world-view.jsx, tweaks-panel.jsx, world.css) with HTTP 200.",
+      "Wrote docs/specs/world-engine-prototype-schema.md documenting the full data contract: top-level WE_DATA namespace, cross-reference invariants, Avatar definition + AvatarRuntime shape, FlavorKey enum, canonical 19-avatar roster table, Aide/Scenario/Room/NPC/Strategy/Event schemas, scenarios.py-to-data.js field mapping, EventKind-to-SignalType mapping for future Python wiring, and 4 open questions for future integration.",
+      "Created draft PR #69 against main with full body covering run instructions, roster corrections, scope, test plan, and open questions.",
+      "Filed this retroactive registration + handoff + active-threads entry after the user flagged the omission."
+    ],
+    "work_in_progress": [],
+    "blockers": [
+      "Pre-existing Cloudflare Workers deployment failure on the branch (build completed in 0 seconds at 15:23:47 UTC, before running any code). PR #69 touches zero CF/wrangler files; the failure is unrelated to this work and tracked separately in docs/agent-log/handoffs/2026-04-25-codex-cloudflare-world-engine-handoff.json, which already documented the deploy as blocked on authenticated Cloudflare account context."
+    ],
+    "decisions_made": [
+      "Roster source-of-truth: merged the world-engine.jsx ids (cleaner snake_case, repo-aligned) with the engine/data.js schema (blurb, flavor, tag) rather than picking one wholesale.",
+      "Roster corrections: transition -> transition_ease for id consistency, follow_thru -> follow_through for spelling, Physical Restless. -> Physical Restlessness for truncation.",
+      "Placement: prototypes/world-engine/ as a sister to apps/ rather than apps/world-view/ because no build pipeline or workspace integration is planned in this PR.",
+      "No build pipeline: kept React + Babel via CDN per the no-wiring scope. Promoting to apps/ with a real bundler is a follow-up.",
+      "No API wiring: data.js is the only data source; window.WE_DATA stays as the global namespace contract. The EventKind-to-SignalType mapping in the spec doc is documentation only.",
+      "Drafts preservation: all original zip contents kept under _drafts/ verbatim so the design history is not lost."
+    ],
+    "decisions_pending": [
+      "Avatar source-of-truth when wiring to Python: does the JS 19-avatar roster become canonical, or should the Python generate it from src/avatars/avatar_configs/*.json (only stay_alert.json exists today)? Decision-owner: Joshua W. Dorsey, Sr.",
+      "Scenario synchronization: src/simulation/environment/scenarios.py defines 13 scenarios with no spatial layout; prototypes/world-engine/data.js defines 11 with room routing. Pick one and generate the other. Decision-owner: Joshua W. Dorsey, Sr.",
+      "Transport for live wiring: REST snapshot polling, Server-Sent Events, or WebSocket via the existing Cloudflare Durable Object (cloudflare-engine/src/index.ts). Decision-owner: Joshua W. Dorsey, Sr.",
+      "Shared runtime DTO between BaseAvatar (Python) and AvatarRuntime (sim.jsx) before any wire-up. Decision-owner: Joshua W. Dorsey, Sr."
+    ],
+    "escalations": [
+      "Cloudflare Workers deployment failure flagged for awareness only — pre-existing, not caused by this PR, requires authenticated Cloudflare account work outside this PR's scope."
+    ],
+    "next_agent_notes": "If you are wiring the prototype to the Python engine: start from docs/specs/world-engine-prototype-schema.md (the EventKind-to-SignalType table is the integration contract). Reuse src/core/events.py::EventBus and SignalType rather than the in-browser pub/sub. The 17 unimplemented avatar configs (everything except stay_alert and task_kickstart) need real config files at src/avatars/avatar_configs/*.json before they can drive a real session — the JS roster is design-only until then. Thread-id collision warning: PR #68 (Cursor, still draft at handoff time) claims to close TH-011. If PR #68 merges first, bump this PR's row in docs/active-threads.md to TH-012.",
+    "files_modified": [
+      "prototypes/world-engine/README.md",
+      "prototypes/world-engine/index.html",
+      "prototypes/world-engine/data.js",
+      "prototypes/world-engine/app.jsx",
+      "prototypes/world-engine/sim.jsx",
+      "prototypes/world-engine/hud.jsx",
+      "prototypes/world-engine/world-view.jsx",
+      "prototypes/world-engine/tweaks-panel.jsx",
+      "prototypes/world-engine/world.css",
+      "prototypes/world-engine/_drafts/world-engine.jsx",
+      "prototypes/world-engine/_drafts/tweaks-panel.jsx",
+      "prototypes/world-engine/_drafts/design-canvas.jsx",
+      "prototypes/world-engine/_drafts/scraps/sketch-2026-05-26T14-20-34-cw8bv8.napkin",
+      "docs/specs/world-engine-prototype-schema.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CLAUDE-2026-05-26-world-engine-frontend-prototype.json",
+      "docs/agent-log/handoffs/CLAUDE-2026-05-26-world-engine-frontend-prototype-handoff.json"
+    ],
+    "tests_run": [
+      "Data contract validation (Node script): confirmed 19 unique avatar ids, 19 matching aide keys (no missing, no orphan), all 19 avatar.flavor values map to STRATEGIES keys, all 11 scenarios route to valid ROOMS, all 6 NPCs route to valid ROOMS.",
+      "Local static-server smoke test: 'python3 -m http.server 8765' from prototypes/world-engine/ then curled each of the 8 assets — all returned HTTP 200 with expected byte counts.",
+      "CI on PR #69 commit 06aa32f: 'validate' passed, 'submit-pypi' passed, 'GitGuardian Security Checks' passed, all three Clearance Rubric levels (Basic, Standard, Full) passed. 'Workers Builds: neurolift-ai-fusion' failed in 0 seconds — pre-existing infra failure, unrelated to this PR (no CF/wrangler files touched)."
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/69"
+  }
+}
