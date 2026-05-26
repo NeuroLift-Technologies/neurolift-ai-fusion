@@ -41,9 +41,16 @@ done
 if [[ ${missing} -gt 0 ]]; then
   echo ""
   echo "WARNING: ${missing} governance file(s) missing."
-  echo "  Recovery options:"
-  echo "    1. Trigger sync-governance-public.yml in .github-private"
-  echo "    2. Follow SOP-NLT-002 (SOPs/repo-governance-setup.md) to provision them"
+  echo "  These files are normally synced from NeuroLift-Technologies/.github-private."
+  echo "  Recovery options (in order):"
+  echo "    1. Trigger governance-auto-propagate.yml in .github-private:"
+  echo "         gh workflow run governance-auto-propagate.yml \\"
+  echo "           -R NeuroLift-Technologies/.github-private"
+  echo "       It opens a PR here that adds the missing stubs."
+  echo "    2. Follow SOP-NLT-002 (SOPs/repo-governance-setup.md in .github-private)"
+  echo "       for the manual provisioning procedure."
+  echo "    3. While missing, use the public mirror to read governance docs:"
+  echo "         https://github.com/NeuroLift-Technologies/.github/tree/main/governance"
 fi
 
 echo ""

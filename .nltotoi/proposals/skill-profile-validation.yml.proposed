@@ -14,6 +14,10 @@ name: Skill Profile Validation
 # Validates all skill profile files in skills/ and .claude/skills/ against
 # NLT required frontmatter standards.
 #
+# Required fields per ORG-DEV-OTOI-1.0.0 (skills use 6 fields, no `version`):
+#   name, description, nlt-otoi-version, nlt-solidarity-framework,
+#   nlt-haief, nlt-authority
+#
 # SOP Reference: SOPs/repo-governance-setup.md — SOP-NLT-002
 # Governed by: ORG-DEV-OTOI-1.0.0
 
@@ -56,6 +60,12 @@ jobs:
           fail_count=0
           failures=()
 
+          extract_field_value() {
+            local frontmatter="$1"
+            local field="$2"
+            echo "$frontmatter" | grep -E "^${field}:" | sed "s/^${field}:[[:space:]]*//" | tr -d '"' || true
+          }
+
           validate_skill_file() {
             local file="$1"
             local folder=$(basename "$(dirname "$file")")
@@ -65,10 +75,12 @@ jobs:
 
             echo "  Validating: $file"
             local file_failures=()
-            local frontmatter=$(awk '/^---$/{c++; if(c==1){p=1; next} if(c==2){p=0}} p{print}' "$file" 2>/dev/null || true)
+            # YAML frontmatter must start on line 1. NR==1 prevents an unrelated
+            # `---` horizontal rule later in the file from being falsely matched.
+            local frontmatter=$(awk 'NR==1 && /^---$/ {p=1; next} /^---$/ && p {p=0; exit} p {print}' "$file" 2>/dev/null || true)
 
             if [[ -z "$frontmatter" ]]; then
-              file_failures+=("missing YAML frontmatter")
+              file_failures+=("missing YAML frontmatter (frontmatter must start on line 1 with ---)")
             else
               for field in "${REQUIRED_FIELDS[@]}"; do
                 if ! echo "$frontmatter" | grep -qE "^${field}:"; then
@@ -76,12 +88,23 @@ jobs:
                 fi
               done
 
-              local otoi_val=$(echo "$frontmatter" | grep -E "^nlt-otoi-version:" | sed 's/^nlt-otoi-version:[[:space:]]*//' | tr -d '"' || true)
+              # Enforce exact values for governance booleans + identity fields.
+              local otoi_val=$(extract_field_value "$frontmatter" "nlt-otoi-version")
               if [[ -n "$otoi_val" && "$otoi_val" != "$NLT_OTOI_VERSION" ]]; then
                 file_failures+=("nlt-otoi-version must be '${NLT_OTOI_VERSION}', got: '${otoi_val}'")
               fi
 
-              local authority_val=$(echo "$frontmatter" | grep -E "^nlt-authority:" | sed "s/^nlt-authority:[[:space:]]*//" | tr -d '"' || true)
+              local solidarity_val=$(extract_field_value "$frontmatter" "nlt-solidarity-framework")
+              if [[ -n "$solidarity_val" && "$solidarity_val" != "$NLT_SOLIDARITY" ]]; then
+                file_failures+=("nlt-solidarity-framework must be '${NLT_SOLIDARITY}', got: '${solidarity_val}'")
+              fi
+
+              local haief_val=$(extract_field_value "$frontmatter" "nlt-haief")
+              if [[ -n "$haief_val" && "$haief_val" != "$NLT_HAIEF" ]]; then
+                file_failures+=("nlt-haief must be '${NLT_HAIEF}', got: '${haief_val}'")
+              fi
+
+              local authority_val=$(extract_field_value "$frontmatter" "nlt-authority")
               if [[ -n "$authority_val" && "$authority_val" != "$NLT_AUTHORITY" ]]; then
                 file_failures+=("nlt-authority must be '${NLT_AUTHORITY}', got: '${authority_val}'")
               fi
