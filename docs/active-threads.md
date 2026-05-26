@@ -19,7 +19,6 @@
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
-| TH-012 | Documentation automation for PR #69 World Engine frontend prototype | Automation | Cursor GPT-5.5 | cursor/technical-documentation-updates-2144 | 🟡 In Progress | 2026-05-26 |
 
 ---
 
@@ -44,6 +43,7 @@ _No blocked threads at this time._
 | TH-009 | PR queue cleanup scan (14 PRs, 4 orphan branches) | Copilot (PR Cleanup Agent) | 2026-05-02 | `docs/agent-log/handoffs/2026-05-02-copilot-pr-cleanup-scan-handoff.json` |
 | TH-010 | Documentation automation for PR #49 governance cleanup context | Cursor GPT-5.5 | 2026-05-22 | `docs/agent-log/handoffs/CURSOR-2026-05-22-doc-automation-pr49-handoff.json` |
 | TH-011 | Stand up World Engine frontend prototype ([PR #69](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/69)) | Claude Code | 2026-05-26 | `docs/agent-log/handoffs/CLAUDE-2026-05-26-world-engine-frontend-prototype-handoff.json` |
+| TH-012 | Documentation automation for PR #69 World Engine frontend prototype | Cursor GPT-5.5 | 2026-05-26 | `docs/agent-log/handoffs/CURSOR-2026-05-26-doc-automation-pr69-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
