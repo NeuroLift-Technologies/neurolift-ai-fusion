@@ -1,0 +1,152 @@
+# PROPOSED VALIDATION WORKFLOW — NOT YET APPLIED
+#
+# Source: NeuroLift-Technologies/.github-private/.github/workflows/agent-profile-validation.yml
+# Reason for staging: GitHub token in this session lacks `workflows-write` scope.
+#
+# To apply:
+#   git mv .nltotoi/proposals/agent-profile-validation.yml.proposed \
+#          .github/workflows/agent-profile-validation.yml
+#   git commit -m '[HUMAN] ci(agent-profile-validation): adopt NLT agent profile validation (ORG-DEV-OTOI-1.0.0)'
+#
+# Governed by: ORG-DEV-OTOI-1.0.0
+# SOP: SOP-NLT-002
+# ===================================================================
+
+name: Agent Profile Validation
+
+# Validates all agent profile files in agents/, .github/agents/, and .claude/agents/
+# against NLT required frontmatter standards. Every .md file (except README.md and
+# example-agent.md) must have all required NLT governance fields.
+#
+# Required fields per ORG-DEV-OTOI-1.0.0:
+#   name, description, version, nlt-otoi-version, nlt-solidarity-framework,
+#   nlt-haief, nlt-authority
+#
+# SOP Reference: SOPs/repo-governance-setup.md — SOP-NLT-002
+# Governed by: ORG-DEV-OTOI-1.0.0
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "agents/**"
+      - ".github/agents/**"
+      - ".claude/agents/**"
+  pull_request:
+    branches: ["**"]
+    paths:
+      - "agents/**"
+      - ".github/agents/**"
+      - ".claude/agents/**"
+
+jobs:
+  validate-agent-profiles:
+    name: Validate NLT Agent Profiles (ORG-DEV-OTOI-1.0.0)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate agent profile frontmatter
+        run: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          BASE_REQUIRED_FIELDS=(name description version nlt-otoi-version nlt-solidarity-framework nlt-haief nlt-authority)
+          NLT_OTOI_VERSION="ORG-DEV-OTOI-1.0.0"
+          NLT_SOLIDARITY="true"
+          NLT_HAIEF="true"
+          NLT_AUTHORITY="Joshua W. Dorsey, Sr."
+          SKIP_FILES=("README.md" "example-agent.md")
+
+          pass_count=0
+          fail_count=0
+          failures=()
+
+          # YAML frontmatter must start on line 1. Without NR==1, an unrelated
+          # `---` horizontal rule later in a markdown file would be falsely
+          # treated as the start of frontmatter.
+          extract_frontmatter() {
+            awk 'NR==1 && /^---$/ {p=1; next} /^---$/ && p {p=0; exit} p {print}' "$1" 2>/dev/null || true
+          }
+
+          extract_field_value() {
+            local frontmatter="$1"
+            local field="$2"
+            echo "$frontmatter" | grep -E "^${field}:" | sed "s/^${field}:[[:space:]]*//" | tr -d '"' || true
+          }
+
+          validate_agent_file() {
+            local file="$1"
+            local basename=$(basename "$file")
+            for skip in "${SKIP_FILES[@]}"; do
+              if [[ "$basename" == "$skip" ]]; then echo "  SKIPPED: $file"; return 0; fi
+            done
+
+            echo "  Validating: $file"
+            local file_failures=()
+            local frontmatter=$(extract_frontmatter "$file")
+
+            if [[ -z "$frontmatter" ]]; then
+              file_failures+=("missing YAML frontmatter (frontmatter must start on line 1 with ---)")
+            else
+              for field in "${BASE_REQUIRED_FIELDS[@]}"; do
+                if ! echo "$frontmatter" | grep -qE "^${field}:"; then
+                  file_failures+=("missing field: '${field}'")
+                fi
+              done
+
+              # Enforce exact values for governance booleans + identity fields.
+              local otoi_val=$(extract_field_value "$frontmatter" "nlt-otoi-version")
+              if [[ -n "$otoi_val" && "$otoi_val" != "$NLT_OTOI_VERSION" ]]; then
+                file_failures+=("nlt-otoi-version must be '${NLT_OTOI_VERSION}', got: '${otoi_val}'")
+              fi
+
+              local solidarity_val=$(extract_field_value "$frontmatter" "nlt-solidarity-framework")
+              if [[ -n "$solidarity_val" && "$solidarity_val" != "$NLT_SOLIDARITY" ]]; then
+                file_failures+=("nlt-solidarity-framework must be '${NLT_SOLIDARITY}', got: '${solidarity_val}'")
+              fi
+
+              local haief_val=$(extract_field_value "$frontmatter" "nlt-haief")
+              if [[ -n "$haief_val" && "$haief_val" != "$NLT_HAIEF" ]]; then
+                file_failures+=("nlt-haief must be '${NLT_HAIEF}', got: '${haief_val}'")
+              fi
+
+              local authority_val=$(extract_field_value "$frontmatter" "nlt-authority")
+              if [[ -n "$authority_val" && "$authority_val" != "$NLT_AUTHORITY" ]]; then
+                file_failures+=("nlt-authority must be '${NLT_AUTHORITY}', got: '${authority_val}'")
+              fi
+            fi
+
+            if [[ ${#file_failures[@]} -gt 0 ]]; then
+              fail_count=$((fail_count + 1))
+              failures+=("$file")
+              for f in "${file_failures[@]}"; do echo "    FAIL: $f"; failures+=("  - $f"); done
+            else
+              pass_count=$((pass_count + 1))
+              echo "    OK"
+            fi
+          }
+
+          for dir in agents .github/agents .claude/agents; do
+            echo ""
+            echo "=== Validating ${dir}/ ==="
+            if [[ -d "$dir" ]]; then
+              while IFS= read -r -d '' file; do
+                validate_agent_file "$file"
+              done < <(find "$dir" -maxdepth 1 -name "*.md" -print0 | sort -z)
+            else
+              echo "  ${dir}/ not found — skipping"
+            fi
+          done
+
+          echo ""
+          echo "=== Summary: ${pass_count} passed, ${fail_count} failed ==="
+          if [[ $fail_count -gt 0 ]]; then
+            echo ""
+            for f in "${failures[@]}"; do echo "  - $f"; done
+            exit 1
+          fi
