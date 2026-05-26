@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NeuroLift · World Engine (prototype)</title>
+  <link rel="stylesheet" href="world.css">
+  <style>
+    html, body, #root { margin: 0; height: 100%; background: #0b0f17; color: #e6e9ef; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    .we-boot { position: fixed; inset: 0; display: grid; place-items: center; font-size: 13px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="we-boot">booting world engine prototype…</div>
+  </div>
+
+  <!--
+    Standalone prototype: React + Babel via CDN, no build step.
+    Load order matters: data → tweaks shell → sim → view → hud → app.
+  -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script src="data.js"></script>
+  <script type="text/babel" data-presets="env,react" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="sim.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="world-view.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="hud.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="app.jsx"></script>
+</body>
+</html>
