@@ -46,6 +46,6 @@
       "python3 source/doc contract string verification for CORS and API base URLs"
     ],
     "tests_passing": true,
-    "pr_url": "Pending OpenGitPr after final handoff commit"
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/73"
   }
 }
