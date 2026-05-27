@@ -1,0 +1,51 @@
+{
+  "handoff_record": {
+    "session_id": "cursor/engineering-documentation-updates-7066",
+    "agent_name": "Cursor GPT-5.5",
+    "date": "2026-05-27",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "cursor/engineering-documentation-updates-7066",
+    "work_completed": [
+      "Documented PR #32 API surface boundaries across backend/, apps/api/, and services/api in the root README and architecture docs.",
+      "Updated backend setup docs with source-verified /api route contracts, in-memory persistence constraints, CORS environment variable, and request examples.",
+      "Updated web and mobile app READMEs to distinguish runnable Next.js/static/Expo paths from PR #32 React Router and Expo client contracts.",
+      "Corrected developer-facing env examples for backend CORS, mobile /api base URL, and Next.js /api/v1 base URL.",
+      "Closed active thread TH-012 and recorded session registration."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Kept the change documentation-focused and did not modify application route behavior, package scripts, CI workflow YAML, or deployment configuration.",
+      "Documented the current multi-API state rather than declaring one API canonical, because choosing a canonical product surface is an architectural decision."
+    ],
+    "decisions_pending": [
+      "Human maintainers should decide whether backend/ should be added to CI path filters and whether web/mobile workflow branch filters should target main instead of master.",
+      "Human maintainers should decide whether PR #32 React Router source under apps/web/src/ should be restored as a runnable Vite package path or retired."
+    ],
+    "escalations": [],
+    "next_agent_notes": "The docs are source-verified against the current tree after PR #32. Remaining technical debt is documented rather than fixed: backend/ uses process-local memory, apps/web has multiple entrypoints and missing @/lib modules for some Next.js routes, and apps/mobile has additional orphan route files importing missing @/lib modules.",
+    "files_modified": [
+      "README.md",
+      "backend/README.md",
+      "backend/.env.example",
+      "apps/web/README.md",
+      "apps/web/.env.local.example",
+      "apps/mobile/README.md",
+      "apps/mobile/.env.example",
+      "docs/architecture.md",
+      "docs/roadmaps/full-stack-simulation-app-plan.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/2026-05-27-cursor-gpt-5-5-doc-automation-pr32.json",
+      "docs/agent-log/handoffs/2026-05-27-cursor-doc-automation-pr32-handoff.json"
+    ],
+    "tests_run": [
+      "git diff --check HEAD~1..HEAD",
+      "python3 -m json.tool docs/agent-log/registrations/2026-05-27-cursor-gpt-5-5-doc-automation-pr32.json",
+      "rg stale-string search for old Expo/CORS/API URL guidance",
+      "python3 source/doc contract string verification for CORS and API base URLs"
+    ],
+    "tests_passing": true,
+    "pr_url": "Pending OpenGitPr after final handoff commit"
+  }
+}
