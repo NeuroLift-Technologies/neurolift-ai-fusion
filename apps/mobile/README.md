@@ -1,79 +1,89 @@
-# Mobile App (Expo Router)
+# NeuroLift AI-Fusion — Mobile App (iOS & Android)
 
-This is the React Native client for the PR #37 full-stack platform. It uses
-Expo Router and talks to the platform API in `apps/api/`.
+Expo React Native app for the NeuroLift simulation environment, targeting iOS and Android.
 
-## Intent and architecture
+## Stack
 
-Current source path:
+| Layer | Technology |
+|---|---|
+| Framework | Expo SDK 52 + React Native |
+| Language | TypeScript |
+| Navigation | Expo Router (file-based) |
+| Styling | React Native StyleSheet |
+| HTTP | Native `fetch` |
+| Backend | FastAPI (`/backend`) |
 
-```text
-apps/mobile/app/_layout.tsx          # Expo Router stack
-apps/mobile/app/(tabs)/dashboard.tsx # session list
-apps/mobile/app/session/new.tsx      # Avatar/Aide picker + session creation
-apps/mobile/app/session/[id].tsx     # session result/live status view
-apps/mobile/src/api/client.ts        # older REST client kept for prototype screens
-apps/api/main.py                     # FastAPI platform API
-```
-
-The Expo entrypoint is configured by `package.json` as `expo-router/entry`.
-`App.tsx` and `index.ts` are older demo entrypoints that call `/health` and
-`/sessions/demo-run`; they are not the current router path.
-
-## Current capabilities
-
-- list sessions through `GET /api/v1/sessions/`
-- create a session through `POST /api/v1/sessions/`
-- view a session through `GET /api/v1/sessions/{session_id}`
-- open a WebSocket for live updates at `/api/v1/sessions/{session_id}/ws`
-
-## Local run
-
-From the repository root:
-
-```bash
-npm install
-npm run dev:mobile
-```
-
-Or from this workspace:
+## Quick Start
 
 ```bash
 cd apps/mobile
+
+# Install dependencies
 npm install
-cp .env.example .env
-npm run start
+
+# Start Expo development server
+npx expo start
 ```
 
-Then launch Android, iOS, or web from Expo.
+Then press:
+- `i` — open iOS Simulator (macOS only)
+- `a` — open Android Emulator
+- `w` — open in browser
+- Scan QR code with Expo Go on a physical device
 
-## API configuration
+## Screens
 
-Set the base API URL in `EXPO_PUBLIC_API_URL`:
+| Tab | Description |
+|---|---|
+| Dashboard | Stats overview and process summary |
+| Avatars | Create and monitor Avatar instances |
+| Aides | Create and manage Aide coaching instances |
+| Sessions | Start and track training sessions |
+| Fusion | Attempt Avatar + Aide → Advocate fusion |
+
+## Environment Variables
+
+Create a `.env.local` file:
+
+```env
+EXPO_PUBLIC_API_URL=http://your-backend-host:8000/api
+```
+
+> **Note:** When running on a physical device, replace `localhost` with your machine's local IP address.
+
+## Build for Production
 
 ```bash
-EXPO_PUBLIC_API_URL=http://localhost:8000 npm run start
+# Install EAS CLI
+npm install -g eas-cli
+
+# Configure EAS
+eas build:configure
+
+# Build for iOS
+eas build --platform ios
+
+# Build for Android
+eas build --platform android
 ```
 
-The router screens expect the platform API root (`http://localhost:8000`) and
-append `/api/v1/...` paths for session, avatar, and aide calls.
+## Project Structure
 
-If the app runs on a physical device or emulator that cannot resolve the host
-machine's `localhost`, use the host LAN IP or the emulator-specific host
-address. Keep `ALLOWED_ORIGINS` in `apps/api` aligned with that origin if CORS
-is restricted.
-
-## Developer pitfalls
-
-- Start `apps/api` first with `PYTHONPATH=../.. uvicorn main:app --reload`
-  from `apps/api`, or run its Dockerfile from the repo root.
-- Current router screens import `@/lib/api` and `@/lib/types`, but this checkout
-  does not include `apps/mobile/lib/`; either restore those files or update the
-  imports before expecting `npm run type-check` or Expo bundling to pass.
-- The current session store is in-memory. Restarting the API clears sessions and
-  makes old detail links return `404`.
-- Mobile and web both depend on `apps/api`'s `/api/v1` routes. The older
-  `services/api` demo routes (`/sessions/demo-run`, `/sessions/run`) are a
-  separate surface.
-- The app is included in the root npm workspace (`apps/mobile`), so root
-  scripts such as `npm run dev:mobile` and `npm run type-check` can target it.
+```
+apps/mobile/
+├── app/
+│   ├── _layout.tsx          # Root stack layout
+│   └── (tabs)/
+│       ├── _layout.tsx      # Tab bar layout
+│       ├── index.tsx        # Dashboard
+│       ├── avatars.tsx      # Avatars
+│       ├── aides.tsx        # Aides
+│       ├── sessions.tsx     # Sessions
+│       └── fusion.tsx       # Fusion
+├── src/
+│   └── api/
+│       └── client.ts        # API client
+├── assets/                  # Icons, splash screen
+├── app.json                 # Expo config
+└── package.json
+```

@@ -199,12 +199,3 @@ function addSecurityHeaders(response) {
   });
 }
 
-/**
- * Log security event (for monitoring)
- * @param {string} eventType
- * @param {Object} details
- */
-function logSecurityEvent(eventType, details) {
-  // In production, send to logging service
-  console.log(`Security Event: ${eventType}`, details);
-}
