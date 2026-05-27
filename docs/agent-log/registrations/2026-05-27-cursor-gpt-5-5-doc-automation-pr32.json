@@ -1,0 +1,24 @@
+{
+  "agent_registration": {
+    "agent_name": "Cursor GPT-5.5",
+    "platform": "Cursor Cloud Automation",
+    "version": "GPT-5.5",
+    "session_id": "cursor/engineering-documentation-updates-7066",
+    "entry_date": "2026-05-27",
+    "entry_point": "Automation trigger for merged PR #32 documentation refresh",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "cursor/engineering-documentation-updates-7066",
+    "capabilities_self_reported": [
+      "Inspect merged code changes and existing documentation",
+      "Author source-verified engineering documentation",
+      "Run local validation commands and commit documentation changes"
+    ],
+    "known_limitations": [
+      "Cannot infer runtime behavior not present in source code",
+      "Does not make architecture, deployment, credential, or governance amendments without human direction"
+    ],
+    "preferred_handoff_format": "Structured JSON handoff with changed files, validation, risks, and next-agent notes"
+  }
+}

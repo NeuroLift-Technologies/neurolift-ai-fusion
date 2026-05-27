@@ -15,6 +15,12 @@ Evolve `neurolift-ai-fusion` from a Python-first simulation codebase into a prod
 - **Mobile starter live** in `apps/mobile/` as an Expo app for Android and iOS that calls `/health` and `/sessions/demo-run`.
 - **Shared SDK starter live** in `packages/simulation-sdk/` with TypeScript contracts and a source-only client wrapper for `/health` and `POST /sessions/run`.
 
+> **May 2026 update:** PR #32 added a separate `backend/` FastAPI surface with
+> `/api/*` routes plus React/Expo client sources that target that contract. This
+> roadmap section remains the 2026-04-30 starter baseline; use the API surface
+> map in `README.md` and `docs/architecture.md` for the current multi-API
+> repository layout.
+
 ## Target Monorepo Layout
 
 ```text
@@ -40,7 +46,7 @@ src/                    # Existing Python simulation domain (current engine)
 - in-session prompts and coaching nudges
 - push notifications for reflection checkpoints
 
-### 3) API Layer (`services/api`)
+### 3) API Layer (`services/api`, `backend/`, and `apps/api` during convergence)
 - secure APIs for session creation, retrieval, and analytics
 - gateway between clients and `src/` simulation domain
 - event ingestion and audit-ready logs
@@ -72,10 +78,14 @@ src/                    # Existing Python simulation domain (current engine)
 
 ### Important constraints
 
-- The API starter has no authentication, persistence, CORS middleware, or background job queue yet.
+- There are currently three API route contracts in the repository:
+  `services/api/` (unversioned demo routes), `backend/` (`/api/*`), and
+  `apps/api/` (`/api/v1/*`). Keep client request shapes aligned with the
+  specific backend they call.
+- The 2026-04-30 `services/api` starter has no authentication, persistence, CORS middleware, or background job queue yet.
 - The current API adapter labels runs with `avatar_id` and `aide_id`, but it always instantiates the sustained-attention `StayAlertAvatar` and `AttentionCoaching` pair.
 - The static web console reads `window.NEUROLIFT_API_URL` or falls back to `http://localhost:8000`; CORS must be added before cross-origin browser calls are production-ready.
-- The Expo app reads `EXPO_PUBLIC_API_URL` or falls back to `http://localhost:8000`; device/emulator networking may need a LAN or emulator-specific host.
+- The PR #32 Expo client reads `EXPO_PUBLIC_API_URL` or falls back to `http://localhost:8000/api`; device/emulator networking may need a LAN or emulator-specific host.
 - The SDK is source-only in this baseline; there is no package manifest, build output, or publish workflow under `packages/simulation-sdk/`.
 
 ## Guardrails for Implementation

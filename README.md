@@ -6,7 +6,31 @@ A full-stack web and mobile platform backed by a Python AI simulation engine. AI
 
 ## Quick Start
 
-### API (FastAPI — Python)
+### API surface map
+
+The repository currently carries three FastAPI surfaces with different route
+contracts. Run the one that matches the client you are testing:
+
+| Surface | Route prefix | Use for | Docs |
+| --- | --- | --- | --- |
+| `backend/` | `/api/*` | PR #32 web/mobile API client sources under `apps/web/src/` and `apps/mobile/src/` | `backend/README.md` |
+| `apps/api/` | `/api/v1/*` plus `/health` | Next.js platform routes under `apps/web/app/` and future platform mobile flows | `apps/api/README.md` |
+| `services/api/` | `/health`, `/sessions/demo-run`, `/sessions/run` | Static simulation console and orchestration smoke tests | `services/api/README.md` |
+
+Do not mix request shapes across these surfaces. For example, `backend/`
+creates sessions from persisted IDs (`avatar_id`, `aide_id`, `scenario_id`),
+while `apps/api/` creates sessions from platform types and scenario payloads.
+
+### PR #32 API (FastAPI — `backend/`)
+```bash
+cd backend
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn app.main:app --reload --port 8000
+# → http://localhost:8000/api/docs
+```
+
+### Platform API (FastAPI — `apps/api/`)
 ```bash
 cd apps/api
 pip install -r requirements.txt
@@ -23,6 +47,11 @@ cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL
 pnpm dev
 # → http://localhost:3000
 ```
+
+The package scripts in `apps/web/package.json` run the Next.js app. The
+PR #32 Vite/React Router source remains under `apps/web/src/`, but it is not
+wired to a package script in this snapshot; see `apps/web/README.md` before
+depending on it locally.
 
 ### Mobile App (Expo — iOS & Android)
 ```bash
@@ -204,7 +233,7 @@ likely to affect pull requests:
 | Workflow file | Actions UI name | Role | Job flow |
 | --- | --- | --- | --- |
 | `.github/workflows/shared-ci.yml` | **Shared CI** | Organization-standard checks via reusable workflows in `NeuroLift-Technologies/.github-private` | `lint` -> (`test`, `security`) |
-| `.github/workflows/python-app.yml` | **Python — Simulation Engine** | Local Python/API checks for `src/`, `tests/`, `requirements.txt`, `pytest.ini`, and `apps/api/` changes | single `test` job (checkout -> setup Python 3.11 -> install -> flake8 -> pytest) |
+| `.github/workflows/python-app.yml` | **Python — Simulation Engine** | Local Python/API checks for `src/`, `tests/`, `requirements.txt`, `pytest.ini`, and `apps/api/` changes; it does not watch `backend/**` | single `test` job (checkout -> setup Python 3.11 -> install -> flake8 -> pytest) |
 | `.github/workflows/redteam-ci.yml` | **Red Team CI — Clearance Rubric** | Progressive 3-level clearance harness for syntax/lint/tests, coverage/type checks, and security baseline | `clearance-level-1` -> `clearance-level-2` -> `clearance-level-3` -> PR summary comment |
 | `.github/workflows/pgsa-portability-gate.yml` | **PGSA Portability Gate** | Required-check aggregator for secrets scanning and provenance validation | (`secrets-scan`, `provenance-check`) -> `pgsa-gate` |
 | `.github/workflows/pr-cleanup.yml` | **PR Cleanup** | Repository hygiene: marks stale PRs, auto-closes stale PRs, and deletes merged source branches | `stale-prs` + `delete-merged-branches` |
@@ -235,6 +264,15 @@ threading that input into the script commands.
 - `requirements.txt`
 - `pytest.ini`
 - `apps/api/**`
+
+`backend/**` is not included in this workflow's path filters. When changing the
+PR #32 backend surface, run local backend checks explicitly until CI coverage is
+added.
+
+`web.yml` and `mobile.yml` currently target `master` in their push and pull
+request branch filters, while the main repository branch is `main`. Use
+`workflow_dispatch` or update the workflow filters before relying on those jobs
+for PRs targeting `main`.
 
 `pr-cleanup.yml` runs on:
 

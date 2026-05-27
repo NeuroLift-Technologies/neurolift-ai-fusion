@@ -41,6 +41,22 @@ SessionOrchestrator(
 result = orchestrator.run_session(scenarios: List[Dict[str, Any]])
 ```
 
+### HTTP and client surfaces (May 2026)
+
+This repository has more than one API layer while the product surfaces converge.
+Use this map before changing a client or route contract:
+
+| Surface | Source | Route contract | Matching clients |
+| --- | --- | --- | --- |
+| PR #32 backend | `backend/app/main.py`, `backend/app/routers/*.py` | `/api/health`, `/api/avatars/*`, `/api/aides/*`, `/api/sessions/*`, `/api/fusion/*`, `/api/scenarios/*` | `apps/web/src/api/client.ts`, `apps/mobile/src/api/client.ts` |
+| Platform API | `apps/api/main.py`, `apps/api/routers/*.py` | `/health` and `/api/v1/*` routes, including session WebSocket updates | Next.js routes under `apps/web/app/**` once `@/lib/api` is present |
+| Demo API | `services/api/app/main.py` | `/health`, `/sessions/demo-run`, `POST /sessions/run` | Static web console in `apps/web/main.js` and SDK starter examples |
+
+The PR #32 backend currently uses in-memory router dictionaries rather than the
+canonical `SessionOrchestrator` loop for every endpoint. Its fusion route uses a
+placeholder readiness score and documents the production fusion contract here
+instead of replacing `src/fusion/*`.
+
 ### Avatar-Aide runtime workflow (current path)
 
 1. Create Avatar + Aide with shared or compatible `EventBus`.
