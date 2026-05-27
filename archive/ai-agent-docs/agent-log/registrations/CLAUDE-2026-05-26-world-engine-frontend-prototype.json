@@ -1,0 +1,32 @@
+{
+  "agent_registration": {
+    "agent_name": "Claude Code",
+    "platform": "Claude Code on the web",
+    "version": "claude-opus-4-7[1m]",
+    "session_id": "01Gh6soou53cqfWxmF33nTRQ",
+    "entry_date": "2026-05-26",
+    "entry_point": "User question: 'what's the current status of the world engine?' followed by user request to stand up the Claude-design React prototype shipped via upload zip 7d6799e3-World_egine.zip",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "claude/world-engine-status-dDPKG",
+    "capabilities_self_reported": [
+      "Static analysis and exploration of Python, TypeScript, and JSX codebases",
+      "Multi-file refactors and frontend prototyping (React without a build pipeline)",
+      "Reading and authoring governance JSON records per templates/",
+      "Git operations (branch, commit, push) and GitHub PR creation via MCP",
+      "Schema documentation in Markdown"
+    ],
+    "known_limitations": [
+      "No browser available — UI verification limited to confirming asset HTTP 200 over a local static server",
+      "No authenticated Cloudflare account — cannot validate or fix the existing Workers deployment failure",
+      "No write access to repositories outside NeuroLift-Technologies/neurolift-ai-fusion",
+      "Cannot execute the /ultrareview workflow on behalf of the user"
+    ],
+    "preferred_handoff_format": "Structured JSON in docs/agent-log/handoffs/ following templates/handoff-record.json plus the extended fields (thread_id, task_scope) used in recent records",
+    "trigger_context": {
+      "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/69",
+      "related_thread": "TH-011"
+    }
+  }
+}

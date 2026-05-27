@@ -2,8 +2,9 @@
 Scenarios Router
 Expose the ScenarioLibrary to the frontend and mobile apps.
 """
-from fastapi import APIRouter
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
@@ -105,7 +106,7 @@ SCENARIOS: List[Dict[str, Any]] = [
 # ---------------------------------------------------------------------------
 
 @router.get("/", summary="List all scenarios")
-async def list_scenarios(category: str = None):
+async def list_scenarios(category: Optional[str] = None):
     if category:
         return [s for s in SCENARIOS if s["category"] == category]
     return SCENARIOS
@@ -122,5 +123,4 @@ async def get_scenario(scenario_id: str):
     for s in SCENARIOS:
         if s["scenario_id"] == scenario_id:
             return s
-    from fastapi import HTTPException
     raise HTTPException(status_code=404, detail="Scenario not found")

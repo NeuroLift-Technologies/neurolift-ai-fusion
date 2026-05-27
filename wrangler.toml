@@ -1,0 +1,16 @@
+# Root Wrangler config aligned to the active World Engine Worker implementation.
+# Canonical deploy workflow remains in cloudflare-engine/.
+
+name = "neurolift-ai-fusion"
+main = "cloudflare-engine/src/index.ts"
+compatibility_date = "2026-05-01"
+workers_dev = true
+
+[durable_objects]
+bindings = [
+	{ name = "WORLD_ENGINE", class_name = "WorldEngineDO" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WorldEngineDO"]

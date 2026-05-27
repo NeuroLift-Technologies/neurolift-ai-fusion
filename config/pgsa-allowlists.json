@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "description": "PGSA (Portability and Governance Security Assessment) allowlists for NLT Red Team CI",
+  "whitelist": [
+    "github.com",
+    "pypi.org",
+    "npmjs.com",
+    "registry.npmjs.org",
+    "hub.docker.com",
+    "ghcr.io",
+    "pkg.go.dev",
+    "crates.io",
+    "nuget.org"
+  ],
+  "blacklist": [
+    "untrusted-registry.example.com",
+    "malware-source.example.com",
+    "unofficial-pypi.io",
+    "shadow-npm.com"
+  ]
+}

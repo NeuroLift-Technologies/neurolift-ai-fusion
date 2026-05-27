@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
-**Governance:** ORG-DEV-OTOI-1.0.0  
-**Last updated:** 2026-04-24  
+**Governance:** ORG-DEV-OTOI-1.0.0
+**Last updated:** 2026-05-22
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -18,7 +18,7 @@
 
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
-| — | No active threads at this time. | — | — | — | — | — |
+| TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
 
 ---
 
@@ -33,6 +33,16 @@ _No blocked threads at this time._
 | Thread ID | Title | Completed By | Completed Date | Handoff |
 |-----------|-------|-------------|----------------|---------|
 | TH-001 | Add required governance files (AGENTS.md, CLAUDE.md, active-threads.md, agent-log dirs) | GitHub Copilot | 2026-04-21 | Merged via [PR #17](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/17) |
+| TH-002 | Prepare Cloudflare World Engine deployment | Joshua W. Dorsey, Sr. | Codex | — | ✅ Complete | 2026-04-25 |
+| TH-003 | Repo cleanup + full-stack app foundation (web/mobile/api) | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-repo-cleanup-fullstack-foundation-handoff.json` |
+| TH-004 | PR feedback response: implement runnable API/web/mobile starters + archive legacy business-agent tree | Codex | 2026-04-25 | `docs/agent-log/handoffs/CODEX-2026-04-25-pr-feedback-fullstack-implementation-handoff.json` |
+| TH-005 | Document PR #30 full-stack simulation app foundation | Cursor Automation | 2026-04-30 | `docs/agent-log/handoffs/CURSOR-2026-04-30-doc-automation-pr30-handoff.json` |
+| TH-006 | Sync Simulation Lab milestone onto current main | Codex | 2026-05-01 | `docs/agent-log/handoffs/2026-05-01-codex-main-sync-simulation-lab-handoff.json` |
+| TH-007 | Open-items review report for next agent | GitHub Copilot | 2026-05-02 | `docs/reviews/2026-05-02-copilot-open-items-review.md` |
+| TH-008 | Document PR #51 CI harness and PGSA gate | Cursor GPT-5.5 | 2026-05-04 | `docs/agent-log/handoffs/CURSOR-2026-05-04-doc-automation-pr51-handoff.json` |
+| TH-009 | PR queue cleanup scan (14 PRs, 4 orphan branches) | Copilot (PR Cleanup Agent) | 2026-05-02 | `docs/agent-log/handoffs/2026-05-02-copilot-pr-cleanup-scan-handoff.json` |
+| TH-010 | Documentation automation for PR #49 governance cleanup context | Cursor GPT-5.5 | 2026-05-22 | `docs/agent-log/handoffs/CURSOR-2026-05-22-doc-automation-pr49-handoff.json` |
+| TH-011 | Stand up World Engine frontend prototype ([PR #69](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/69)) | Claude Code | 2026-05-26 | `docs/agent-log/handoffs/CLAUDE-2026-05-26-world-engine-frontend-prototype-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
@@ -58,3 +68,5 @@ _No blocked threads at this time._
 - Governance source-of-truth is synced via `.github/workflows/sync-governance-public.yml`; validate that `NLT-DEV-OTOI.md` exists in the repository root when onboarding.
 - The `docs/handoffs/` directory contains legacy handoff records in an older format. New handoff records should go to `docs/agent-log/handoffs/` using the `handoff-record.json` schema from SOP-NLT-001.
 - No active blockers. No architectural decisions pending.
+- TH-006 preserved the pre-sync local work on `codex-cli/local-simulation-lab-before-main-sync`, fast-forwarded `main` to `origin/main`, and ported the fixture-driven `/simulation-lab` observer route into the current Next.js web app.
+- TH-007 produced a full open-items review report at `docs/reviews/2026-05-02-copilot-open-items-review.md` covering all open PRs, unresolved review comments, blockers, and pending decisions as of 2026-05-02.

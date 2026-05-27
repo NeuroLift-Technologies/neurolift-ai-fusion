@@ -1,11 +1,25 @@
-import axios from "axios";
+const BASE_URL = "/api";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
 
-export const api = axios.create({
-  baseURL: BASE_URL,
-  headers: { "Content-Type": "application/json" },
-});
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `Request failed with status ${response.status}`);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return response.json() as Promise<T>;
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -88,52 +102,49 @@ export interface Scenario {
 // ---------------------------------------------------------------------------
 
 export const avatarsApi = {
-  list: () => api.get<Avatar[]>("/avatars/").then((r) => r.data),
+  list: () => request<Avatar[]>("/avatars/"),
   create: (trait_name: string) =>
-    api.post<Avatar>("/avatars/", { trait_name }).then((r) => r.data),
-  get: (id: string) => api.get<Avatar>(`/avatars/${id}`).then((r) => r.data),
-  delete: (id: string) => api.delete(`/avatars/${id}`),
+    request<Avatar>("/avatars/", { method: "POST", body: JSON.stringify({ trait_name }) }),
+  get: (id: string) => request<Avatar>(`/avatars/${id}`),
+  delete: (id: string) => request<void>(`/avatars/${id}`, { method: "DELETE" }),
   traits: () =>
-    api.get<{ traits: string[] }>("/avatars/traits/list").then((r) => r.data.traits),
+    request<{ traits: string[] }>("/avatars/traits/list").then((r) => r.traits),
 };
 
 export const aidesApi = {
-  list: () => api.get<Aide[]>("/aides/").then((r) => r.data),
+  list: () => request<Aide[]>("/aides/"),
   create: (expertise_area: string) =>
-    api.post<Aide>("/aides/", { expertise_area }).then((r) => r.data),
-  get: (id: string) => api.get<Aide>(`/aides/${id}`).then((r) => r.data),
-  delete: (id: string) => api.delete(`/aides/${id}`),
+    request<Aide>("/aides/", { method: "POST", body: JSON.stringify({ expertise_area }) }),
+  get: (id: string) => request<Aide>(`/aides/${id}`),
+  delete: (id: string) => request<void>(`/aides/${id}`, { method: "DELETE" }),
 };
 
 export const sessionsApi = {
   list: (avatar_id?: string) =>
-    api
-      .get<TrainingSession[]>("/sessions/", { params: { avatar_id } })
-      .then((r) => r.data),
+    request<TrainingSession[]>(`/sessions/${avatar_id ? `?avatar_id=${encodeURIComponent(avatar_id)}` : ""}`),
   create: (body: {
     avatar_id: string;
     aide_id: string;
     scenario_id: string;
-  }) => api.post<TrainingSession>("/sessions/", body).then((r) => r.data),
-  get: (id: string) =>
-    api.get<TrainingSession>(`/sessions/${id}`).then((r) => r.data),
+  }) => request<TrainingSession>("/sessions/", { method: "POST", body: JSON.stringify(body) }),
+  get: (id: string) => request<TrainingSession>(`/sessions/${id}`),
   complete: (id: string) =>
-    api.post<TrainingSession>(`/sessions/${id}/complete`).then((r) => r.data),
+    request<TrainingSession>(`/sessions/${id}/complete`, { method: "POST" }),
 };
 
 export const fusionApi = {
-  list: () => api.get<FusionReport[]>("/fusion/").then((r) => r.data),
+  list: () => request<FusionReport[]>("/fusion/"),
   attempt: (avatar_id: string, aide_id: string) =>
-    api.post<FusionReport>("/fusion/", { avatar_id, aide_id }).then((r) => r.data),
+    request<FusionReport>("/fusion/", {
+      method: "POST",
+      body: JSON.stringify({ avatar_id, aide_id }),
+    }),
   advocates: () =>
-    api.get<unknown[]>("/fusion/advocates/").then((r) => r.data),
+    request<unknown[]>("/fusion/advocates/"),
 };
 
 export const scenariosApi = {
   list: (category?: string) =>
-    api
-      .get<Scenario[]>("/scenarios/", { params: { category } })
-      .then((r) => r.data),
-  get: (id: string) =>
-    api.get<Scenario>(`/scenarios/${id}`).then((r) => r.data),
+    request<Scenario[]>(`/scenarios/${category ? `?category=${encodeURIComponent(category)}` : ""}`),
+  get: (id: string) => request<Scenario>(`/scenarios/${id}`),
 };

@@ -1,0 +1,25 @@
+{
+  "agent_registration": {
+    "agent_name": "Cursor GPT-5.5",
+    "platform": "Cursor Cloud Automation",
+    "version": "GPT-5.5",
+    "session_id": "CURSOR-2026-05-04-doc-automation-pr51",
+    "entry_date": "2026-05-04",
+    "entry_point": "Automation trigger for merged PR #51 documentation follow-up",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "cursor/codebase-documentation-alignment-fae9",
+    "capabilities_self_reported": [
+      "source-verified documentation updates",
+      "repository workflow inspection",
+      "Markdown editing",
+      "git commit and push workflow"
+    ],
+    "known_limitations": [
+      "documentation automation only; no production deployment authority",
+      "does not make architectural decisions beyond documenting source-verified behavior"
+    ],
+    "preferred_handoff_format": "Structured JSON handoff with changed files, verification, and residual gaps"
+  }
+}

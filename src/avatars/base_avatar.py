@@ -280,7 +280,7 @@ class BaseAvatar(ABC):
 
         # Wire state-change callback to emit signals
         for state in AvatarState:
-            self._state_machine.on_enter(state, self._on_state_entered)
+            self._state_machine.on_enter(state, self._on_state_entered)  # type: ignore[arg-type]
 
     # ------------------------------------------------------------------
     # Properties
@@ -288,7 +288,7 @@ class BaseAvatar(ABC):
 
     @property
     def current_state(self) -> AvatarState:
-        return self._state_machine.current_state
+        return self._state_machine.current_state  # type: ignore[return-value]
 
     @current_state.setter
     def current_state(self, value: AvatarState) -> None:

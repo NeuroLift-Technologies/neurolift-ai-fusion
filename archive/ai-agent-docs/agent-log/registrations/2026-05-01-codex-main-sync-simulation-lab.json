@@ -1,0 +1,26 @@
+{
+  "agent_registration": {
+    "agent_name": "Codex",
+    "platform": "OpenAI Codex Desktop",
+    "version": "GPT-5 Codex",
+    "session_id": "2026-05-01-codex-main-sync-simulation-lab",
+    "entry_date": "2026-05-01",
+    "entry_point": "Human request to sync main with local Simulation Lab work and resolve branch/default-branch confusion",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "main",
+    "capabilities_self_reported": [
+      "Git branch and default-branch synchronization",
+      "React and Next.js route integration",
+      "Governance-aware handoff documentation",
+      "Local change preservation before fast-forward sync"
+    ],
+    "known_limitations": [
+      "Network and dependency commands may require explicit approval",
+      "Production deployment remains out of scope without explicit human approval",
+      "Browser visual verification depends on local dependency availability"
+    ],
+    "preferred_handoff_format": "Structured JSON with commit/branch status, verification results, and next-agent notes"
+  }
+}

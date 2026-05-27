@@ -1,0 +1,66 @@
+# PROPOSED VALIDATION WORKFLOW — NOT YET APPLIED
+#
+# Source: NeuroLift-Technologies/.github-private/.github/workflows/agent-commit-format.yml
+# Reason for staging: GitHub token lacks `workflows-write` scope.
+#
+# To apply:
+#   git mv .nltotoi/proposals/agent-commit-format.yml.proposed \
+#          .github/workflows/agent-commit-format.yml
+#   git commit -m '[HUMAN] ci(agent-commit-format): adopt NLT commit format check (ORG-DEV-OTOI-1.0.0)'
+# ===================================================================
+
+name: Agent Commit Format Check
+
+# Validates that all commits in a PR follow the required agent commit format:
+#   [AGENT_NAME] type(scope): description
+# Types: feat, fix, docs, refactor, chore, test, ci
+# Governed by: ORG-DEV-OTOI-1.0.0
+
+on:
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  check-commit-format:
+    name: Validate Agent Commit Format (SOP-NLT-001)
+    # Skip for PRs from forked repositories (handled at org level)
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit message format
+        run: |
+          PATTERN='^\[[^]]+\] (feat|fix|docs|refactor|chore|test|ci)\([^)]+\): .+'
+          FAIL=0
+
+          echo "Checking commits in this PR..."
+          echo ""
+
+          while read -r line; do
+            sha="${line%%|||*}"
+            subject="${line#*|||}"
+            if echo "$subject" | grep -qE "$PATTERN"; then
+              echo "  OK: ${sha:0:8} — $subject"
+            else
+              echo "  INVALID: ${sha:0:8} — $subject"
+              echo "    Expected: [AGENT_NAME] type(scope): description"
+              echo "    Valid types: feat, fix, docs, refactor, chore, test, ci"
+              FAIL=1
+            fi
+          done < <(git log --format="%H|||%s" "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}")
+
+          echo ""
+
+          if [[ "$FAIL" -ne 0 ]]; then
+            echo "FAIL: One or more commits do not follow the required agent commit format."
+            echo "      Format: [AGENT_NAME] type(scope): description"
+            echo "      See SOPs/new-agent-onboarding.md Step 7 for details."
+            exit 1
+          fi
+
+          echo "OK: All commits follow the required agent commit format."

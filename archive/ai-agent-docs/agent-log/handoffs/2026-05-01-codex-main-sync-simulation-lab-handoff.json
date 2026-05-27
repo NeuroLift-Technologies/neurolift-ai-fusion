@@ -1,0 +1,64 @@
+{
+  "handoff_record": {
+    "session_id": "2026-05-01-codex-main-sync-simulation-lab",
+    "agent_name": "Codex",
+    "date": "2026-05-01",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "main",
+    "work_completed": [
+      "Confirmed the nested project repo is on `main` and updated local `origin/HEAD` with `git remote set-head origin -a`",
+      "Created backup branch `codex-cli/local-simulation-lab-before-main-sync` at commit `2b99876` to preserve the pre-sync local Simulation Lab work",
+      "Fast-forwarded local `main` to `origin/main` at `7f5c423` before porting local changes",
+      "Ported the fixture-driven Simulation Lab into the current Next.js app as `/simulation-lab`",
+      "Restored the StayAlert morning-routine fixture under `apps/web/src/simulation/lab/`",
+      "Moved legacy Vite pages from `apps/web/src/pages` to `apps/web/src/vite-pages` so Next does not treat them as Pages Router routes",
+      "Added the minimal Next web API/type client needed by existing app routes",
+      "Converted `next.config.ts` to supported `next.config.mjs` and removed invalid unused `@radix-ui/react-badge` dependency",
+      "Updated web docs, active-thread tracking, registration records, and preserved prior Simulation Lab handoff artifacts"
+    ],
+    "work_in_progress": [],
+    "blockers": [
+      "Root `npm install` is still blocked by an existing mobile workspace peer dependency conflict involving `victory-native`, `@shopify/react-native-skia`, and React version expectations",
+      "`npm install --prefix apps/web --package-lock=false` reported 8 audit findings and a Next.js 14.2.3 security warning; broad dependency upgrades were not attempted in this sync pass"
+    ],
+    "decisions_made": [
+      "Kept the Simulation Lab fixture as the source of state truth and exposed it through the current Next App Router rather than reviving the older Vite route",
+      "Preserved legacy Vite files by moving them out of the reserved `src/pages` path instead of deleting them",
+      "Limited verification to the web app because the root workspace install is blocked by mobile dependencies"
+    ],
+    "decisions_pending": [
+      "Whether to upgrade Next.js and address npm audit findings in a dedicated dependency maintenance pass",
+      "Whether to resolve the mobile workspace peer dependency conflict or split web/mobile install flows",
+      "Whether to push the backup branch for remote archival or keep it local only"
+    ],
+    "escalations": [],
+    "next_agent_notes": "Current main includes a verified Next `/simulation-lab` route. Web verification succeeded with `npm run type-check --prefix apps/web` and `npm run build --prefix apps/web` after installing web-only dependencies with `npm install --prefix apps/web --package-lock=false`. Generated `apps/web/node_modules`, `.next`, and `tsconfig.tsbuildinfo` are ignored. Do not reintroduce a Next-reserved `apps/web/src/pages` directory unless those files are intended to be Pages Router routes.",
+    "files_modified": [
+      "apps/web/.gitignore",
+      "apps/web/README.md",
+      "apps/web/app/globals.css",
+      "apps/web/app/layout.tsx",
+      "apps/web/app/session/[id]/page.tsx",
+      "apps/web/app/simulation-lab/page.tsx",
+      "apps/web/lib/api.ts",
+      "apps/web/lib/types.ts",
+      "apps/web/next-env.d.ts",
+      "apps/web/next.config.mjs",
+      "apps/web/package.json",
+      "apps/web/src/App.tsx",
+      "apps/web/src/simulation/lab/stayAlertMorningRoutine.ts",
+      "apps/web/src/vite-pages/*.tsx",
+      "apps/web/tsconfig.json",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/2026-05-01-codex-main-sync-simulation-lab.json"
+    ],
+    "tests_run": [
+      "git remote set-head origin -a",
+      "npm install --prefix apps/web --package-lock=false",
+      "npm run type-check --prefix apps/web",
+      "npm run build --prefix apps/web"
+    ],
+    "tests_passing": true
+  }
+}

@@ -2,11 +2,13 @@
 Fusion Router
 Trigger and monitor the Avatar + Aide → Advocate fusion process.
 """
+import random
+import uuid
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Any, Dict, List, Optional
-from datetime import datetime
-import uuid
 
 router = APIRouter()
 
@@ -55,7 +57,6 @@ async def attempt_fusion(body: FusionRequest):
     fusion_id = str(uuid.uuid4())
 
     # Placeholder readiness calculation — replace with real ReadinessAssessor
-    import random
     readiness_score = round(random.uniform(0.5, 1.0), 3)
     success = readiness_score >= MIN_READINESS_SCORE
 
@@ -69,7 +70,7 @@ async def attempt_fusion(body: FusionRequest):
             "avatar_id": body.avatar_id,
             "aide_id": body.aide_id,
             "fusion_id": fusion_id,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
     else:
         failure_reason = (
@@ -85,7 +86,7 @@ async def attempt_fusion(body: FusionRequest):
         "advocate_id": advocate_id,
         "readiness_score": readiness_score,
         "failure_reason": failure_reason,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     _fusions[fusion_id] = report
     return report

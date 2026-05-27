@@ -1,0 +1,77 @@
+# NeuroLift Technologies Simulation Environment
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Data and logs (keep templates, ignore actual data)
+data/training_logs/*.json
+!data/training_logs/*template.json
+data/avatar_progress/*.json
+!data/avatar_progress/*template.json
+data/aide_interactions/*.json
+!data/aide_interactions/*template.json
+data/fusion_records/*.json
+logs/*.log
+
+# Configuration overrides
+configs/local_*.yaml
+configs/personal_*.json
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak

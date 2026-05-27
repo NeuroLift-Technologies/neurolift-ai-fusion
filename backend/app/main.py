@@ -2,6 +2,8 @@
 NeuroLift AI-Fusion — FastAPI Backend
 Exposes the simulation engine as a REST API consumed by the web and mobile apps.
 """
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,9 +24,21 @@ app = FastAPI(
 # ---------------------------------------------------------------------------
 # CORS — allow the web app and mobile apps to call the API
 # ---------------------------------------------------------------------------
+default_origins = [
+    "http://localhost:3000",
+    "http://localhost:4173",
+    "http://localhost:5173",
+    "http://localhost:8081",
+]
+cors_allow_origins = [
+    origin.strip()
+    for origin in os.getenv("NEUROLIFT_CORS_ALLOW_ORIGINS", ",".join(default_origins)).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict to specific origins in production
+    allow_origins=cors_allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

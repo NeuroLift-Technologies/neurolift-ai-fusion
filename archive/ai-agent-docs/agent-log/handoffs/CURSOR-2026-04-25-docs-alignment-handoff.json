@@ -1,0 +1,32 @@
+{
+  "agent_name": "Cursor",
+  "session_id": "CURSOR-2026-04-25-docs-alignment",
+  "session_end": "2026-04-25T09:43:00Z",
+  "task_scope": "Documentation automation pass after PR #20 to keep governance/onboarding documentation aligned with current workflow behavior.",
+  "work_completed": [
+    "Reviewed PR #20 documentation changes and source workflow files for governance sync behavior.",
+    "Updated docs/agent-log/registrations/README.md to point agents to root NLT-DEV-OTOI.md as the synced governance copy.",
+    "Documented the missing-root-governance fallback: record the blocker and request/trigger Sync Governance (Public).",
+    "Created session registration and closed TH-002 in docs/active-threads.md."
+  ],
+  "work_not_completed": [
+    "Did not add NLT-DEV-OTOI.md because the governance source document was not present in this checkout and should be synced from NeuroLift-Technologies/.github-private by the existing workflow."
+  ],
+  "blockers": [
+    "NLT-DEV-OTOI.md was missing at repository root during onboarding; this is documented as a governance sync follow-up rather than fabricated."
+  ],
+  "next_steps": [
+    "Run Sync Governance (Public) via repository_dispatch from NeuroLift-Technologies/.github-private to restore root NLT-DEV-OTOI.md.",
+    "When the governance document syncs successfully, verify docs/agent-log/registrations/README.md still matches AGENTS.md and CLAUDE.md."
+  ],
+  "files_changed": [
+    "docs/active-threads.md",
+    "docs/agent-log/registrations/README.md",
+    "docs/agent-log/registrations/CURSOR-2026-04-25-docs-alignment.json",
+    "docs/agent-log/handoffs/CURSOR-2026-04-25-docs-alignment-handoff.json"
+  ],
+  "branch": "cursor/codebase-documentation-alignment-192d",
+  "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/29",
+  "escalations_filed": [],
+  "otoi_version": "ORG-DEV-OTOI-1.0.0"
+}

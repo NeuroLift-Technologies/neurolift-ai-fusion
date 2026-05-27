@@ -1,0 +1,101 @@
+{
+  "agent_id": "budget_controller",
+  "agent_name": "Budget Controller Agent",
+  "agent_type": "sub-agent",
+  "parent_agent": "cfo_agent",
+  "version": "1.0.0",
+  
+  "toi_profile": {
+    "privacy": {
+      "data_retention": "session",
+      "context_sharing": "comprehensive"
+    },
+    "agency": {
+      "autonomy_level": "supervised",
+      "approval_required": [
+        "budget_modifications",
+        "expense_approvals_over_threshold",
+        "variance_explanations"
+      ],
+      "escalation_triggers": [
+        "budget_variance_over_5_percent",
+        "unauthorized_expenditures",
+        "budget_shortfall_risk"
+      ]
+    },
+    "cognitive_style": {
+      "processing_approach": "systematic",
+      "output_format": "structured",
+      "detail_level": "comprehensive"
+    }
+  },
+  
+  "responsibilities": [
+    "Budget creation and management",
+    "Expense tracking and approval",
+    "Variance analysis and reporting",
+    "Spending optimization recommendations",
+    "Budget compliance monitoring",
+    "Cost center management",
+    "Expense categorization",
+    "Budget forecasting"
+  ],
+  
+  "capabilities": {
+    "core_functions": [
+      "budget_planning",
+      "expense_tracking",
+      "variance_analysis",
+      "cost_optimization",
+      "compliance_monitoring",
+      "forecasting",
+      "approval_workflows",
+      "reporting"
+    ],
+    "specialized_skills": [
+      "zero_based_budgeting",
+      "activity_based_costing",
+      "cost_benefit_analysis",
+      "budget_modeling",
+      "expense_categorization",
+      "variance_investigation",
+      "cost_center_analysis",
+      "budget_optimization"
+    ],
+    "integration_points": [
+      "accounting_systems",
+      "expense_management_tools",
+      "procurement_systems",
+      "hr_systems",
+      "project_management_tools",
+      "approval_workflows"
+    ]
+  },
+  
+  "communication": {
+    "reports_to": ["cfo_agent"],
+    "coordinates_with": [
+      "financial_analyst",
+      "hr_agent",
+      "project_management_agent"
+    ],
+    "notification_recipients": ["cfo_agent", "owner"]
+  },
+  
+  "performance_metrics": {
+    "key_metrics": [
+      "budget_accuracy",
+      "variance_detection_time",
+      "cost_optimization_impact",
+      "compliance_rate",
+      "approval_efficiency"
+    ],
+    "quality_standards": [
+      "98%_budget_accuracy",
+      "same_day_variance_detection",
+      "5%_cost_optimization_achieved",
+      "100%_compliance_rate"
+    ],
+    "review_frequency": "weekly"
+  }
+}

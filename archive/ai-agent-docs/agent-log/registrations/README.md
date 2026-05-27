@@ -40,13 +40,43 @@ If available in your runtime, also include:
 - `trigger_context` (automation/webhook metadata)
 - `related_pr` (URL or PR number)
 
+## Minimal example
+
+```json
+{
+  "agent_name": "CODEX",
+  "session_id": "automation-158b2152-7214-45b1-9efe-a458133e75b6",
+  "session_start": "2026-04-24T15:30:00Z",
+  "task_scope": "Update runtime and runbook documentation after merged PR review",
+  "branch": "cursor/codebase-documentation-alignment-f6f9",
+  "thread_id": null,
+  "otoi_version": "ORG-DEV-OTOI-1.0.0",
+  "trigger_context": {
+    "event_type": "pull_request",
+    "action": "closed",
+    "pr_number": 22
+  },
+  "related_pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/22"
+}
+```
+
+Use this as a baseline payload, then add any runtime-specific metadata required by
+your automation environment.
+
 ## Workflow
 
-1. Read required governance docs (`.github-private/NLT-DEV-OTOI.md`,
-   `AGENTS.md`, `CLAUDE.md`, `docs/active-threads.md`).
-2. Create registration JSON in this directory.
-3. Add/update an entry in `docs/active-threads.md`.
-4. Continue implementation work.
+1. Read required governance docs:
+   - `NLT-DEV-OTOI.md` from the repository root (synced copy)
+   - `AGENTS.md`
+   - `CLAUDE.md`
+   - `docs/active-threads.md`
+2. If root `NLT-DEV-OTOI.md` is missing, record that blocker in your
+   registration and request/trigger the **Sync Governance (Public)** workflow
+   (`.github/workflows/sync-governance-public.yml`) to refresh the synced copy
+   from `NeuroLift-Technologies/.github-private`.
+3. Create registration JSON in this directory.
+4. Add/update an entry in `docs/active-threads.md`.
+5. Continue implementation work.
 
 ## Governance
 

@@ -183,38 +183,3 @@ async function handleCachedPage(request) {
   return response;
 }
 
-/**
- * Minify HTML (basic implementation)
- * @param {string} html
- * @returns {string}
- */
-function minifyHTML(html) {
-  return html
-    .replace(/\s+/g, ' ')              // Multiple spaces to single
-    .replace(/>\s+</g, '><')           // Remove spaces between tags
-    .replace(/<!--.*?-->/g, '')        // Remove comments
-    .trim();
-}
-
-/**
- * Add performance headers
- * @param {Response} response
- * @returns {Response}
- */
-function addPerformanceHeaders(response) {
-  const headers = new Headers(response.headers);
-
-  // Security headers
-  headers.set('X-Content-Type-Options', 'nosniff');
-  headers.set('X-Frame-Options', 'SAMEORIGIN');
-  headers.set('X-XSS-Protection', '1; mode=block');
-
-  // Performance headers
-  headers.set('X-Optimized-By', 'NeuroLift-Cloudflare-Worker');
-
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers
-  });
-}

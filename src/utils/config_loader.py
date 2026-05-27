@@ -7,7 +7,7 @@ simulation environments. Ensures all configurations meet required schemas.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union
+from typing import Callable, Dict, List, Any, Optional, Union
 import json
 import yaml
 import re
@@ -20,9 +20,9 @@ class ConfigSchema:
     """Schema definition for configuration validation"""
     required_fields: List[str] = field(default_factory=list)
     optional_fields: List[str] = field(default_factory=list)
-    field_types: Dict[str, type] = field(default_factory=dict)
+    field_types: Dict[str, Any] = field(default_factory=dict)
     field_constraints: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-    validation_rules: List[callable] = field(default_factory=list)
+    validation_rules: List[Callable[..., bool]] = field(default_factory=list)
 
 
 class ConfigLoader:

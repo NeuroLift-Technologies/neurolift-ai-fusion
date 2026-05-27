@@ -1,0 +1,27 @@
+aide_config:
+  aide_type: attention_coaching
+  coaching_style: supportive_skill_building
+  intervention_threshold: 0.6
+avatar_config:
+  avatar_type: attention_deficit
+  burnout_threshold: 0.8
+  initial_difficulty: 0.7
+  learning_rate: 0.6
+description: Default training session configuration
+duration: 1_hour
+evaluation_metrics:
+  coaching_effectiveness: true
+  fusion_readiness: true
+  learning_curve_analysis: true
+scenario_config:
+  difficulty_progression: gradual
+  randomization: true
+  scenario_types:
+  - workplace
+  - personal
+  - social
+success_criteria:
+  burnout_risk_max: 0.3
+  independence_threshold: 0.8
+  success_rate_threshold: 0.7
+training_id: default_training
