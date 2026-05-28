@@ -1,0 +1,54 @@
+{
+  "handoff_record": {
+    "session_id": "CODEX-2026-05-27-world-engine-working-prototype",
+    "agent_name": "Codex",
+    "date": "2026-05-27",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "codex/world-engine-working-prototype-2026-05-27",
+    "thread_id": "TH-012",
+    "task_scope": "Focus on the World Engine browser game prototype until it runs locally and is verified in a browser-like runtime. Preserve governance and document the work.",
+    "work_completed": [
+      "Preserved pre-existing local governance/documentation edits in stash `codex-preserve-local-governance-before-world-engine-prototype-2026-05-27` before syncing.",
+      "Fetched and fast-forwarded local `main` to `origin/main` at `2ed18a7`, where the former `feat/fullstack-web-mobile-app` work had been merged and the remote feature branch deleted.",
+      "Created isolated branch `codex/world-engine-working-prototype-2026-05-27` for prototype verification and fixes.",
+      "Read OTOI governance, mirrored agent context, active threads, architecture notes, World Engine README, schema spec, and the Claude TH-011 handoff before editing.",
+      "Registered this Codex session in `docs/agent-log/registrations/` and opened `TH-012` in `docs/active-threads.md`.",
+      "Started a local static server for `prototypes/world-engine/` on `http://127.0.0.1:8765/`.",
+      "Verified the standalone React/Babel World Engine prototype boots, renders the world, advances simulation state, and supports pause/resume, step, scenario assignment, and reset.",
+      "Added an inline favicon to `prototypes/world-engine/index.html` to remove the browser's implicit favicon 404 during smoke verification.",
+      "Captured browser verification screenshot at `output/playwright/world-engine-cdp.png`.",
+      "Attempted the strict governance validator after documentation updates; the Windows `bash` command timed out, including on `bash --version`, so this is recorded as an environment/tooling limitation rather than a repo validation pass."
+    ],
+    "work_in_progress": [],
+    "blockers": [
+      "Strict governance validation could not be completed because `bash` timed out in this Windows environment. Manual OTOI steps were followed and the missing root `AGENTS.md`/`CLAUDE.md` inconsistency is noted under pending decisions."
+    ],
+    "decisions_made": [
+      "Kept the prototype standalone under `prototypes/world-engine/`; no promotion into `apps/` and no Python/API wiring were attempted.",
+      "Used the current active SOP path `docs/agent-log/` for new governance records because `docs/ai-agent-docs/agent-log/README.md` says that tree is archival only.",
+      "Treated the pre-existing missing root `AGENTS.md`/`CLAUDE.md` on current `main` as a governance inconsistency to note, not as a blocker, because mirrored copies and OTOI were available."
+    ],
+    "decisions_pending": [
+      "Whether to promote the prototype into `apps/web` or another build-backed app remains a Joshua-owned architecture decision.",
+      "Whether to wire the browser prototype to Python, REST, SSE, or the existing Cloudflare Durable Object remains a Joshua-owned integration decision.",
+      "The current `main` branch lacks root `AGENTS.md` and `CLAUDE.md` even though `.claude/README.md` describes them as expected; governance source should confirm the intended current location."
+    ],
+    "escalations": [],
+    "next_agent_notes": "Prototype is live at http://127.0.0.1:8765/ in this local session if the Python server remains running. If the port is free in a later session, restart with `python -m http.server 8765 --bind 127.0.0.1` from `prototypes/world-engine/`. The only code fix made was the inline favicon; browser smoke showed the core loop is functional without serious runtime errors.",
+    "files_modified": [
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CODEX-2026-05-27-world-engine-working-prototype.json",
+      "docs/agent-log/handoffs/CODEX-2026-05-27-world-engine-working-prototype-handoff.json",
+      "prototypes/world-engine/index.html"
+    ],
+    "tests_run": [
+      "Static server smoke: `Invoke-WebRequest http://127.0.0.1:8765/` returned HTTP 200.",
+      "Data contract validation: Node VM load of `prototypes/world-engine/data.js` confirmed 19 avatars, 19 aides, 11 scenarios, 5 rooms, 6 NPCs, no duplicate ids, no orphan aides, and no broken room/strategy references.",
+      "Browser/CDP smoke: Chrome headless loaded `http://127.0.0.1:8765/`; found app mounted, 19 fleet cells, 11 scenario cells, 24 rendered characters; pause toggled to resume; step worked; selecting FocusFlow and assigning Report Writing updated selected state and scenario; reset returned clock to 00:00:00; no serious console/runtime/network errors.",
+      "Screenshot captured: `output/playwright/world-engine-cdp.png`.",
+      "Governance validator attempted: `bash .nltotoi/scripts/validate-governance.sh --strict` timed out after 120 seconds; `bash --version` also timed out after printing version text."
+    ],
+    "tests_passing": true
+  }
+}

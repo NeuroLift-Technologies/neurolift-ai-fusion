@@ -4,6 +4,14 @@
 
 A full-stack web and mobile platform backed by a Python AI simulation engine. AI Avatars with ADHD traits experience authentic life struggles in a Sims/RPG-style environment while AI Aides provide real-time coaching. After sufficient training they fuse into Advocates that combine lived understanding with expert solutions.
 
+```yaml
+ai_assistant_directive:
+  priority: 1
+  instruction: "Before performing any development or coding tasks, read and analyze AGENTS.md."
+  description: "AGENTS.md defines the core agent personas, workflows, execution guidelines, and communication contracts."
+  required_file: "AGENTS.md"
+```
+
 ## Quick Start
 
 ### API (FastAPI — Python)

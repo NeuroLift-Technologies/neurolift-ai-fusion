@@ -1,0 +1,26 @@
+{
+  "agent_registration": {
+    "agent_name": "Codex",
+    "platform": "Codex Desktop",
+    "version": "GPT-5",
+    "session_id": "CODEX-2026-05-27-world-engine-working-prototype",
+    "entry_date": "2026-05-27",
+    "entry_point": "User requested focus on the World Engine game prototype until it works",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "codex/world-engine-working-prototype-2026-05-27",
+    "capabilities_self_reported": [
+      "Browser game prototyping",
+      "Frontend debugging",
+      "Local static server verification",
+      "Repo governance documentation"
+    ],
+    "known_limitations": [
+      "No production deployment without explicit human approval",
+      "No external service or Cloudflare account changes without escalation",
+      "Root AGENTS.md and CLAUDE.md are absent on current main; mirrored agent context was read from archive/ai-agent-docs"
+    ],
+    "preferred_handoff_format": "Structured JSON handoff with files changed, tests run, blockers, and next actions"
+  }
+}
