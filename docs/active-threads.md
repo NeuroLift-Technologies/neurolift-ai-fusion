@@ -19,7 +19,6 @@
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
-| TH-015 | Document PR #76 governance restoration workflow follow-up | Automation | Cursor GPT-5.5 | cursor/engineering-documentation-updates-563a | 🟡 In Progress | 2026-05-28 |
 
 ---
 
@@ -47,6 +46,7 @@ _No blocked threads at this time._
 | TH-012 | Make World Engine browser prototype run locally | Codex | 2026-05-27 | `docs/agent-log/handoffs/CODEX-2026-05-27-world-engine-working-prototype-handoff.json` |
 | TH-013 | Align session and onboarding to repository governance | Antigravity | 2026-05-27 | `docs/agent-log/handoffs/2026-05-27-ANTIGRAVITY-governance-alignment.json` |
 | TH-014 | Restore org-level governance framing + un-archive root governance files (supersedes PR #75) | Claude Code | 2026-05-28 | `docs/agent-log/2026-05-28-claude-governance-restoration.md` |
+| TH-015 | Document PR #76 governance restoration workflow follow-up | Cursor GPT-5.5 | 2026-05-28 | `docs/agent-log/handoffs/CURSOR-AUTOMATION-2026-05-28-pr76-docs-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
