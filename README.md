@@ -7,9 +7,9 @@ A full-stack web and mobile platform backed by a Python AI simulation engine. AI
 ```yaml
 ai_assistant_directive:
   priority: 1
-  instruction: "Before performing any development or coding tasks, read and analyze AGENTS.md."
-  description: "AGENTS.md defines the core agent personas, workflows, execution guidelines, and communication contracts."
-  required_file: "AGENTS.md"
+  instruction: "Before performing any development or coding tasks, read NLT-DEV-OTOI.md."
+  description: "NLT-DEV-OTOI.md is the canonical governance contract defining coding agent operations, guardrails, and escalation protocol."
+  required_file: "NLT-DEV-OTOI.md"
 ```
 
 ## Quick Start
