@@ -105,3 +105,6 @@ pgsa-reports/
 .env.local
 .env.*.local
 !.env.example
+
+# Playwright test output
+output/playwright/
