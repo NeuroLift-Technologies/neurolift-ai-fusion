@@ -29,9 +29,10 @@
     "tests_run": [
       "bash .nltotoi/scripts/validate-governance.sh --strict",
       "git diff --check origin/main...HEAD",
-      "python3 -m json.tool docs/agent-log/registrations/CURSOR-AUTOMATION-2026-05-28-pr76-docs.json >/tmp/pr76-registration.json"
+      "python3 -m json.tool docs/agent-log/registrations/CURSOR-AUTOMATION-2026-05-28-pr76-docs.json >/tmp/pr76-registration.json",
+      "python3 -m json.tool docs/agent-log/handoffs/CURSOR-AUTOMATION-2026-05-28-pr76-docs-handoff.json >/tmp/pr76-handoff.json"
     ],
     "tests_passing": true,
-    "pr_url": "pending"
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/77"
   }
 }
