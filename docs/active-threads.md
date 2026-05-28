@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0
-**Last updated:** 2026-05-22
+**Last updated:** 2026-05-28
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -43,6 +43,9 @@ _No blocked threads at this time._
 | TH-009 | PR queue cleanup scan (14 PRs, 4 orphan branches) | Copilot (PR Cleanup Agent) | 2026-05-02 | `docs/agent-log/handoffs/2026-05-02-copilot-pr-cleanup-scan-handoff.json` |
 | TH-010 | Documentation automation for PR #49 governance cleanup context | Cursor GPT-5.5 | 2026-05-22 | `docs/agent-log/handoffs/CURSOR-2026-05-22-doc-automation-pr49-handoff.json` |
 | TH-011 | Stand up World Engine frontend prototype ([PR #69](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/69)) | Claude Code | 2026-05-26 | `docs/agent-log/handoffs/CLAUDE-2026-05-26-world-engine-frontend-prototype-handoff.json` |
+| TH-012 | Make World Engine browser prototype run locally | Codex | 2026-05-27 | `docs/agent-log/handoffs/CODEX-2026-05-27-world-engine-working-prototype-handoff.json` |
+| TH-013 | Align session and onboarding to repository governance | Antigravity | 2026-05-27 | `docs/agent-log/handoffs/2026-05-27-ANTIGRAVITY-governance-alignment.json` |
+| TH-014 | Restore org-level governance framing + un-archive root governance files (supersedes PR #75) | Claude Code | 2026-05-28 | `docs/agent-log/2026-05-28-claude-governance-restoration.md` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
