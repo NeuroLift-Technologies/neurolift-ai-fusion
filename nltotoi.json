@@ -2,7 +2,7 @@
   "nltotoi_version": "1.0.0",
   "document_id": "ORG-DEV-OTOI-1.0.0",
   "repository": {
-    "name": "NeuroLift-Technologies/.github-private",
+    "name": "NeuroLift-Technologies/neurolift-ai-fusion",
     "purpose": "Internal coding agent governance — TOI-OTOI operational contracts",
     "mode": "production",
     "visibility": "private",
