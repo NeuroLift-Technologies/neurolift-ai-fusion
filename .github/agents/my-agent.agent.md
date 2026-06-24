@@ -4,7 +4,7 @@ description: >
   Template-only custom agent scaffold. Duplicate and customize this file before
   using it for active automation.
 version: 1.0.0
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.2
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.

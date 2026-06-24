@@ -6,7 +6,7 @@
 # To apply:
 #   git mv .nltotoi/proposals/agent-commit-format.yml.proposed \
 #          .github/workflows/agent-commit-format.yml
-#   git commit -m '[HUMAN] ci(agent-commit-format): adopt NLT commit format check (ORG-DEV-OTOI-1.0.0)'
+#   git commit -m '[HUMAN] ci(agent-commit-format): adopt NLT commit format check (ORG-DEV-OTOI-1.0.2)'
 # ===================================================================
 
 name: Agent Commit Format Check
@@ -14,7 +14,7 @@ name: Agent Commit Format Check
 # Validates that all commits in a PR follow the required agent commit format:
 #   [AGENT_NAME] type(scope): description
 # Types: feat, fix, docs, refactor, chore, test, ci
-# Governed by: ORG-DEV-OTOI-1.0.0
+# Governed by: ORG-DEV-OTOI-1.0.2
 
 on:
   pull_request:

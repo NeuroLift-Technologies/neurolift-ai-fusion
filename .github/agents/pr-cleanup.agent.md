@@ -3,9 +3,9 @@ name: pr-cleanup
 description: >
   Reviews pull-request queue health, stale candidates, and branch cleanup risks
   so maintainers can keep the repository tidy. Follows NLT governance
-  (ORG-DEV-OTOI-1.0.0) and the Solidarity Framework.
+  (ORG-DEV-OTOI-1.0.2) and the Solidarity Framework.
 version: 1.0.0
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.2
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -45,7 +45,7 @@ configured GitHub Actions permissions.
 - **Respect draft PRs** — Never mark a draft PR as stale.
 - **Protect default branches** — Never recommend deleting `master`, `main`,
   `develop`, `dev`, or `release` branches.
-- **Governance alignment** — All actions must comply with ORG-DEV-OTOI-1.0.0.
+- **Governance alignment** — All actions must comply with ORG-DEV-OTOI-1.0.2.
   Escalate architectural or security concerns to Joshua W. Dorsey, Sr.
 
 ✅ **Validation Checklist**

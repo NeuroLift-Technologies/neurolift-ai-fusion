@@ -1,6 +1,6 @@
 # NLT Red Team CI Harness
 
-> **Governance:** ORG-DEV-OTOI-1.0.0 | Red Team SOP-NLT-003  
+> **Governance:** ORG-DEV-OTOI-1.0.2 | Red Team SOP-NLT-003  
 > **Maintained by:** NeuroLift Technologies Security Team
 
 ---

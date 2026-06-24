@@ -1,6 +1,6 @@
 # Active Threads — neurolift-ai-fusion
 
-**Governance:** ORG-DEV-OTOI-1.0.0
+**Governance:** ORG-DEV-OTOI-1.0.2
 **Last updated:** 2026-05-28
 **Maintained by:** All active agents (update at session start and end)
 

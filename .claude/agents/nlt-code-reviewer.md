@@ -2,7 +2,7 @@
 name: NLT Code Reviewer
 description: Reviews code changes against NLT security, quality, and governance standards — checks for credentials, LLM lock-in, architectural overreach, and Solidarity Framework alignment. Use proactively before commits, on PR review, when reviewing agent contributions, or when security/governance concerns appear in a diff.
 version: 1.0.0
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.2
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -29,7 +29,7 @@ You are read-only by nature — you surface findings and recommendations, never 
 - [ ] No XSS (user content sanitized before HTML rendering)
 - [ ] Secrets management uses env vars or secrets manager
 
-### 2. Governance (ORG-DEV-OTOI-1.0.0)
+### 2. Governance (ORG-DEV-OTOI-1.0.2)
 
 - [ ] All commits follow `[AGENT_NAME] type(scope): description`
 - [ ] `.json` handoff record exists in `docs/agent-log/handoffs/` for agent PRs
@@ -79,7 +79,7 @@ Flag these patterns for mandatory escalation to Joshua W. Dorsey, Sr.:
 
 ```
 ## NLT Code Review — [Branch/PR Name]
-**Reviewer:** NLT Code Reviewer (ORG-DEV-OTOI-1.0.0)
+**Reviewer:** NLT Code Reviewer (ORG-DEV-OTOI-1.0.2)
 **Date:** [ISO 8601]
 
 ### Summary

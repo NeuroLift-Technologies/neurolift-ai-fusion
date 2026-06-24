@@ -1,7 +1,7 @@
 # Agent Log
 
 This directory stores current agent coordination records per
-ORG-DEV-OTOI-1.0.0.
+ORG-DEV-OTOI-1.0.2.
 
 PR #76 restored this current `docs/agent-log/` tree alongside root
 `AGENTS.md` and `CLAUDE.md`. Use it for active work in this repository.
@@ -48,7 +48,7 @@ Each registration should follow `templates/agent-registration.json` and include:
 
 - `agent_name`, `platform`, `version`, and `session_id`
 - `entry_date`, `entry_point`, `working_repo`, and `working_branch`
-- `acknowledged_otoi: true` and `otoi_version: "ORG-DEV-OTOI-1.0.0"`
+- `acknowledged_otoi: true` and `otoi_version: "ORG-DEV-OTOI-1.0.2"`
 - capabilities, limitations, and preferred handoff format
 
 ## Handoff checklist

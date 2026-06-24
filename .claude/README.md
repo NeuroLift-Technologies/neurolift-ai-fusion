@@ -1,7 +1,7 @@
 # `.claude/` — Claude Code Session Governance
 
 **Synced from:** `NeuroLift-Technologies/.github-private` (canonical)
-**Governed by:** ORG-DEV-OTOI-1.0.0 | Solidarity Framework | HAIEF
+**Governed by:** ORG-DEV-OTOI-1.0.2 | Solidarity Framework | HAIEF
 **Authority:** Joshua W. Dorsey, Sr.
 
 ---
@@ -32,4 +32,4 @@ When a Claude Code session starts in this repo:
 
 ---
 
-*Synced from `NeuroLift-Technologies/.github-private` | ORG-DEV-OTOI-1.0.0*
+*Synced from `NeuroLift-Technologies/.github-private` | ORG-DEV-OTOI-1.0.2*

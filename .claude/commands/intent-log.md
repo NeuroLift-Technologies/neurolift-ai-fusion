@@ -3,7 +3,7 @@ description: Log intent BEFORE a significant or irreversible action per OTOI §7
 argument-hint: "<brief topic, e.g. 'refactor auth module'>"
 ---
 
-Write an intent log entry per ORG-DEV-OTOI-1.0.0 Section 7 **BEFORE** taking the action.
+Write an intent log entry per ORG-DEV-OTOI-1.0.2 Section 7 **BEFORE** taking the action.
 
 **Topic:** $ARGUMENTS
 
@@ -33,7 +33,7 @@ When in doubt, log it.
 
 5. Commit the intent log:
    ```
-   [Claude] docs(intent): log <topic> intent (ORG-DEV-OTOI-1.0.0)
+   [Claude] docs(intent): log <topic> intent (ORG-DEV-OTOI-1.0.2)
    ```
 
 6. Proceed with the action.
@@ -42,5 +42,5 @@ When in doubt, log it.
 
 8. Commit the outcome:
    ```
-   [Claude] docs(intent): record outcome of <topic> (ORG-DEV-OTOI-1.0.0)
+   [Claude] docs(intent): record outcome of <topic> (ORG-DEV-OTOI-1.0.2)
    ```

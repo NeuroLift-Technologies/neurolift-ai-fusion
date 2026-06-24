@@ -23,7 +23,7 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Platform</Text>
         <InfoRow label="Framework" value="Avatar-Aide-Advocate" />
-        <InfoRow label="Governance" value="ORG-DEV-OTOI-1.0.0" />
+        <InfoRow label="Governance" value="ORG-DEV-OTOI-1.0.2" />
         <InfoRow label="Version" value="1.0.0" />
       </View>
     </ScrollView>

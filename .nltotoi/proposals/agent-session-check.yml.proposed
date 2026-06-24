@@ -6,14 +6,14 @@
 # To apply:
 #   git mv .nltotoi/proposals/agent-session-check.yml.proposed \
 #          .github/workflows/agent-session-check.yml
-#   git commit -m '[HUMAN] ci(agent-session-check): adopt NLT handoff record check (ORG-DEV-OTOI-1.0.0)'
+#   git commit -m '[HUMAN] ci(agent-session-check): adopt NLT handoff record check (ORG-DEV-OTOI-1.0.2)'
 # ===================================================================
 
 name: Agent Session Handoff Check
 
 # Verifies that at least one handoff record exists in docs/agent-log/handoffs/
 # before a PR is merged, ensuring agents document their session state.
-# Governed by: ORG-DEV-OTOI-1.0.0
+# Governed by: ORG-DEV-OTOI-1.0.2
 
 on:
   pull_request:

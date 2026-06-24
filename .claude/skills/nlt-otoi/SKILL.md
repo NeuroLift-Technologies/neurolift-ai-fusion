@@ -1,7 +1,7 @@
 ---
 name: nlt-otoi
-description: 'Reference and apply the NeuroLift Technologies ORG-DEV-OTOI-1.0.0 governance contract. Use when asked about NLT coding agent rules, governance contract, authority structure, guardrails, session protocols, ethical commitments, or amendment process.'
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+description: 'Reference and apply the NeuroLift Technologies ORG-DEV-OTOI-1.0.2 governance contract. Use when asked about NLT coding agent rules, governance contract, authority structure, guardrails, session protocols, ethical commitments, or amendment process.'
+nlt-otoi-version: ORG-DEV-OTOI-1.0.2
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -9,7 +9,7 @@ nlt-authority: Joshua W. Dorsey, Sr.
 
 # NLT OTOI — Org-Wide Governance Contract
 
-The **ORG-DEV-OTOI-1.0.0** document is the canonical org-level governance contract for all coding agents operating in any NeuroLift Technologies repository.
+The **ORG-DEV-OTOI-1.0.2** document is the canonical org-level governance contract for all coding agents operating in any NeuroLift Technologies repository.
 
 ## Key Sections at a Glance
 

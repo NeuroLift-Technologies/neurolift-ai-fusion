@@ -1,7 +1,7 @@
 # CLAUDE.md — Repository Context for AI Agents
 
 **Repository:** NeuroLift-Technologies/neurolift-ai-fusion  
-**Governance:** ORG-DEV-OTOI-1.0.0  
+**Governance:** ORG-DEV-OTOI-1.0.2  
 **Last updated:** 2026-05-26
 
 > **Are you in the right repo?** This file is for `neurolift-ai-fusion`. If you're working in `.github-private` or another NLT repo and reading this by accident, stop — read AGENTS.md and that repo's own `CLAUDE.md` instead.
@@ -210,7 +210,7 @@ In a Claude Code session, use `/escalate <topic>`.
 
 ## Governance
 
-This repository operates under **ORG-DEV-OTOI-1.0.0**. All agents must:
+This repository operates under **ORG-DEV-OTOI-1.0.2**. All agents must:
 
 - Complete SOP-NLT-001 onboarding before writing code
 - Use the commit format: `[AGENT_NAME] type(scope): description`
@@ -235,9 +235,9 @@ This repository operates under **ORG-DEV-OTOI-1.0.0**. All agents must:
 | Mobile dev server | `cd apps/mobile && npx expo start` |
 | API dev server | `cd apps/api && uvicorn main:app --reload` |
 | Canonical governance | `NeuroLift-Technologies/.github-private` |
-| OTOI version | `ORG-DEV-OTOI-1.0.0` |
+| OTOI version | `ORG-DEV-OTOI-1.0.2` |
 | HAIEF | https://elevaitionfoundation.org |
 
 ---
 
-*Repository context for AI agents | NeuroLift Technologies | ORG-DEV-OTOI-1.0.0*
+*Repository context for AI agents | NeuroLift Technologies | ORG-DEV-OTOI-1.0.2*

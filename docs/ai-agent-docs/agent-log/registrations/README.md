@@ -63,4 +63,4 @@ If available in your runtime, also include:
 
 ## Governance
 
-Governed by ORG-DEV-OTOI-1.0.0 Section 3.
+Governed by ORG-DEV-OTOI-1.0.2 Section 3.

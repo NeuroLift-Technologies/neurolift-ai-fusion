@@ -69,4 +69,4 @@ in this repository include these top-level fields:
 
 ## Governance
 
-Governed by ORG-DEV-OTOI-1.0.0 Section 5. No session ends without a handoff record.
+Governed by ORG-DEV-OTOI-1.0.2 Section 5. No session ends without a handoff record.

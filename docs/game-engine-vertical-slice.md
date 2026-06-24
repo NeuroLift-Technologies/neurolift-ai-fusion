@@ -4,7 +4,7 @@
 **Date:** 2026-04-29  
 **Owner:** Joshua W. Dorsey, Sr.  
 **Agent:** Codex  
-**Governance:** ORG-DEV-OTOI-1.0.0  
+**Governance:** ORG-DEV-OTOI-1.0.2  
 
 ---
 

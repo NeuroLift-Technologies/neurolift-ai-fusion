@@ -1,6 +1,6 @@
 # `.claude/hooks/` — Session Lifecycle Hooks
 
-**Governed by:** ORG-DEV-OTOI-1.0.0
+**Governed by:** ORG-DEV-OTOI-1.0.2
 
 | File | Lifecycle event | Purpose |
 |---|---|---|

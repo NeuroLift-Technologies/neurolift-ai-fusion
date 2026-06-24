@@ -6,9 +6,9 @@
 # To apply:
 #   git mv .nltotoi/proposals/agent-profile-validation.yml.proposed \
 #          .github/workflows/agent-profile-validation.yml
-#   git commit -m '[HUMAN] ci(agent-profile-validation): adopt NLT agent profile validation (ORG-DEV-OTOI-1.0.0)'
+#   git commit -m '[HUMAN] ci(agent-profile-validation): adopt NLT agent profile validation (ORG-DEV-OTOI-1.0.2)'
 #
-# Governed by: ORG-DEV-OTOI-1.0.0
+# Governed by: ORG-DEV-OTOI-1.0.2
 # SOP: SOP-NLT-002
 # ===================================================================
 
@@ -18,12 +18,12 @@ name: Agent Profile Validation
 # against NLT required frontmatter standards. Every .md file (except README.md and
 # example-agent.md) must have all required NLT governance fields.
 #
-# Required fields per ORG-DEV-OTOI-1.0.0:
+# Required fields per ORG-DEV-OTOI-1.0.2:
 #   name, description, version, nlt-otoi-version, nlt-solidarity-framework,
 #   nlt-haief, nlt-authority
 #
 # SOP Reference: SOPs/repo-governance-setup.md — SOP-NLT-002
-# Governed by: ORG-DEV-OTOI-1.0.0
+# Governed by: ORG-DEV-OTOI-1.0.2
 
 on:
   push:
@@ -41,7 +41,7 @@ on:
 
 jobs:
   validate-agent-profiles:
-    name: Validate NLT Agent Profiles (ORG-DEV-OTOI-1.0.0)
+    name: Validate NLT Agent Profiles (ORG-DEV-OTOI-1.0.2)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -56,7 +56,7 @@ jobs:
           set -euo pipefail
 
           BASE_REQUIRED_FIELDS=(name description version nlt-otoi-version nlt-solidarity-framework nlt-haief nlt-authority)
-          NLT_OTOI_VERSION="ORG-DEV-OTOI-1.0.0"
+          NLT_OTOI_VERSION="ORG-DEV-OTOI-1.0.2"
           NLT_SOLIDARITY="true"
           NLT_HAIEF="true"
           NLT_AUTHORITY="Joshua W. Dorsey, Sr."

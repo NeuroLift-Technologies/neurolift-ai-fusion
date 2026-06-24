@@ -1,7 +1,7 @@
 ---
 name: nlt-escalation
 description: 'Write a complete NLT escalation record (OTOI Section 4.3). Use when an agent hits a guardrail, needs a human decision, encounters a blocker, faces an unclear task scope, or must escalate an architectural, deployment, ethical, or strategic question to Joshua W. Dorsey, Sr.'
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.2
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -9,7 +9,7 @@ nlt-authority: Joshua W. Dorsey, Sr.
 
 # NLT Escalation Record (OTOI Section 4.3)
 
-This skill guides agents through creating a complete **escalation record** as defined in ORG-DEV-OTOI-1.0.0 Section 4.3. Escalation is not failure — it is correct protocol.
+This skill guides agents through creating a complete **escalation record** as defined in ORG-DEV-OTOI-1.0.2 Section 4.3. Escalation is not failure — it is correct protocol.
 
 The `/escalate <topic>` slash command automates this workflow.
 
