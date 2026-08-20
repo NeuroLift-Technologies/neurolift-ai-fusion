@@ -11,9 +11,10 @@ from enum import Enum
 from typing import Dict, List, Any, Optional, Union
 import uuid
 import json
+import importlib
 from datetime import datetime, timedelta
 
-from .ecs import Registry, Entity, System, Position, Component
+from .ecs import Registry, Entity, System, Position, Component, UnknownComponent
 from .world_map import GridManager
 from .time_manager import TimeManager, TimeChangeEvent
 
@@ -190,14 +191,14 @@ class WorldEngine:
         and engine configuration.
         """
         entities_data = []
-        for entity in self.registry._entities:
+        for entity in self.registry.get_entities():
             entity_data = {
                 "entity_id": entity.entity_id,
                 "components": {},
             }
-            for comp_type, comp_dict in self.registry._components.items():
-                if entity.entity_id in comp_dict:
-                    comp = comp_dict[entity.entity_id]
+            for comp_type in self.registry.get_component_types():
+                comp = self.registry.get_component(entity, comp_type)
+                if comp is not None:
                     entity_data["components"][comp_type.__name__] = self._serialize_component(comp)
             entities_data.append(entity_data)
 
@@ -222,48 +223,57 @@ class WorldEngine:
         
         Args:
             json_data: JSON string previously produced by save_state().
+        
+        Raises:
+            ValueError: If the JSON data is malformed or missing required keys.
         """
-        state = json.loads(json_data)
+        try:
+            state = json.loads(json_data)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Malformed JSON: {e}") from e
 
-        self.simulation_id = state.get("simulation_id", str(uuid.uuid4()))
-        self.tick_count = state.get("tick_count", 0)
-        current_state_value = state.get("current_state", SimulationState.RUNNING.value)
-        self.current_state = SimulationState(current_state_value)
+        try:
+            self.simulation_id = state.get("simulation_id", str(uuid.uuid4()))
+            self.tick_count = state.get("tick_count", 0)
+            current_state_value = state.get("current_state", SimulationState.RUNNING.value)
+            self.current_state = SimulationState(current_state_value)
 
-        config_data = state.get("config", {})
-        self.config = WorldEngineConfig(
-            grid_width=config_data.get("grid_width", 100),
-            grid_height=config_data.get("grid_height", 100),
-            seconds_per_tick=config_data.get("seconds_per_tick", 1.0),
-            time_speed_multiplier=config_data.get("time_speed_multiplier", 1.0),
-        )
-        self.time_per_tick = timedelta(seconds=self.config.seconds_per_tick)
+            config_data = state.get("config", {})
+            self.config = WorldEngineConfig(
+                grid_width=config_data.get("grid_width", 100),
+                grid_height=config_data.get("grid_height", 100),
+                seconds_per_tick=config_data.get("seconds_per_tick", 1.0),
+                time_speed_multiplier=config_data.get("time_speed_multiplier", 1.0),
+            )
+            self.time_per_tick = timedelta(seconds=self.config.seconds_per_tick)
 
-        # Restore time manager state
-        time_manager_data = state.get("time_manager", {})
-        self.time_manager = TimeManager.from_dict(time_manager_data)
+            # Restore time manager state
+            time_manager_data = state.get("time_manager", {})
+            self.time_manager = TimeManager.from_dict(time_manager_data)
 
-        # Re-bind time manager listener
-        self.time_manager.add_listener(self._on_time_changed)
+            # Re-bind time manager listener
+            self.time_manager.add_listener(self._on_time_changed)
 
-        # Restore entities and components
-        self.registry = Registry()
-        entities_data = state.get("entities", [])
-        for entity_data in entities_data:
-            entity = Entity(entity_id=entity_data["entity_id"])
-            self.registry.add_entity(entity)
-            components = entity_data.get("components", {})
-            for comp_name, comp_data in components.items():
-                component = self._deserialize_component(comp_name, comp_data)
-                if component is not None:
-                    self.registry.add_component(entity, component)
+            # Restore entities and components
+            self.registry = Registry()
+            entities_data = state.get("entities", [])
+            for entity_data in entities_data:
+                entity = Entity(entity_id=entity_data["entity_id"])
+                self.registry.add_entity(entity)
+                components = entity_data.get("components", {})
+                for comp_name, comp_data in components.items():
+                    component = self._deserialize_component(comp_name, comp_data)
+                    if component is not None:
+                        self.registry.add_component(entity, component)
 
-        # Rebuild grid
-        self.grid = GridManager(
-            width=self.config.grid_width,
-            height=self.config.grid_height,
-            registry=self.registry,
-        )
+            # Rebuild grid
+            self.grid = GridManager(
+                width=self.config.grid_width,
+                height=self.config.grid_height,
+                registry=self.registry,
+            )
+        except (KeyError, TypeError, ValueError) as e:
+            raise ValueError(f"Invalid world state data: {e}") from e
 
     def _serialize_component(self, component: Component) -> Dict[str, Any]:
         """Serialize a component to a plain dictionary."""
@@ -297,4 +307,29 @@ class WorldEngine:
             ctrl.current_intent = data.get("current_intent")
             ctrl.intent_progress = data.get("intent_progress", 0.0)
             return ctrl
+
+        component = self._try_import_component(comp_name, data)
+        if component is not None:
+            return component
+
+        return UnknownComponent(component_type=comp_name, data=data)
+
+    def _try_import_component(self, comp_name: str, data: Dict[str, Any]) -> Optional[Component]:
+        """Attempt to dynamically import and instantiate a component by class name."""
+        modules_to_try = [
+            "src.simulation.environment.ecs",
+            "src.simulation.environment.needs",
+            "src.simulation.environment.rooms",
+        ]
+        for module_name in modules_to_try:
+            try:
+                module = importlib.import_module(module_name)
+                comp_cls = getattr(module, comp_name, None)
+                if comp_cls is not None and isinstance(comp_cls, type) and issubclass(comp_cls, Component):
+                    try:
+                        return comp_cls(**data)
+                    except TypeError:
+                        return UnknownComponent(component_type=comp_name, data=data)
+            except ImportError:
+                continue
         return None

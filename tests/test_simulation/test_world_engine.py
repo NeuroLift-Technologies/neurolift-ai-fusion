@@ -1,3 +1,4 @@
+import json
 import pytest
 from datetime import timedelta
 from src.simulation.environment.ecs import Entity, Position, Interactable, AgentController, System
@@ -231,7 +232,7 @@ class TestWorldEngineTimeAndSerialization:
         engine.registry.add_component(entity, Position(5, 5, 0))
         json_str = engine.save_state()
         assert isinstance(json_str, str)
-        data = pytest.importorskip("json").loads(json_str)
+        data = json.loads(json_str)
         assert "entities" in data
         assert "time_manager" in data
         assert "config" in data
@@ -249,7 +250,7 @@ class TestWorldEngineTimeAndSerialization:
         assert engine2.tick_count == engine1.tick_count
         assert engine2.time_manager.day == engine1.time_manager.day
         assert engine2.time_manager.hour == engine1.time_manager.hour
-        entities = list(engine2.registry._entities)
+        entities = engine2.registry.get_entities()
         assert len(entities) == 1
         pos = engine2.registry.get_component(entities[0], Position)
         assert pos.x == 7
@@ -259,7 +260,7 @@ class TestWorldEngineTimeAndSerialization:
         engine = WorldEngine()
         engine.run_simulation_step()
         json_str = engine.save_state()
-        data = pytest.importorskip("json").loads(json_str)
+        data = json.loads(json_str)
         assert "total_minutes" in data["time_manager"]
         assert "speed_multiplier" in data["time_manager"]
 
