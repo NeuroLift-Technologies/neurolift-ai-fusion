@@ -13,6 +13,9 @@
     "type-check": "npm run type-check --workspaces --if-present"
   },
   "devDependencies": {
-    "turbo": "^2.0.3"
+    "turbo": "^2.0.3",
+    "@cloudflare/workers-types": "^4.20240405.0",
+    "typescript": "^5.0.4",
+    "wrangler": "4.93.1"
   }
 }
