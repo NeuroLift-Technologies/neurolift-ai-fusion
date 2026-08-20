@@ -26,12 +26,17 @@
         "./*"
       ]
     },
+    "baseUrl": ".",
     "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
     "app/**/*.ts",
     "app/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "hooks/**/*.ts",
+    "hooks/**/*.tsx",
     "lib/**/*.ts",
     "src/simulation/**/*.ts",
     ".next/types/**/*.ts"

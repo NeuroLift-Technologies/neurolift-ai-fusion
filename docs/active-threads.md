@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0
-**Last updated:** 2026-05-28
+**Last updated:** 2026-08-20
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -19,6 +19,7 @@
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
+
 
 ---
 
@@ -47,6 +48,10 @@ _No blocked threads at this time._
 | TH-013 | Align session and onboarding to repository governance | Antigravity | 2026-05-27 | `docs/agent-log/handoffs/2026-05-27-ANTIGRAVITY-governance-alignment.json` |
 | TH-014 | Restore org-level governance framing + un-archive root governance files (supersedes PR #75) | Claude Code | 2026-05-28 | `docs/agent-log/2026-05-28-claude-governance-restoration.md` |
 | TH-015 | Document PR #76 governance restoration workflow follow-up | Cursor GPT-5.5 | 2026-05-28 | `docs/agent-log/handoffs/CURSOR-AUTOMATION-2026-05-28-pr76-docs-handoff.json` |
+| TH-016 | Create an interactive visualization of the 19 Avatar-Aide pairs | Zed GPT-5.6 Sol | 2026-08-20 | `docs/agent-log/handoffs/ZED-GPT-5.6-SOL-2026-08-20-avatar-aide-visualization-handoff.json` |
+| TH-017 | Restore missing web lib modules and clear current diagnostics | Zed GPT-5.6 Sol | 2026-08-20 | `docs/agent-log/handoffs/ZED-GPT-5.6-SOL-2026-08-20-web-lib-repair-and-diagnostics-handoff.json` |
+| TH-018 | Web validation follow-up + /pairs src/app route re-export fix | Zed GPT-5.6 Sol | 2026-08-20 | `docs/agent-log/handoffs/ZED-GPT-5.6-SOL-2026-08-20-web-validation-followup-handoff.json` |
+| TH-019 | Remove Next.js inferred workspace-root warning via outputFileTracingRoot | Zed GPT-5.6 Sol | 2026-08-20 | `docs/agent-log/handoffs/ZED-GPT-5.6-SOL-2026-08-20-next-output-file-tracing-root-handoff.json` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
@@ -72,5 +77,6 @@ _No blocked threads at this time._
 - Governance source-of-truth is synced via `.github/workflows/sync-governance-public.yml`; validate that `NLT-DEV-OTOI.md` exists in the repository root when onboarding.
 - The `docs/handoffs/` directory contains legacy handoff records in an older format. New handoff records should go to `docs/agent-log/handoffs/` using the `handoff-record.json` schema from SOP-NLT-001.
 - No active blockers. No architectural decisions pending.
+- TH-016 through TH-019 (Zed GPT-5.6 Sol): Initial visualization work and web lib repairs completed by Z.A.I; final integration (full home page composition, ThemeProvider/Toaster layout merge, build verification) completed by Poolside Agent on 2026-08-20. All threads moved to Completed status. See handoff: `docs/agent-log/handoffs/POOLSSIDE-2026-08-20-avatar-aide-integration-handoff.json`.
 - TH-006 preserved the pre-sync local work on `codex-cli/local-simulation-lab-before-main-sync`, fast-forwarded `main` to `origin/main`, and ported the fixture-driven `/simulation-lab` observer route into the current Next.js web app.
 - TH-007 produced a full open-items review report at `docs/reviews/2026-05-02-copilot-open-items-review.md` covering all open PRs, unresolved review comments, blockers, and pending decisions as of 2026-05-02.
