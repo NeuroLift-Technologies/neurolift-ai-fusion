@@ -1,4 +1,4 @@
-name = "neurolift-world-engine"
+name = "neurolift-ai-fusion"
 main = "src/index.ts"
 compatibility_date = "2026-05-01"
 workers_dev = true
