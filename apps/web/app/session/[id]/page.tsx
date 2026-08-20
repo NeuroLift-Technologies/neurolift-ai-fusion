@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { api } from "../../../lib/api";
-import type { SessionResult, ScenarioResult } from "../../../lib/types";
+import { api } from "@/lib/api";
+import type { SessionResult, ScenarioResult } from "@/lib/types";
 
 function Metric({ label, value, unit = "" }: { label: string; value: number | string; unit?: string }) {
   return (

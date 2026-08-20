@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { api } from "../../../lib/api";
-import type { AvatarSummary, AideSummary, AvatarType, AideType } from "../../../lib/types";
+import { api } from "@/lib/api";
+import type { AvatarSummary, AideSummary, AvatarType, AideType } from "@/lib/types";
 
 export default function NewSessionPage() {
   const router = useRouter();

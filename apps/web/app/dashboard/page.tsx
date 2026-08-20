@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api } from "../../lib/api";
-import type { SessionSummary } from "../../lib/types";
+import { api } from "@/lib/api";
+import type { SessionSummary } from "@/lib/types";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
