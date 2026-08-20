@@ -11,8 +11,11 @@ bindings = [
 	{ name = "WORLD_ENGINE", class_name = "WorldEngineDO" }
 ]
 
-# NOTE: The v1 Durable Object migration (new_sqlite_classes = ["WorldEngineDO"])
-# was already applied. Cloudflare Workers Builds deploys via `wrangler versions
-# upload`, which rejects migrations in versioned uploads (code 10211). The block
-# is intentionally omitted so versioned uploads succeed. Re-add it only for a
-# one-time `wrangler deploy` when introducing a new migration tag.
+# The World Engine Durable Object class must be registered via a migration.
+# Workers Builds deploys with `wrangler versions upload`, which cannot apply the
+# initial migration — it must be bootstrapped once with a non-versioned
+# `wrangler deploy` (code 10211). Keep this block present afterwards so the
+# class stays registered for subsequent versioned uploads.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WorldEngineDO"]
