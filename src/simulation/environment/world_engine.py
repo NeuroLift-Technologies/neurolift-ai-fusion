@@ -14,7 +14,7 @@ import json
 import importlib
 from datetime import datetime, timedelta
 
-from .ecs import Registry, Entity, System, Position, Component, UnknownComponent
+from .ecs import Registry, Entity, System, Position, Component, UnknownComponent, AgentController, Interactable
 from .world_map import GridManager
 from .time_manager import TimeManager, TimeChangeEvent
 
@@ -46,6 +46,9 @@ class EventType(Enum):
     INTERACTION_STARTED = "interaction_started"
     INTERACTION_COMPLETED = "interaction_completed"
     TIME_CHANGED = "time_changed"
+    RELATIONSHIP_ADDED = "relationship_added"
+    RELATIONSHIP_UPDATED = "relationship_updated"
+    SOCIAL_INTERACTION = "social_interaction"
 
 
 class WorldEngine:
@@ -101,6 +104,14 @@ class WorldEngine:
         # Forward time events from TimeManager to engine event bus
         self.time_manager.add_listener(self._on_time_changed)
 
+        # Relationship system (social dynamics between Sims).
+        # Imported lazily to avoid a circular import with the relationships module.
+        from .relationships import RelationshipManager
+        self.relationship_manager = RelationshipManager(
+            registry=self.registry,
+            on_event=self.emit_event,
+        )
+
         self.initialize()
 
     def _on_time_changed(self, event: TimeChangeEvent) -> None:
@@ -116,10 +127,15 @@ class WorldEngine:
     def initialize(self) -> None:
         """Set up initial systems and state."""
         self.current_state = SimulationState.RUNNING
+        self._register_core_systems()
 
-        # Register Core Systems here. E.g.:
-        # self.registry.register_system(MovementSystem())
-        # self.registry.register_system(InteractionSystem())
+    def _register_core_systems(self) -> None:
+        """Register the core ECS systems onto the current registry."""
+        # Imported lazily to avoid a circular import with the relationships module.
+        from .relationships import RelationshipSystem
+        self.registry.register_system(
+            RelationshipSystem(self.relationship_manager, self.time_manager)
+        )
 
     def spawn_entity(self) -> Entity:
         """Create and register a new entity."""
@@ -272,11 +288,19 @@ class WorldEngine:
                 height=self.config.grid_height,
                 registry=self.registry,
             )
+
+            # Rebind the relationship manager to the rebuilt registry and
+            # re-register core systems (the registry was recreated above).
+            self.relationship_manager.registry = self.registry
+            self.relationship_manager._index = {}
+            self._register_core_systems()
         except (KeyError, TypeError, ValueError) as e:
             raise ValueError(f"Invalid world state data: {e}") from e
 
     def _serialize_component(self, component: Component) -> Dict[str, Any]:
         """Serialize a component to a plain dictionary."""
+        if hasattr(component, "to_dict"):
+            return component.to_dict()
         data = {}
         for attr in vars(component):
             if not attr.startswith("_"):
@@ -320,6 +344,7 @@ class WorldEngine:
             "src.simulation.environment.ecs",
             "src.simulation.environment.needs",
             "src.simulation.environment.rooms",
+            "src.simulation.environment.relationships",
         ]
         for module_name in modules_to_try:
             try:

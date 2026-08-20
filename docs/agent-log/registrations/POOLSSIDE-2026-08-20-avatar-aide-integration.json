@@ -1,0 +1,28 @@
+{
+  "agent_registration": {
+    "agent_name": "Poolside Agent",
+    "platform": "Poolside",
+    "version": "general-purpose-coding-agent",
+    "session_id": "poolside-2026-08-20-avatar-aide-integration",
+    "entry_date": "2026-08-20",
+    "entry_point": "User provided a tarball from Zed GPT-5.6 Sol containing the complete Avatar-Aide-Advocate visualization work that Z.A.I could not finish due to a broken terminal sandbox. Task: integrate the tarball into the neurolift-ai-fusion-org repo at apps/web/.",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "uncommitted working tree (apps/web integration)",
+    "capabilities_self_reported": [
+      "TypeScript/JavaScript",
+      "Next.js 15 App Router",
+      "React 18 + Tailwind CSS 3",
+      "framer-motion (type compatibility)",
+      "Component integration from design deliverables",
+      "Build system debugging (npm workspaces, type-checking, static page generation)"
+    ],
+    "known_limitations": [
+      "No access to Z.A.I's original intent logs or decision rationale beyond what is in the tarball and handoff records",
+      "Cannot verify runtime behavior (no browser) — only type-check and static build are available",
+      "Repository governance requires Joshua W. Dorsey, Sr. sign-off for architectural decisions"
+    ],
+    "preferred_handoff_format": "structured JSON"
+  }
+}
