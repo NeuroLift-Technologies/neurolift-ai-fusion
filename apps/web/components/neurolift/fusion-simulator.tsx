@@ -206,14 +206,14 @@ export function FusionSimulator() {
                 "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all duration-300",
                 step > s
                   ? "text-white"
-                  : step === s && running
+                  : step === s && (running || completed)
                     ? "text-white ring-2 ring-offset-2 ring-offset-background"
                     : "bg-muted text-muted-foreground"
               )}
               style={
                 step > s
                   ? { backgroundColor: pair.color }
-                  : step === s && running
+                  : step === s && (running || completed)
                     ? ({ backgroundColor: pair.color, ringColor: pair.color } as React.CSSProperties)
                     : undefined
               }
