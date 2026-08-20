@@ -1,6 +1,7 @@
 {
   "name": "neurolift-ai-fusion",
   "private": true,
+  "packageManager": "npm@11.17.0",
   "workspaces": [
     "apps/web",
     "apps/mobile"
