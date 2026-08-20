@@ -11,6 +11,8 @@ bindings = [
 	{ name = "WORLD_ENGINE", class_name = "WorldEngineDO" }
 ]
 
-[[migrations]]
-tag = "v1"
-new_sqlite_classes = ["WorldEngineDO"]
+# NOTE: The v1 Durable Object migration (new_sqlite_classes = ["WorldEngineDO"])
+# was already applied. Cloudflare Workers Builds deploys via `wrangler versions
+# upload`, which rejects migrations in versioned uploads (code 10211). The block
+# is intentionally omitted so versioned uploads succeed. Re-add it only for a
+# one-time `wrangler deploy` when introducing a new migration tag.
