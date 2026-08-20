@@ -71,7 +71,7 @@ export default function HomePage() {
       // Ignore when typing in inputs/textareas
       const tag = (e.target as HTMLElement).tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-      if (e.key === "?" || (e.key === "/")) {
+      if (e.key === "?") {
         e.preventDefault();
         setShortcutsOpen((prev) => !prev);
       }

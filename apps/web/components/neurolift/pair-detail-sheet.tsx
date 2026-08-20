@@ -11,8 +11,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Eye,
   Shield,
   Target,
@@ -993,17 +991,7 @@ export function PairDetailSheet({
                 <PairIcon name={pair.iconName} color={pair.color} size={24} />
               </motion.div>
 
-              <div className="flex items-center gap-1 min-w-0 flex-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 shrink-0"
-                  onClick={() => onNavigate("prev")}
-                  aria-label="Previous pair"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`header-${pair.id}`}
@@ -1020,16 +1008,6 @@ export function PairDetailSheet({
                     </SheetDescription>
                   </motion.div>
                 </AnimatePresence>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 shrink-0"
-                  onClick={() => onNavigate("next")}
-                  aria-label="Next pair"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
               </div>
             </div>
 

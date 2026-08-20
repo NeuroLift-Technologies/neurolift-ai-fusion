@@ -356,14 +356,19 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
     pair: AvatarAidePair;
   } | null>(null);
 
+  // Skip persisting favorites on the initial mount to avoid racing with load
+  const isFirstRenderRef = useRef(true);
+
   // Load favorites from localStorage on mount
   useEffect(() => {
     const stored = loadFavorites();
-    requestAnimationFrame(() => setFavorites(stored));
+    setFavorites(stored);
+    isFirstRenderRef.current = false;
   }, []);
 
-  // Persist favorites to localStorage on change
+  // Persist favorites to localStorage on change (skip initial mount)
   useEffect(() => {
+    if (isFirstRenderRef.current) return;
     saveFavorites(favorites);
   }, [favorites]);
 
@@ -372,14 +377,20 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
     e.stopPropagation();
     e.preventDefault();
     const pair = PAIRS.find((p) => p.id === pairId);
-    setFavorites((prev) => {
-      const isFavorited = prev.includes(pairId);
-      if (pair && onFavoriteToast) {
-        onFavoriteToast(pair.avatarName, !isFavorited);
-      }
-      return isFavorited ? prev.filter((id) => id !== pairId) : [...prev, pairId];
-    });
-  }, [onFavoriteToast]);
+    const wasFavorited = favorites.includes(pairId);
+
+    // Pure state update — no side effects inside updater
+    setFavorites((prev) =>
+      wasFavorited
+        ? prev.filter((id) => id !== pairId)
+        : [...prev, pairId]
+    );
+
+    // Fire toast outside the updater to avoid StrictMode double-invocation
+    if (pair && onFavoriteToast) {
+      onFavoriteToast(pair.avatarName, !wasFavorited);
+    }
+  }, [onFavoriteToast, favorites]);
 
   // Random pair discovery
   const handleRandomPair = useCallback(() => {
@@ -1679,7 +1690,7 @@ function PairCard({
 
         {/* Confidence Ring */}
         <ConfidenceRing
-          value={STATUS_READINESS[pair.status]}
+          value={readinessPercent}
           color={pair.color}
         />
       </div>

@@ -138,7 +138,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
   return (
     <div className="rounded-lg border border-border/60 bg-popover px-3 py-2 text-sm shadow-lg">
       <p className="font-medium text-foreground">{label}</p>
-      <p className="text-muted-foreground">{Math.round(payload[0].value * 100)}%</p>
+      <p className="text-muted-foreground">{Math.round(payload[0].value)}%</p>
     </div>
   );
 }

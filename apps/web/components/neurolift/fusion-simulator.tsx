@@ -40,6 +40,8 @@ export function FusionSimulator() {
   const [fusionFlash, setFusionFlash] = useState(false);
   const [transitionFlash, setTransitionFlash] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stepRef = useRef(0);
+  const flashTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const pair = PAIRS.find((p) => p.id === Number(selectedPairId)) ?? PAIRS[0];
 
@@ -50,37 +52,52 @@ export function FusionSimulator() {
     }
   }, []);
 
+  const clearFlashTimers = useCallback(() => {
+    flashTimersRef.current.forEach(clearTimeout);
+    flashTimersRef.current = [];
+  }, []);
+
   const reset = useCallback(() => {
     clearTimer();
+    clearFlashTimers();
     setStep(0);
     setRunning(false);
     setCompleted(false);
     setFusionFlash(false);
     setTransitionFlash(false);
-  }, [clearTimer]);
+  }, [clearTimer, clearFlashTimers]);
+
+  // Keep stepRef in sync so advanceStep can read current step outside updater
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
 
   const advanceStep = useCallback(() => {
     clearTimer();
-    setStep((prev) => {
-      const next = prev >= 2 ? 2 : prev + 1;
-      // Brief transition flash on entering step 2
-      if (next === 2) {
-        setTransitionFlash(true);
-        setTimeout(() => setTransitionFlash(false), 150);
-      }
-      // Fusion flash when entering step 3
-      if (prev === 1) {
-        setFusionFlash(true);
-        setTimeout(() => setFusionFlash(false), 600);
-      }
-      if (prev >= 2) {
-        setRunning(false);
-        setCompleted(true);
-        return 2;
-      }
-      return next;
-    });
-  }, [clearTimer]);
+    clearFlashTimers();
+    const prev = stepRef.current;
+    const next = prev >= 2 ? 2 : prev + 1;
+    // Pure state update — no side effects in updater
+    setStep(next);
+
+    // Side effects moved outside the updater
+    if (next === 2) {
+      setTransitionFlash(true);
+      flashTimersRef.current.push(
+        setTimeout(() => setTransitionFlash(false), 150)
+      );
+    }
+    if (prev === 1) {
+      setFusionFlash(true);
+      flashTimersRef.current.push(
+        setTimeout(() => setFusionFlash(false), 600)
+      );
+    }
+    if (prev >= 2) {
+      setRunning(false);
+      setCompleted(true);
+    }
+  }, [clearTimer, clearFlashTimers]);
 
   useEffect(() => {
     if (running && step < 2) {
@@ -92,6 +109,11 @@ export function FusionSimulator() {
   useEffect(() => {
     requestAnimationFrame(() => reset());
   }, [selectedPairId, reset]);
+
+  // Cleanup flash timers on unmount
+  useEffect(() => {
+    return clearFlashTimers;
+  }, [clearFlashTimers]);
 
   const handleStart = () => {
     if (completed) {

@@ -213,7 +213,7 @@ export function PairComparisonDialog({
 
         {/* ── Side-by-side comparison ────────────────── */}
         {pairA && pairB ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-0 p-6">
             <PairColumn
               pair={pairA}
               label="A"
