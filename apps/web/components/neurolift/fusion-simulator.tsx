@@ -86,14 +86,16 @@ export function FusionSimulator() {
       flashTimersRef.current.push(
         setTimeout(() => setTransitionFlash(false), 150)
       );
-    }
-    if (prev === 1) {
       setFusionFlash(true);
       flashTimersRef.current.push(
         setTimeout(() => setFusionFlash(false), 600)
       );
+      // Complete the simulation immediately upon reaching the final fusion step
+      setRunning(false);
+      setCompleted(true);
     }
-    if (prev >= 2) {
+    // If already at step 2 and advanced again, ensure completion state
+    if (prev >= 2 && !completed) {
       setRunning(false);
       setCompleted(true);
     }

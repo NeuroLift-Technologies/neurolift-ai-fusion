@@ -9,6 +9,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "pairId is required" }, { status: 400 });
   }
 
+  if (!/^\d+$/.test(pairIdParam)) {
+    return NextResponse.json(
+      { error: "pairId must be a positive integer" },
+      { status: 400 }
+    );
+  }
+
   const pairId = parseInt(pairIdParam, 10);
   const pair = PAIRS.find((p) => p.id === pairId);
 
