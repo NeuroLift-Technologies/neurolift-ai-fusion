@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 
 import type { Furniture, Room, SimSummary, WorldState } from "./types";
-import { minimumNeed, simColor, simPosition } from "./useWorldSocket";
+import { minimumNeed, simColor, simPosition } from "./useWorldPolling";
 
 interface WorldViewProps {
   state: WorldState | null;
@@ -87,7 +87,7 @@ function computeLayout(
   const availW = width - margin * 2;
   const availH = height - margin * 2;
   const cellSize = Math.floor(
-    Math.min(availW / cols, availH / rows) / 1,
+    Math.min(availW / cols, availH / rows),
   );
   const gridW = cellSize * cols;
   const gridH = cellSize * rows;
@@ -578,7 +578,9 @@ export default function WorldView({
 
     // Interpolated sim frames
     const lerpState = lerpRef.current;
-    let progressed = true;
+    // Only keep the animation loop alive while a transition is in flight;
+    // defaulting to true here caused an idle ~60fps redraw loop.
+    let progressed = false;
     if (lerpState.duration > 0 && currentState) {
       const elapsed = now - lerpState.start;
       const t = Math.min(1, elapsed / lerpState.duration);
@@ -618,10 +620,22 @@ export default function WorldView({
     }
   }
 
-  // Kick the render loop when dimensions change (e.g. first paint).
+  // Redraw once whenever dimensions change (first paint / resize) — the
+  // state-seeding effect schedules frames when new snapshots arrive.
   useEffect(() => {
     scheduleFrame();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dimensions]);
+
+  // Cancel any in-flight animation frame on unmount.
+  useEffect(() => {
+    return () => {
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current);
+        rafPendingRef.current = false;
+      }
+    };
+  }, []);
 
   // Click → hit test the nearest Sim (using target positions from latest state).
   function handlePointerDown(e: PointerEvent<HTMLDivElement>) {

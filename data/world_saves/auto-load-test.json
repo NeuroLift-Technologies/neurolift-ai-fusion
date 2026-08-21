@@ -1,0 +1,482 @@
+{
+  "simulation_id": "9c7d343a-81df-492a-8447-51da5620c2c4",
+  "current_state": "running",
+  "simulation_time": "2026-08-21T12:22:47.224304",
+  "tick_count": 5,
+  "time_per_tick_seconds": 1.0,
+  "time_manager": {
+    "day": 1,
+    "hour": 14,
+    "minute": 30,
+    "speed_multiplier": 1.0,
+    "total_minutes_elapsed": 870,
+    "start_day": 1,
+    "start_hour": 10,
+    "start_minute": 0
+  },
+  "config": {
+    "grid_width": 20,
+    "grid_height": 20,
+    "seconds_per_tick": 1.0,
+    "time_speed_multiplier": 1.0
+  },
+  "entities": [
+    {
+      "entity_id": "0b6216a4-baa2-41c2-9575-f58b958a475f",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 10,
+          "y": 1,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "computer"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "use",
+            "work"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "living_room"
+        }
+      }
+    },
+    {
+      "entity_id": "86ca928a-e84c-408b-84d5-5c013b5baf80",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 6,
+          "y": 1,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "stove"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "cook"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "kitchen"
+        }
+      }
+    },
+    {
+      "entity_id": "17d32d54-5c2c-46a8-ba28-d0a6d622b7ec",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 5,
+          "y": 1,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "fridge"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "get_food"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "kitchen"
+        }
+      }
+    },
+    {
+      "entity_id": "eee9e708-6d7d-400d-b95f-e3996faa2b2f",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "bedroom"
+        },
+        "src.simulation.environment.ecs.AgentController": {
+          "agent_id": "sim_alex",
+          "current_intent": null,
+          "intent_progress": 0.0
+        },
+        "src.simulation.environment.schedule.NeedsComponent": {
+          "needs": {
+            "hunger": 100.0,
+            "energy": 100.0,
+            "social": 100.0,
+            "fun": 100.0,
+            "hygiene": 100.0
+          }
+        },
+        "src.simulation.environment.schedule.ScheduleComponent": {
+          "current_activity": null,
+          "target_entity_id": null,
+          "intent_progress": 0.0,
+          "weekend": false,
+          "weekday_schedule": {
+            "0": "sleep",
+            "1": "sleep",
+            "2": "sleep",
+            "3": "sleep",
+            "4": "sleep",
+            "5": "sleep",
+            "6": "wake_up",
+            "7": "breakfast",
+            "8": "breakfast",
+            "9": "work",
+            "10": "work",
+            "11": "work",
+            "12": "work",
+            "13": "lunch",
+            "14": "work",
+            "15": "work",
+            "16": "work",
+            "17": "work",
+            "18": "dinner",
+            "19": "dinner",
+            "20": "relax",
+            "21": "relax",
+            "22": "relax",
+            "23": "sleep"
+          },
+          "weekend_schedule": {
+            "0": "sleep",
+            "1": "sleep",
+            "2": "sleep",
+            "3": "sleep",
+            "4": "sleep",
+            "5": "sleep",
+            "6": "wake_up",
+            "7": "breakfast",
+            "8": "free_time",
+            "9": "free_time",
+            "10": "free_time",
+            "11": "breakfast",
+            "12": "free_time",
+            "13": "lunch",
+            "14": "free_time",
+            "15": "free_time",
+            "16": "free_time",
+            "17": "free_time",
+            "18": "dinner",
+            "19": "dinner",
+            "20": "relax",
+            "21": "relax",
+            "22": "sleep",
+            "23": "sleep"
+          }
+        }
+      }
+    },
+    {
+      "entity_id": "4d39dd47-7b95-4473-99ab-80b309850629",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 5,
+          "y": 2,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "counter"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "prepare"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "kitchen"
+        }
+      }
+    },
+    {
+      "entity_id": "aa886344-3abe-419f-b3b1-a71ec5f4e8ac",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 8,
+          "y": 2,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "living_room"
+        },
+        "src.simulation.environment.ecs.AgentController": {
+          "agent_id": "sim_jamie",
+          "current_intent": null,
+          "intent_progress": 0.0
+        },
+        "src.simulation.environment.schedule.NeedsComponent": {
+          "needs": {
+            "hunger": 100.0,
+            "energy": 100.0,
+            "social": 100.0,
+            "fun": 100.0,
+            "hygiene": 100.0
+          }
+        },
+        "src.simulation.environment.schedule.ScheduleComponent": {
+          "current_activity": null,
+          "target_entity_id": null,
+          "intent_progress": 0.0,
+          "weekend": false,
+          "weekday_schedule": {
+            "0": "sleep",
+            "1": "sleep",
+            "2": "sleep",
+            "3": "sleep",
+            "4": "sleep",
+            "5": "sleep",
+            "6": "wake_up",
+            "7": "breakfast",
+            "8": "breakfast",
+            "9": "work",
+            "10": "work",
+            "11": "work",
+            "12": "work",
+            "13": "lunch",
+            "14": "work",
+            "15": "work",
+            "16": "work",
+            "17": "work",
+            "18": "dinner",
+            "19": "dinner",
+            "20": "relax",
+            "21": "relax",
+            "22": "relax",
+            "23": "sleep"
+          },
+          "weekend_schedule": {
+            "0": "sleep",
+            "1": "sleep",
+            "2": "sleep",
+            "3": "sleep",
+            "4": "sleep",
+            "5": "sleep",
+            "6": "wake_up",
+            "7": "breakfast",
+            "8": "free_time",
+            "9": "free_time",
+            "10": "free_time",
+            "11": "breakfast",
+            "12": "free_time",
+            "13": "lunch",
+            "14": "free_time",
+            "15": "free_time",
+            "16": "free_time",
+            "17": "free_time",
+            "18": "dinner",
+            "19": "dinner",
+            "20": "relax",
+            "21": "relax",
+            "22": "sleep",
+            "23": "sleep"
+          }
+        }
+      }
+    },
+    {
+      "entity_id": "57397296-864b-4e7f-ad8d-c971fdaa6af3",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 15,
+          "y": 2,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "computer"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "use",
+            "work"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "office"
+        }
+      }
+    },
+    {
+      "entity_id": "1a0c7b40-4e4c-47cb-9bf2-e1e668faa27f",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 15,
+          "y": 3,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "table"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "use",
+            "work"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "office"
+        }
+      }
+    },
+    {
+      "entity_id": "c5362228-89f1-4cc1-8bef-3a7e5dc18a1a",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 13,
+          "y": 1,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "shower"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "shower"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "bathroom"
+        }
+      }
+    },
+    {
+      "entity_id": "96e61322-61de-497d-bede-8ee26b9381e3",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 5,
+          "y": 3,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "table"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "eat",
+            "use"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "kitchen"
+        }
+      }
+    },
+    {
+      "entity_id": "54e93a8c-c0c5-4d1f-816e-8095620506a6",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "bed"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "sleep",
+            "rest"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "bedroom"
+        }
+      }
+    },
+    {
+      "entity_id": "312ad2af-7e75-43f9-9e8f-1a0f531de358",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 9,
+          "y": 3,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "table"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "eat",
+            "use"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "living_room"
+        }
+      }
+    },
+    {
+      "entity_id": "27875a28-c81a-4eee-a31e-b81d307f458c",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 12,
+          "y": 1,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "toilet"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "use"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "bathroom"
+        }
+      }
+    },
+    {
+      "entity_id": "3c5cf5c0-6331-463d-ad52-43b3f910341a",
+      "components": {
+        "src.simulation.environment.ecs.Position": {
+          "x": 9,
+          "y": 1,
+          "z": 0
+        },
+        "src.simulation.environment.schedule.FurnitureComponent": {
+          "furniture_type": "couch"
+        },
+        "src.simulation.environment.ecs.Interactable": {
+          "affordances": [
+            "sit",
+            "relax"
+          ],
+          "in_use_by": null
+        },
+        "src.simulation.environment.schedule.RoomComponent": {
+          "room_name": "living_room"
+        }
+      }
+    }
+  ],
+  "relationships": {
+    "relationships": [
+      {
+        "sim_a": "eee9e708-6d7d-400d-b95f-e3996faa2b2f",
+        "sim_b": "aa886344-3abe-419f-b3b1-a71ec5f4e8ac",
+        "friendship": 0.0,
+        "romance": 0.0,
+        "familiarity": 0.0,
+        "interaction_count": 0
+      }
+    ]
+  },
+  "sim_names": {
+    "eee9e708-6d7d-400d-b95f-e3996faa2b2f": "Alex",
+    "aa886344-3abe-419f-b3b1-a71ec5f4e8ac": "Jamie"
+  }
+}

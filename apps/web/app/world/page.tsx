@@ -5,26 +5,29 @@ import { RefreshCw, WifiOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useWorldSocket, worldApi } from "../../src/simulation/world/useWorldSocket";
+import { useWorldPolling, worldApi } from "../../src/simulation/world/useWorldPolling";
 import WorldView from "../../src/simulation/world/WorldView";
 import TimeControls from "../../src/simulation/world/TimeControls";
 import SimInspector from "../../src/simulation/world/SimInspector";
 import type { SimDetail, SimSummary } from "../../src/simulation/world/types";
 
 export default function WorldPage() {
-  const { state, loading, error, paused, togglePause, refetch } = useWorldSocket();
+  const { state, loading, error, paused, togglePause, refetch } = useWorldPolling();
   const [selectedSim, setSelectedSim] = useState<SimSummary | null>(null);
   const [detail, setDetail] = useState<SimDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   // Fetch detailed state for the selected Sim.
   useEffect(() => {
     if (!selectedSim) {
       setDetail(null);
+      setDetailError(null);
       return;
     }
     let cancelled = false;
     setDetailLoading(true);
+    setDetailError(null);
     worldApi
       .getSimDetail(selectedSim.sim_id)
       .then((d) => {
@@ -33,7 +36,14 @@ export default function WorldPage() {
           setDetailLoading(false);
         }
       })
-      .catch(() => setDetailLoading(false));
+      .catch((err) => {
+        if (!cancelled) {
+          setDetailLoading(false);
+          setDetailError(
+            err instanceof Error ? err.message : "Could not load Sim details",
+          );
+        }
+      });
     return () => {
       cancelled = true;
     };
@@ -80,6 +90,11 @@ export default function WorldPage() {
             </div>
           )}
         </div>
+        {detailError && (
+          <p className="text-xs text-destructive" role="alert">
+            Failed to load Sim details: {detailError}
+          </p>
+        )}
         <SimInspector
           sim={detail}
           loading={detailLoading}

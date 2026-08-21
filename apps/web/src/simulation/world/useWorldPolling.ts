@@ -75,7 +75,7 @@ export const worldApi = {
 // Hook
 // ---------------------------------------------------------------------------
 
-export interface WorldSocket {
+export interface WorldPolling {
   state: WorldState | null;
   loading: boolean;
   error: string | null;
@@ -88,7 +88,7 @@ export interface WorldSocket {
 
 const DEFAULT_POLL_MS = 1000;
 
-export function useWorldSocket(pollIntervalMs = DEFAULT_POLL_MS): WorldSocket {
+export function useWorldPolling(pollIntervalMs = DEFAULT_POLL_MS): WorldPolling {
   const [state, setState] = useState<WorldState | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

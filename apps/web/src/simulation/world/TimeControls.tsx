@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Pause, Play, Sun, Moon } from "lucide-react";
 
-import { worldApi } from "./useWorldSocket";
+import { worldApi } from "./useWorldPolling";
 import type { TimeSpeedLabel, TimeState } from "./types";
 
 interface TimeControlsProps {
