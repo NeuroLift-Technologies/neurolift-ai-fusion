@@ -7,7 +7,10 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import avatars, aides, sessions, fusion, scenarios, health
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from .routers import avatars, aides, sessions, fusion, scenarios, health, world
 
 app = FastAPI(
     title="NeuroLift AI-Fusion API",
@@ -19,6 +22,7 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
+    lifespan=world.lifespan,
 )
 
 # ---------------------------------------------------------------------------
@@ -53,3 +57,4 @@ app.include_router(aides.router, prefix="/api/aides", tags=["Aides"])
 app.include_router(sessions.router, prefix="/api/sessions", tags=["Training Sessions"])
 app.include_router(fusion.router, prefix="/api/fusion", tags=["Fusion"])
 app.include_router(scenarios.router, prefix="/api/scenarios", tags=["Scenarios"])
+app.include_router(world.router, prefix="/api/world", tags=["World"])

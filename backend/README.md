@@ -56,6 +56,15 @@ Interactive docs: `http://localhost:8000/api/docs`
 | GET | `/api/scenarios/` | List scenarios (filter by category) |
 | GET | `/api/scenarios/categories` | List categories |
 | GET | `/api/scenarios/{id}` | Get scenario |
+| GET | `/api/world/state` | Get full world snapshot (time, rooms, Sims, entities) |
+| GET | `/api/world/sims` | List all Sims (name, needs, activity, position) |
+| GET | `/api/world/sims/{sim_id}` | Get detailed Sim state (needs, mood, relationships, schedule) |
+| GET | `/api/world/rooms` | List all rooms (furniture, occupants) |
+| POST | `/api/world/time/advance` | Advance simulation clock by N minutes |
+| POST | `/api/world/time/set` | Set the simulation clock to a specific hour:minute |
+| POST | `/api/world/time/speed` | Set time speed (realtime=1x, fast=5x, ultra=20x, hyper=100x) |
+| POST | `/api/world/save` | Save world state to a JSON file |
+| POST | `/api/world/load` | Load a previously saved world state |
 
 ## Project Structure
 
@@ -69,7 +78,10 @@ backend/
 │   │   ├── aides.py
 │   │   ├── sessions.py
 │   │   ├── fusion.py
-│   │   └── scenarios.py
+│   │   ├── scenarios.py
+│   │   └── world.py      # World-state router (time, Sims, rooms, save/load)
+│   ├── schemas/
+│   │   └── world.py      # Pydantic models for the world router
 │   ├── models/           # Shared Pydantic models (future)
 │   └── services/         # Business logic services (future)
 ├── requirements.txt

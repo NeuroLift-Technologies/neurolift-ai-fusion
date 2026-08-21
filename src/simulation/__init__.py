@@ -8,8 +8,26 @@ struggles while Aides provide real-time coaching.
 from .session_orchestrator import SessionOrchestrator, SessionConfig, SessionResult
 from .environment import (
     WorldEngine,
+    WorldEngineConfig,
     SimulationState,
-    # Additional environment exports will be added as modules are implemented
+    EventType,
+    TimeManager,
+    RelationshipManager,
+    RelationshipComponent,
+    FurnitureType,
+    FurnitureComponent,
+    RoomComponent,
+    NeedsComponent,
+    NeedType,
+    ScheduleComponent,
+    AgentInterface,
+    PerceptionMap,
+    Registry,
+    Entity,
+    Component,
+    Position,
+    Interactable,
+    AgentController,
 )
 
 # Placeholder for SimulationEnvironment - define it here for now
@@ -17,38 +35,30 @@ class SimulationEnvironment(WorldEngine):
     """Alias for WorldEngine to maintain API compatibility"""
     pass
 
-# Additional modules not yet implemented
-# from .scenarios import (
-#     Scenario,
-#     WorkplaceScenario,
-#     PersonalScenario,
-#     SocialScenario,
-#     ScenarioGenerator,
-# )
-# from .npcs import (
-#     BaseNPC,
-#     NeurotypicalNPC,
-#     BiasedNPC,
-#     SupportiveNPC,
-#     NPCManager,
-# )
-# from .challenges import (
-#     ChallengeInjector,
-#     DifficultyScaling,
-#     BurnoutSimulator,
-# )
-# from .training_loop import (
-#     SessionManager,
-#     AvatarAideCoordinator,
-#     InteractionLogger,
-# )
-
 __all__ = [
     "SessionOrchestrator",
     "SessionConfig",
     "SessionResult",
     "SimulationEnvironment",
     "WorldEngine",
+    "WorldEngineConfig",
     "SimulationState",
-    # Additional exports will be added as modules are implemented
+    "EventType",
+    "TimeManager",
+    "RelationshipManager",
+    "RelationshipComponent",
+    "FurnitureType",
+    "FurnitureComponent",
+    "RoomComponent",
+    "NeedsComponent",
+    "NeedType",
+    "ScheduleComponent",
+    "AgentInterface",
+    "PerceptionMap",
+    "Registry",
+    "Entity",
+    "Component",
+    "Position",
+    "Interactable",
+    "AgentController",
 ]
