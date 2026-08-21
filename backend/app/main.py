@@ -7,9 +7,6 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from .routers import avatars, aides, sessions, fusion, scenarios, health, world
 
 app = FastAPI(
