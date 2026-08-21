@@ -8,6 +8,21 @@ from .relationships import (
     RelationshipSystem,
     SocialInteractionType,
 )
+from .schedule import (
+    DailySchedule,
+    FurnitureComponent,
+    FurnitureType,
+    IdleBehavior,
+    NeedType,
+    NeedsComponent,
+    RoomComponent,
+    ScheduleComponent,
+    ScheduleEntry,
+    ScheduleSystem,
+    get_weekend_schedule,
+    get_workday_schedule,
+    is_weekend,
+)
 
 __all__ = [
     "WorldEngine",
@@ -21,5 +36,18 @@ __all__ = [
     "RelationshipManager",
     "RelationshipSystem",
     "SocialInteractionType",
+    "DailySchedule",
+    "ScheduleEntry",
+    "ScheduleComponent",
+    "ScheduleSystem",
+    "IdleBehavior",
+    "FurnitureComponent",
+    "RoomComponent",
+    "NeedsComponent",
+    "FurnitureType",
+    "NeedType",
+    "get_workday_schedule",
+    "get_weekend_schedule",
+    "is_weekend",
     "Event",
 ]

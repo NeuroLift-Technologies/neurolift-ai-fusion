@@ -1,0 +1,40 @@
+{
+  "handoff_record": {
+    "session_id": "TOAST-2026-08-21-daily-schedule-system",
+    "agent_name": "Toast (polecat)",
+    "date": "2026-08-21",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "convoy/sims-like-simulation-world-expansion/b829ff85/gt/toast/3b55b039",
+    "work_completed": [
+      "Created src/simulation/environment/schedule.py implementing the DailySchedule system for autonomous Sims routines: NeedType/FurnitureType enums, FurnitureComponent/RoomComponent/NeedsComponent supporting ECS components, ScheduleEntry dataclass (with wrap-around-midnight coverage), DailySchedule, get_workday_schedule()/get_weekend_schedule() factories, ScheduleComponent, IdleBehavior fallback, and ScheduleSystem.",
+      "Wired ScheduleSystem into WorldEngine._register_core_systems (lazily imported to avoid circular imports) so it runs each tick; added four EventType members (SCHEDULE_ACTIVITY_CHANGED, SCHEDULE_MOVE_QUEUED, NEED_FULFILLED, IDLE_BEHAVIOR_TRIGGERED); added the schedule module to component deserialization (_try_import_component).",
+      "Exported all new symbols from src/simulation/environment/__init__.py.",
+      "Added tests/test_simulation/test_schedule.py (49 test cases) covering enums, entry coverage/validation/round-trip, DailySchedule, default schedules, support components, ScheduleComponent, IdleBehavior, ScheduleSystem behavior, and WorldEngine save/load + tick integration."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Defined NeedType and FurnitureType as str-enums in schedule.py (no separate needs.py/rooms.py module exists yet); this keeps the schedule system self-contained per the bead scope.",
+      "Added lightweight FurnitureComponent, RoomComponent and NeedsComponent in schedule.py so the acceptance criteria (find bed in bedroom, fulfill need) are concrete and save/load-serializable rather than event-only.",
+      "Schedule iteration uses first-match priority, matching the Sims scheduling model; default factory schedules order meals before work to avoid overlaps.",
+      "Weekend status derived from TimeManager.day via is_weekend() (day 1=Mon); the system auto-syncs ScheduleComponent.weekend each tick."
+    ],
+    "decisions_pending": [],
+    "escalations": [],
+    "next_agent_notes": "The next open bead (FastAPI world-state router in backend/app/routers/world.py) can consume EventType.SCHEDULE_ACTIVITY_CHANGED / NEED_FULFILLED / SCHEDULE_MOVE_QUEUED / IDLE_BEHAVIOR_TRIGGERED and the ScheduleComponent/NeedsComponent/FurnitureComponent/RoomComponent to expose Sim activities, need levels and locations in GET /world/state and GET /world/sims/{sim_id}. pytest/flake8/mypy are not installed in this container; validation was performed via an equivalent standalone harness (all checks green).",
+    "files_modified": [
+      "src/simulation/environment/schedule.py",
+      "src/simulation/environment/world_engine.py",
+      "src/simulation/environment/__init__.py",
+      "tests/test_simulation/test_schedule.py",
+      "docs/agent-log/handoffs/TOAST-2026-08-21-daily-schedule-system.json"
+    ],
+    "tests_run": [
+      "New tests/test_simulation/test_schedule.py executed via an equivalent harness: 49/49 cases pass (factory schedules, coverage/validation/round-trip, DailySchedule priority, support components, ScheduleComponent, IdleBehavior, ScheduleSystem move/fulfill/idle/busy-preservation, WorldEngine save/load + tick).",
+      "Regression smoke on existing WorldEngine + RelationshipSystem behaviour (co-located sims tick, relationship save/load, Position save/load): no regressions."
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/89"
+  }
+}

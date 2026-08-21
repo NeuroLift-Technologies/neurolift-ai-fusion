@@ -49,6 +49,10 @@ class EventType(Enum):
     RELATIONSHIP_ADDED = "relationship_added"
     RELATIONSHIP_UPDATED = "relationship_updated"
     SOCIAL_INTERACTION = "social_interaction"
+    SCHEDULE_ACTIVITY_CHANGED = "schedule_activity_changed"
+    SCHEDULE_MOVE_QUEUED = "schedule_move_queued"
+    NEED_FULFILLED = "need_fulfilled"
+    IDLE_BEHAVIOR_TRIGGERED = "idle_behavior_triggered"
 
 
 class WorldEngine:
@@ -135,6 +139,14 @@ class WorldEngine:
         from .relationships import RelationshipSystem
         self.registry.register_system(
             RelationshipSystem(self.relationship_manager, self.time_manager)
+        )
+        # Imported lazily to avoid a circular import with the schedule module.
+        from .schedule import ScheduleSystem
+        self.registry.register_system(
+            ScheduleSystem(
+                self.time_manager,
+                on_event=self.emit_event,
+            )
         )
 
     def spawn_entity(self) -> Entity:
@@ -342,6 +354,7 @@ class WorldEngine:
         """Attempt to dynamically import and instantiate a component by class name."""
         modules_to_try = [
             "src.simulation.environment.ecs",
+            "src.simulation.environment.schedule",
             "src.simulation.environment.needs",
             "src.simulation.environment.rooms",
             "src.simulation.environment.relationships",
