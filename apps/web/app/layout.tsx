@@ -58,6 +58,7 @@ export default function RootLayout({
             <a href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Dashboard</a>
             <a href="/session/new" className="text-sm text-muted-foreground hover:text-foreground transition-colors">New Session</a>
             <a href="/simulation-lab" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Simulation Lab</a>
+            <a href="/world" className="text-sm text-muted-foreground hover:text-foreground transition-colors">World</a>
           </nav>
           <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
           <Toaster />
