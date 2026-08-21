@@ -11,9 +11,11 @@ a background ticker thread so that polled state reflects a live simulation.
 from __future__ import annotations
 
 import json
+import logging
 import re
 import sys
 import threading
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -71,11 +73,33 @@ from ..schemas.world import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 WORLD_SAVES_DIR = _PROJECT_ROOT / "data" / "world_saves"
+
+# Save filenames are restricted to a strict allowlist: no separators and no
+# dots, so traversal payloads cannot be expressed at all.  Combined with the
+# resolve/containment check in ``_validated_save_path`` this both hardens the
+# endpoints and gives static analysers (CodeQL) a recognizable guard.
+_FILENAME_PATTERN = re.compile(r"[a-zA-Z0-9_-]+")
+
+
+def _validated_save_path(filename: str) -> Path:
+    """Validate *filename* and return a save path confined to WORLD_SAVES_DIR."""
+    if not _FILENAME_PATTERN.fullmatch(filename):
+        raise HTTPException(
+            status_code=400,
+            detail="filename must contain only alphanumeric characters, hyphens, and underscores",
+        )
+
+    saves_root = WORLD_SAVES_DIR.resolve()
+    save_path = (WORLD_SAVES_DIR / f"{filename}.json").resolve()
+    if saves_root != save_path and saves_root not in save_path.parents:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    return save_path
 
 # ---------------------------------------------------------------------------
 # Module-level engine & helpers
@@ -197,9 +221,10 @@ def _build_house() -> Tuple[WorldEngine, Dict[str, str]]:
 
 def _speed_label(multiplier: float) -> str:
     """Return the label closest to the given speed multiplier."""
-    labels = {"realtime": 1.0, "fast": 5.0, "ultra": 20.0, "hyper": 100.0}
-    closest = min(labels, key=lambda v: abs(labels[v] - multiplier))
-    return closest
+    return min(
+        TIME_SPEED_MULTIPLIERS,
+        key=lambda label: abs(TIME_SPEED_MULTIPLIERS[label] - multiplier),
+    )
 
 
 def _time_state(engine: WorldEngine) -> TimeStateResponse:
@@ -411,7 +436,10 @@ def shutdown_world_engine() -> None:
     global _ticker_stop, _ticker_thread
     if _ticker_stop is not None:
         _ticker_stop.set()
+    thread = _ticker_thread
     _ticker_thread = None
+    if thread is not None and thread.is_alive():
+        thread.join(timeout=2.0)
 
 
 @asynccontextmanager
@@ -426,13 +454,21 @@ def _ticker_loop() -> None:
     """Run simulation steps on a fixed real-time interval."""
     assert _ticker_stop is not None
     assert _world_engine is not None
+    last_error_log = 0.0
     while not _ticker_stop.wait(1.0):
         try:
             with _engine_lock:
                 if _world_engine.current_state == SimulationState.RUNNING:
                     _world_engine.run_simulation_step()
         except Exception:
-            pass
+            # Keep the ticker alive, but surface failures (rate-limited so a
+            # persistently broken step does not flood the logs at 1/sec).
+            now = time.monotonic()
+            if now - last_error_log >= 30.0:
+                last_error_log = now
+                logger.exception(
+                    "World tick failed (suppressing similar errors for 30s)"
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -604,14 +640,7 @@ async def save_world(
     engine: WorldEngine = Depends(get_engine),
 ):
     """Persist the current world state as a JSON file in ``data/world_saves/``."""
-    # Validate filename — reject path traversal and disallowed characters
-    if not re.match(r"^[a-zA-Z0-9_\-]+$", body.filename):
-        raise HTTPException(
-            status_code=400,
-            detail="filename must contain only alphanumeric characters, hyphens, and underscores",
-        )
-
-    save_path = WORLD_SAVES_DIR / f"{body.filename}.json"
+    save_path = _validated_save_path(body.filename)
 
     with _engine_lock:
         state_json = engine.save_state()
@@ -640,13 +669,7 @@ async def load_world(
     engine: WorldEngine = Depends(get_engine),
 ):
     """Load a previously saved world state from ``data/world_saves/``."""
-    if not re.match(r"^[a-zA-Z0-9_\-]+$", body.filename):
-        raise HTTPException(
-            status_code=400,
-            detail="filename must contain only alphanumeric characters, hyphens, and underscores",
-        )
-
-    save_path = WORLD_SAVES_DIR / f"{body.filename}.json"
+    save_path = _validated_save_path(body.filename)
     if not save_path.exists():
         raise HTTPException(
             status_code=404,
