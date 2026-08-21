@@ -11,9 +11,11 @@ a background ticker thread so that polled state reflects a live simulation.
 from __future__ import annotations
 
 import json
+import logging
 import re
 import sys
 import threading
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -32,6 +34,7 @@ from src.simulation.environment import (
     WorldEngine,
     WorldEngineConfig,
     SimulationState,
+    TimeManager,
 )
 from src.simulation.environment.ecs import (
     AgentController,
@@ -70,11 +73,38 @@ from ..schemas.world import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 WORLD_SAVES_DIR = _PROJECT_ROOT / "data" / "world_saves"
+
+# Save filenames are restricted to a strict allowlist: no separators and no
+# dots, so traversal payloads cannot be expressed at all.  Combined with the
+# resolve/containment check in ``_validated_save_path`` this both hardens the
+# endpoints and gives static analysers (CodeQL) a recognizable guard.
+_FILENAME_PATTERN = re.compile(r"[a-zA-Z0-9_-]+")
+
+
+def _validated_save_path(filename: str) -> Path:
+    """Validate *filename* and return a save path confined to WORLD_SAVES_DIR."""
+    if not _FILENAME_PATTERN.fullmatch(filename):
+        raise HTTPException(
+            status_code=400,
+            detail="filename must contain only alphanumeric characters, hyphens, and underscores",
+        )
+
+    saves_root = WORLD_SAVES_DIR.resolve()
+    # False positive: *filename* is allowlisted to [a-zA-Z0-9_-]+ (no path
+    # separators or dots can be expressed) and the result is containment-
+    # checked against WORLD_SAVES_DIR below. Suppressed as reviewed false
+    # positive — approved by CEO, 2026-08-21 (PR #91 review 4995091171).
+    # codeql[py/path-injection]
+    save_path = (WORLD_SAVES_DIR / f"{filename}.json").resolve()
+    if saves_root != save_path and saves_root not in save_path.parents:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    return save_path
 
 # ---------------------------------------------------------------------------
 # Module-level engine & helpers
@@ -142,8 +172,6 @@ def _build_house() -> Tuple[WorldEngine, Dict[str, str]]:
         seconds_per_tick=1.0,
         time_speed_multiplier=1.0,
     )
-    from src.simulation.environment.time_manager import TimeManager
-
     time_manager = TimeManager(
         start_day=1,
         start_hour=10,
@@ -198,9 +226,10 @@ def _build_house() -> Tuple[WorldEngine, Dict[str, str]]:
 
 def _speed_label(multiplier: float) -> str:
     """Return the label closest to the given speed multiplier."""
-    labels = {1.0: "realtime", 5.0: "fast", 20.0: "ultra", 100.0: "hyper"}
-    closest = min(labels, key=lambda v: abs(v - multiplier))
-    return labels[closest]
+    return min(
+        TIME_SPEED_MULTIPLIERS,
+        key=lambda label: abs(TIME_SPEED_MULTIPLIERS[label] - multiplier),
+    )
 
 
 def _time_state(engine: WorldEngine) -> TimeStateResponse:
@@ -210,6 +239,8 @@ def _time_state(engine: WorldEngine) -> TimeStateResponse:
         hour=tm.hour,
         minute=tm.minute,
         is_daytime=tm.is_daytime,
+        day_of_week=tm.day_of_week,
+        weekend=tm.weekend,
         total_minutes_elapsed=tm.total_minutes_elapsed,
         speed_multiplier=tm.speed_multiplier,
         speed_label=_speed_label(tm.speed_multiplier),
@@ -252,7 +283,6 @@ def _serialize_sim_summary(entity: Entity, engine: WorldEngine) -> SimSummaryRes
     pos = registry.get_component(entity, Position)
     schedule = registry.get_component(entity, ScheduleComponent)
     needs = registry.get_component(entity, NeedsComponent)
-    controller = registry.get_component(entity, AgentController)
 
     room = "unknown"
     room_comp = registry.get_component(entity, RoomComponent)
@@ -263,12 +293,16 @@ def _serialize_sim_summary(entity: Entity, engine: WorldEngine) -> SimSummaryRes
     if needs is not None:
         needs_summary = {k.value: v for k, v in needs.needs.items()}
 
+    activity = "idle"
+    if schedule is not None and schedule.current_activity:
+        activity = schedule.current_activity
+
     return SimSummaryResponse(
         sim_id=entity.entity_id,
         name=_get_sim_name(entity.entity_id),
         position=_position_response(pos) if pos else PositionResponse(x=0, y=0, z=0),
         room=room,
-        current_activity=schedule.current_activity or "idle" if schedule else "idle",
+        current_activity=activity,
         needs_summary=needs_summary,
     )
 
@@ -299,17 +333,21 @@ def _serialize_sim_detail(entity: Entity, engine: WorldEngine) -> SimDetailRespo
             "interaction_count": rel_comp.interaction_count,
         })
 
-    # Schedule (serialized form)
+    # Schedule
     schedule_data: Dict[str, Any] = {}
     if schedule is not None:
         schedule_data = schedule.to_dict()
+
+    activity = "idle"
+    if schedule is not None and schedule.current_activity:
+        activity = schedule.current_activity
 
     return SimDetailResponse(
         sim_id=entity.entity_id,
         name=_get_sim_name(entity.entity_id),
         position=_position_response(pos) if pos else PositionResponse(x=0, y=0, z=0),
         room=room,
-        current_activity=schedule.current_activity or "idle" if schedule else "idle",
+        current_activity=activity,
         needs=full_needs,
         mood=_mood_from_needs(full_needs),
         weekend=schedule.weekend if schedule else False,
@@ -349,8 +387,7 @@ def _serialize_room(room_name: str, engine: WorldEngine) -> RoomResponse:
 
         # Sims in this room
         elif _is_sim(entity, registry):
-            sim_name = _get_sim_name(entity.entity_id)
-            occupants.append(sim_name)
+            occupants.append(_get_sim_name(entity.entity_id))
 
     return RoomResponse(
         name=room_name,
@@ -404,7 +441,10 @@ def shutdown_world_engine() -> None:
     global _ticker_stop, _ticker_thread
     if _ticker_stop is not None:
         _ticker_stop.set()
+    thread = _ticker_thread
     _ticker_thread = None
+    if thread is not None and thread.is_alive():
+        thread.join(timeout=2.0)
 
 
 @asynccontextmanager
@@ -419,13 +459,21 @@ def _ticker_loop() -> None:
     """Run simulation steps on a fixed real-time interval."""
     assert _ticker_stop is not None
     assert _world_engine is not None
+    last_error_log = 0.0
     while not _ticker_stop.wait(1.0):
         try:
             with _engine_lock:
                 if _world_engine.current_state == SimulationState.RUNNING:
                     _world_engine.run_simulation_step()
         except Exception:
-            pass
+            # Keep the ticker alive, but surface failures (rate-limited so a
+            # persistently broken step does not flood the logs at 1/sec).
+            now = time.monotonic()
+            if now - last_error_log >= 30.0:
+                last_error_log = now
+                logger.exception(
+                    "World tick failed (suppressing similar errors for 30s)"
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -448,10 +496,15 @@ async def get_world_state(engine: WorldEngine = Depends(get_engine)):
         rooms = [_serialize_room(name, engine) for name in room_names]
 
         sims: List[SimSummaryResponse] = []
-        for entity in engine.registry.get_entities_with(AgentController, Position, ScheduleComponent):
+        for entity in engine.registry.get_entities_with(
+            AgentController, Position, ScheduleComponent
+        ):
             sims.append(_serialize_sim_summary(entity, engine))
 
-        entities = [_serialize_entity_summary(e, engine.registry) for e in engine.registry.get_entities()]
+        entities = [
+            _serialize_entity_summary(e, engine.registry)
+            for e in engine.registry.get_entities()
+        ]
 
     return WorldStateResponse(
         simulation_id=engine.simulation_id,
@@ -511,7 +564,7 @@ async def set_speed(
     body: TimeSpeedRequest,
     engine: WorldEngine = Depends(get_engine),
 ):
-    """Set the time acceleration multiplier (realtime=1x, fast=5x, ultra=20x)."""
+    """Set the time acceleration multiplier (realtime=1x, fast=5x, ultra=20x, hyper=100x)."""
     lower = body.speed.lower().strip()
     if lower not in TIME_SPEED_MULTIPLIERS:
         raise HTTPException(
@@ -541,7 +594,9 @@ async def list_sims(engine: WorldEngine = Depends(get_engine)):
     with _engine_lock:
         sims = [
             _serialize_sim_summary(e, engine)
-            for e in engine.registry.get_entities_with(AgentController, Position, ScheduleComponent)
+            for e in engine.registry.get_entities_with(
+                AgentController, Position, ScheduleComponent
+            )
         ]
     return sims
 
@@ -590,14 +645,7 @@ async def save_world(
     engine: WorldEngine = Depends(get_engine),
 ):
     """Persist the current world state as a JSON file in ``data/world_saves/``."""
-    # Validate filename — reject path traversal and disallowed characters
-    if not re.match(r"^[a-zA-Z0-9_\-]+$", body.filename):
-        raise HTTPException(
-            status_code=400,
-            detail="filename must contain only alphanumeric characters, hyphens, and underscores",
-        )
-
-    save_path = WORLD_SAVES_DIR / f"{body.filename}.json"
+    save_path = _validated_save_path(body.filename)
 
     with _engine_lock:
         state_json = engine.save_state()
@@ -608,7 +656,12 @@ async def save_world(
     state_json = json.dumps(state, indent=2)
 
     try:
+        # False positive: save_path confined by _validated_save_path() (allowlist
+        # + containment check). Suppressed — CEO approved, 2026-08-21.
+        # codeql[py/path-injection]
         save_path.parent.mkdir(parents=True, exist_ok=True)
+        # False positive: see _validated_save_path() containment guarantee.
+        # codeql[py/path-injection]
         save_path.write_text(state_json, encoding="utf-8")
     except OSError as e:
         raise HTTPException(status_code=500, detail=f"Failed to write save file: {e}")
@@ -626,13 +679,10 @@ async def load_world(
     engine: WorldEngine = Depends(get_engine),
 ):
     """Load a previously saved world state from ``data/world_saves/``."""
-    if not re.match(r"^[a-zA-Z0-9_\-]+$", body.filename):
-        raise HTTPException(
-            status_code=400,
-            detail="filename must contain only alphanumeric characters, hyphens, and underscores",
-        )
-
-    save_path = WORLD_SAVES_DIR / f"{body.filename}.json"
+    save_path = _validated_save_path(body.filename)
+    # False positive: save_path confined by _validated_save_path() (allowlist
+    # + containment check). Suppressed — CEO approved, 2026-08-21.
+    # codeql[py/path-injection]
     if not save_path.exists():
         raise HTTPException(
             status_code=404,
@@ -640,6 +690,8 @@ async def load_world(
         )
 
     try:
+        # False positive: see _validated_save_path() containment guarantee.
+        # codeql[py/path-injection]
         raw = save_path.read_text(encoding="utf-8")
         state = json.loads(raw)
     except json.JSONDecodeError as e:

@@ -1,172 +1,137 @@
 """
 Time Manager
 
-Manages a 24-hour in-simulation day with configurable acceleration.
-Tracks day number, hour (0-23), minute (0-59), and day/night status.
-Emits time change events via callbacks.
+Manages the simulation's in-game clock: day-of-week, current hour/minute,
+day/night cycle, and the speed multiplier that controls how fast
+game time flows relative to real (wall-clock) time.
+
+A speed_multiplier of 1.0 means one real second equals one game minute.
+Higher values accelerate game time proportionally.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional
-from enum import Enum
-
-
-class TimeSpeed(Enum):
-    """Preset speed multipliers for the simulation."""
-    REALTIME = 1
-    FAST = 5
-    ULTRA = 20
-    HYPER = 100
+from typing import Dict, Any
 
 
 @dataclass
-class TimeChangeEvent:
-    """Event data emitted when time changes."""
-    day: int
-    hour: int
-    minute: int
-    is_daytime: bool
-    total_minutes_elapsed: int
-
-
 class TimeManager:
-    """
-    Manages the simulation time with a 24-hour day cycle.
-    
-    Default speed: 1 real second = 1 sim minute (24h sim day = 24 real minutes).
-    Supports acceleration via speed multiplier.
-    """
+    """Tracks and advances the simulation's in-game time."""
 
-    DAY_START_HOUR = 6  # 6:00 AM = day starts
-    DAY_END_HOUR = 20   # 8:00 PM = night starts
-    MINUTES_PER_HOUR = 60
-    HOURS_PER_DAY = 24
-    MINUTES_PER_DAY = HOURS_PER_DAY * MINUTES_PER_HOUR
+    start_day: int = 1
+    start_hour: int = 0
+    start_minute: int = 0
+    speed_multiplier: float = 1.0
 
-    def __init__(
-        self,
-        start_day: int = 1,
-        start_hour: int = 6,
-        start_minute: int = 0,
-        speed_multiplier: float = 1.0,
-    ):
-        self._total_minutes = start_day * self.MINUTES_PER_DAY + start_hour * self.MINUTES_PER_HOUR + start_minute
-        self._speed_multiplier = speed_multiplier
-        self._listeners: List[Callable[[TimeChangeEvent], None]] = []
+    def __post_init__(self) -> None:
+        self._clamp_init_values()
+        self._total_minutes_elapsed: int = (
+            (self.start_day - 1) * 1440
+            + self.start_hour * 60
+            + self.start_minute
+        )
+        self._sync_calendar()
+
+    # -- public state (kept in sync with _total_minutes_elapsed) ---------------
 
     @property
     def day(self) -> int:
-        return self._total_minutes // self.MINUTES_PER_DAY
+        return self._day
 
     @property
     def hour(self) -> int:
-        return (self._total_minutes % self.MINUTES_PER_DAY) // self.MINUTES_PER_HOUR
+        return self._hour
 
     @property
     def minute(self) -> int:
-        return self._total_minutes % self.MINUTES_PER_HOUR
-
-    @property
-    def is_daytime(self) -> bool:
-        return self.DAY_START_HOUR <= self.hour < self.DAY_END_HOUR
+        return self._minute
 
     @property
     def total_minutes_elapsed(self) -> int:
-        return self._total_minutes
+        return self._total_minutes_elapsed
 
     @property
-    def speed_multiplier(self) -> float:
-        return self._speed_multiplier
+    def is_daytime(self) -> bool:
+        """True when the in-game hour is between 6 AM and 8 PM (exclusive)."""
+        return 6 <= self._hour < 20
 
-    @speed_multiplier.setter
-    def speed_multiplier(self, value: float) -> None:
-        self._speed_multiplier = max(0.1, value)
+    @property
+    def day_of_week(self) -> str:
+        names = [
+            "Monday", "Tuesday", "Wednesday", "Thursday",
+            "Friday", "Saturday", "Sunday",
+        ]
+        return names[(self._day - 1) % 7]
+
+    @property
+    def weekend(self) -> bool:
+        """True on Saturday (day-of-week index 5) or Sunday (index 6)."""
+        return (self._day - 1) % 7 >= 5
+
+    # -- mutation --------------------------------------------------------------
 
     def advance(self, minutes: float) -> None:
-        """Advance simulation time by the given number of minutes."""
-        old_day = self.day
-        old_hour = self.hour
-        old_minute = self.minute
-        old_is_daytime = self.is_daytime
+        """Advance the clock by *minutes* game-time minutes."""
+        self._total_minutes_elapsed += int(round(minutes))
+        self._sync_calendar()
 
-        self._total_minutes += int(minutes)
-        self._total_minutes = max(0, self._total_minutes)
+    def set_time(self, hour: int, minute: int) -> None:
+        """Set the clock to *hour*:*minute* on the current in-game day."""
+        if not (0 <= hour <= 23):
+            raise ValueError(f"hour must be in 0-23, got {hour}")
+        if not (0 <= minute <= 59):
+            raise ValueError(f"minute must be in 0-59, got {minute}")
+        days_elapsed = self._total_minutes_elapsed // 1440
+        self._total_minutes_elapsed = days_elapsed * 1440 + hour * 60 + minute
+        self._sync_calendar()
 
-        if (
-            self.day != old_day
-            or self.hour != old_hour
-            or self.minute != old_minute
-            or self.is_daytime != old_is_daytime
-        ):
-            self._emit_event()
+    def set_speed(self, multiplier: float) -> None:
+        """Set the speed multiplier (must be positive)."""
+        if multiplier <= 0:
+            raise ValueError("speed_multiplier must be positive")
+        self.speed_multiplier = multiplier
 
-    def set_time(self, hour: int, minute: int = 0) -> None:
-        """Set the simulation time to a specific hour and minute on the current day."""
-        old_day = self.day
-        old_hour = self.hour
-        old_minute = self.minute
-        old_is_daytime = self.is_daytime
+    # -- serialization --------------------------------------------------------
 
-        self._total_minutes = self.day * self.MINUTES_PER_DAY + hour * self.MINUTES_PER_HOUR + minute
-
-        if (
-            self.hour != old_hour
-            or self.minute != old_minute
-            or self.is_daytime != old_is_daytime
-        ):
-            self._emit_event()
-
-    def advance_by_tick(self, seconds_per_tick: float) -> None:
-        """
-        Advance time by one simulation tick.
-        
-        Calculates sim minutes elapsed as: seconds_per_tick * speed_multiplier.
-        """
-        sim_minutes = seconds_per_tick * self._speed_multiplier
-        self.advance(sim_minutes)
-
-    def add_listener(self, callback: Callable[[TimeChangeEvent], None]) -> None:
-        """Register a callback to be invoked on time change events."""
-        self._listeners.append(callback)
-
-    def remove_listener(self, callback: Callable[[TimeChangeEvent], None]) -> None:
-        """Unregister a previously registered callback."""
-        if callback in self._listeners:
-            self._listeners.remove(callback)
-
-    def _emit_event(self) -> None:
-        """Notify all registered listeners of the time change."""
-        event = TimeChangeEvent(
-            day=self.day,
-            hour=self.hour,
-            minute=self.minute,
-            is_daytime=self.is_daytime,
-            total_minutes_elapsed=self.total_minutes_elapsed,
-        )
-        for callback in self._listeners:
-            try:
-                callback(event)
-            except Exception:
-                pass
-
-    def to_dict(self) -> Dict:
-        """Serialize state to a dictionary."""
+    def to_dict(self) -> Dict[str, Any]:
         return {
-            "total_minutes": self._total_minutes,
-            "speed_multiplier": self._speed_multiplier,
+            "day": self._day,
+            "hour": self._hour,
+            "minute": self._minute,
+            "speed_multiplier": self.speed_multiplier,
+            "total_minutes_elapsed": self._total_minutes_elapsed,
+            "start_day": self.start_day,
+            "start_hour": self.start_hour,
+            "start_minute": self.start_minute,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "TimeManager":
-        """Deserialize state from a dictionary."""
-        total_minutes = data.get("total_minutes", 0)
-        speed_multiplier = data.get("speed_multiplier", 1.0)
-        day = total_minutes // cls.MINUTES_PER_DAY
-        hour = (total_minutes % cls.MINUTES_PER_DAY) // cls.MINUTES_PER_HOUR
-        minute = total_minutes % cls.MINUTES_PER_HOUR
-        return cls(
-            start_day=day,
-            start_hour=hour,
-            start_minute=minute,
-            speed_multiplier=speed_multiplier,
+    def from_dict(cls, data: Dict[str, Any]) -> "TimeManager":
+        tm = cls(
+            start_day=data.get("start_day", 1),
+            start_hour=data.get("start_hour", 0),
+            start_minute=data.get("start_minute", 0),
+            speed_multiplier=data.get("speed_multiplier", 1.0),
         )
+        tm._total_minutes_elapsed = data.get(
+            "total_minutes_elapsed", tm._total_minutes_elapsed
+        )
+        tm._sync_calendar()
+        if "speed_multiplier" in data:
+            tm.speed_multiplier = data["speed_multiplier"]
+        return tm
+
+    # -- internals -------------------------------------------------------------
+
+    def _clamp_init_values(self) -> None:
+        if self.start_day < 1:
+            self.start_day = 1
+        self.start_hour = max(0, min(23, self.start_hour))
+        self.start_minute = max(0, min(59, self.start_minute))
+
+    def _sync_calendar(self) -> None:
+        total = self._total_minutes_elapsed
+        self._day = total // 1440 + 1
+        remainder = total % 1440
+        self._hour = remainder // 60
+        self._minute = remainder % 60

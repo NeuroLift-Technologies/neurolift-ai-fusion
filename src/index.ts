@@ -1,10 +1,3 @@
-/**
- * NeuroLift World Engine Worker
- *
- * Cloudflare Durable Object that runs the simulation world engine.
- * Handles WebSocket connections for real-time agent interaction,
- * spatial queries via GridManager, and entity movement via MovementSystem.
- */
 import { Registry, Entity, Position, AgentController, System } from "./ecs";
 import { GridManager } from "./world_map";
 

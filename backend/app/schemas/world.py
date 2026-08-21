@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 
 
 # ---------------------------------------------------------------------------
-# Time speed enum
+# Time speed
 # ---------------------------------------------------------------------------
 
 
@@ -23,12 +23,14 @@ class TimeSpeed(str, Enum):
     REALTIME = "realtime"
     FAST = "fast"
     ULTRA = "ultra"
+    HYPER = "hyper"
 
 
 TIME_SPEED_MULTIPLIERS: Dict[str, float] = {
     "realtime": 1.0,
     "fast": 5.0,
     "ultra": 20.0,
+    "hyper": 100.0,
 }
 
 
@@ -55,7 +57,7 @@ class TimeSpeedRequest(BaseModel):
 
     speed: str = Field(
         ...,
-        description="Time speed: 'realtime', 'fast', or 'ultra'",
+        description="Time speed: 'realtime', 'fast', 'ultra', or 'hyper'",
     )
 
 
@@ -91,6 +93,8 @@ class TimeStateResponse(BaseModel):
     hour: int
     minute: int
     is_daytime: bool
+    day_of_week: str
+    weekend: bool
     total_minutes_elapsed: int
     speed_multiplier: float
     speed_label: str

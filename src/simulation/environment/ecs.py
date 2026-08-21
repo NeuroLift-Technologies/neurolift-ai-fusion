@@ -9,7 +9,6 @@ with entities using rich object-oriented logic.
 
 import uuid
 from typing import Any, Dict, List, Type, TypeVar, Optional, Set, cast
-import importlib
 
 T = TypeVar('T', bound='Component')
 
@@ -102,6 +101,14 @@ class Registry:
                 result.append(entity)
         return result
 
+    def get_entities(self) -> List[Entity]:
+        """Return all entities in the registry."""
+        return list(self._entities)
+
+    def get_component_types(self) -> List[Type[Component]]:
+        """Return a list of all component types currently registered."""
+        return list(self._components.keys())
+
     def register_system(self, system: System) -> None:
         """Register a system to be processed during ticks."""
         system.set_registry(self)
@@ -111,14 +118,6 @@ class Registry:
         """Run all systems."""
         for system in self._systems:
             system.update(delta_time)
-
-    def get_entities(self) -> List[Entity]:
-        """Return all entities in the registry."""
-        return list(self._entities)
-
-    def get_component_types(self) -> List[Type[Component]]:
-        """Return all registered component types."""
-        return list(self._components.keys())
 
 # --- Standard Core Components ---
 
@@ -147,10 +146,3 @@ class AgentController(Component):
         self.agent_id = agent_id
         self.current_intent: Optional[Dict[str, Any]] = None
         self.intent_progress: float = 0.0
-
-
-class UnknownComponent(Component):
-    """Fallback for component types that cannot be dynamically imported."""
-    def __init__(self, component_type: str, data: Dict[str, Any]):
-        self.component_type = component_type
-        self.data = data

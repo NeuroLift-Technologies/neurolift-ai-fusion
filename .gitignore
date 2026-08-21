@@ -81,6 +81,8 @@ Thumbs.db
 # Node / pnpm
 node_modules/
 .pnpm-store/
+# Root lockfile intentionally omitted to avoid workspace lockfile conflicts
+package-lock.json
 
 # Vite / React build output
 apps/web/dist/

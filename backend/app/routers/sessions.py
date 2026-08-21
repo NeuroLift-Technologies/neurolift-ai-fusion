@@ -5,7 +5,7 @@ Start, monitor, and retrieve training sessions.
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 router = APIRouter()
@@ -67,7 +67,7 @@ async def create_session(body: SessionCreate):
         "scenario_id": body.scenario_id,
         "session_type": body.session_type,
         "status": "active",
-        "started_at": datetime.utcnow().isoformat(),
+        "started_at": datetime.now(timezone.utc).isoformat(),
         "ended_at": None,
         "task_results": [],
         "coaching_actions": [],
@@ -99,7 +99,7 @@ async def record_task_result(session_id: str, body: TaskResultPayload):
         "aide_interventions": body.aide_interventions,
         "emotional_state": body.emotional_state,
         "cognitive_load": body.cognitive_load,
-        "recorded_at": datetime.utcnow().isoformat(),
+        "recorded_at": datetime.now(timezone.utc).isoformat(),
     }
     session["task_results"].append(result)
     return session
@@ -111,7 +111,7 @@ async def complete_session(session_id: str):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     session["status"] = "completed"
-    session["ended_at"] = datetime.utcnow().isoformat()
+    session["ended_at"] = datetime.now(timezone.utc).isoformat()
     return session
 
 

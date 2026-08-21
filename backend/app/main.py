@@ -3,15 +3,9 @@ NeuroLift AI-Fusion — FastAPI Backend
 Exposes the simulation engine as a REST API consumed by the web and mobile apps.
 """
 import os
-import sys
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
 
 from .routers import avatars, aides, sessions, fusion, scenarios, health, world
 
