@@ -511,7 +511,7 @@ async def set_speed(
     body: TimeSpeedRequest,
     engine: WorldEngine = Depends(get_engine),
 ):
-    """Set the time acceleration multiplier (realtime=1x, fast=5x, ultra=20x)."""
+    """Set the time acceleration multiplier (realtime=1x, fast=5x, ultra=20x, hyper=100x)."""
     lower = body.speed.lower().strip()
     if lower not in TIME_SPEED_MULTIPLIERS:
         raise HTTPException(

@@ -23,12 +23,14 @@ class TimeSpeed(str, Enum):
     REALTIME = "realtime"
     FAST = "fast"
     ULTRA = "ultra"
+    HYPER = "hyper"
 
 
 TIME_SPEED_MULTIPLIERS: Dict[str, float] = {
     "realtime": 1.0,
     "fast": 5.0,
     "ultra": 20.0,
+    "hyper": 100.0,
 }
 
 
