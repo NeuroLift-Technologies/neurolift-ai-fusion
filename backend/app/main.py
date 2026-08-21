@@ -3,11 +3,17 @@ NeuroLift AI-Fusion — FastAPI Backend
 Exposes the simulation engine as a REST API consumed by the web and mobile apps.
 """
 import os
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import avatars, aides, sessions, fusion, scenarios, health
+_project_root = Path(__file__).resolve().parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from .routers import avatars, aides, sessions, fusion, scenarios, health, world
 
 app = FastAPI(
     title="NeuroLift AI-Fusion API",
@@ -19,6 +25,7 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
+    lifespan=world.lifespan,
 )
 
 # ---------------------------------------------------------------------------
@@ -53,3 +60,4 @@ app.include_router(aides.router, prefix="/api/aides", tags=["Aides"])
 app.include_router(sessions.router, prefix="/api/sessions", tags=["Training Sessions"])
 app.include_router(fusion.router, prefix="/api/fusion", tags=["Fusion"])
 app.include_router(scenarios.router, prefix="/api/scenarios", tags=["Scenarios"])
+app.include_router(world.router, prefix="/api/world", tags=["World"])
