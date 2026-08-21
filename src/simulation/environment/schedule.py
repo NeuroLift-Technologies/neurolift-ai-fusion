@@ -428,7 +428,7 @@ class IdleBehavior:
             pos = self.registry.get_component(ent, Position)
             if pos is None:
                 continue
-            dist = max(abs(pos.x - sim_position.x), abs(pos.y - sim_position.y))
+            dist = abs(pos.x - sim_position.x) + abs(pos.y - sim_position.y)
             if dist <= self.vision_radius:
                 results.append(ent)
         return results
@@ -621,8 +621,10 @@ class ScheduleSystem(System):
 
         sim_id = sim.entity_id
 
-        # Keep the weekend flag in sync with the simulated day.
-        schedule_comp.weekend = is_weekend(self.time_manager.day)
+        # Keep the weekend flag in sync with the simulated day, without
+        # clobbering manual overrides set within the same tick batch.
+        if schedule_comp.weekend != is_weekend(self.time_manager.day):
+            schedule_comp.weekend = is_weekend(self.time_manager.day)
 
         entry = schedule_comp.schedule.get_entry_for_hour(current_hour)
         effective_activity = entry.activity if entry is not None else "idle"
@@ -674,6 +676,8 @@ class ScheduleSystem(System):
         )
         if at_destination:
             self._fulfill_need(sim, entry, target_entity=target_entity)
+            controller.current_intent = None
+            controller.intent_progress = 0.0
         else:
             # Not at the required furniture/room — queue a move if idle.
             if controller.current_intent is None:
