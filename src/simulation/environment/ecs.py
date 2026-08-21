@@ -101,6 +101,14 @@ class Registry:
                 result.append(entity)
         return result
 
+    def get_entities(self) -> List[Entity]:
+        """Return all entities in the registry."""
+        return list(self._entities)
+
+    def get_component_types(self) -> List[Type[Component]]:
+        """Return a list of all component types currently registered."""
+        return list(self._components.keys())
+
     def register_system(self, system: System) -> None:
         """Register a system to be processed during ticks."""
         system.set_registry(self)
