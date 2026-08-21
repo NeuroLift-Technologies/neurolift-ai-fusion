@@ -96,6 +96,11 @@ def _validated_save_path(filename: str) -> Path:
         )
 
     saves_root = WORLD_SAVES_DIR.resolve()
+    # False positive: *filename* is allowlisted to [a-zA-Z0-9_-]+ (no path
+    # separators or dots can be expressed) and the result is containment-
+    # checked against WORLD_SAVES_DIR below. Suppressed as reviewed false
+    # positive — approved by CEO, 2026-08-21 (PR #91 review 4995091171).
+    # codeql[py/uncontrolled-data-used-in-path-expression]
     save_path = (WORLD_SAVES_DIR / f"{filename}.json").resolve()
     if saves_root != save_path and saves_root not in save_path.parents:
         raise HTTPException(status_code=400, detail="Invalid filename")
@@ -651,7 +656,12 @@ async def save_world(
     state_json = json.dumps(state, indent=2)
 
     try:
+        # False positive: save_path confined by _validated_save_path() (allowlist
+        # + containment check). Suppressed — CEO approved, 2026-08-21.
+        # codeql[py/uncontrolled-data-used-in-path-expression]
         save_path.parent.mkdir(parents=True, exist_ok=True)
+        # False positive: see _validated_save_path() containment guarantee.
+        # codeql[py/uncontrolled-data-used-in-path-expression]
         save_path.write_text(state_json, encoding="utf-8")
     except OSError as e:
         raise HTTPException(status_code=500, detail=f"Failed to write save file: {e}")
@@ -670,6 +680,9 @@ async def load_world(
 ):
     """Load a previously saved world state from ``data/world_saves/``."""
     save_path = _validated_save_path(body.filename)
+    # False positive: save_path confined by _validated_save_path() (allowlist
+    # + containment check). Suppressed — CEO approved, 2026-08-21.
+    # codeql[py/uncontrolled-data-used-in-path-expression]
     if not save_path.exists():
         raise HTTPException(
             status_code=404,
@@ -677,6 +690,8 @@ async def load_world(
         )
 
     try:
+        # False positive: see _validated_save_path() containment guarantee.
+        # codeql[py/uncontrolled-data-used-in-path-expression]
         raw = save_path.read_text(encoding="utf-8")
         state = json.loads(raw)
     except json.JSONDecodeError as e:
