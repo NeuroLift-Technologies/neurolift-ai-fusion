@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { PointerEvent } from "react";
+import type { KeyboardEvent, PointerEvent } from "react";
 
 import type { Furniture, Room, SimSummary, WorldState } from "./types";
 import { minimumNeed, simColor, simPosition } from "./useWorldPolling";
@@ -10,6 +10,8 @@ interface WorldViewProps {
   state: WorldState | null;
   selectedSimId: string | null;
   onSelectSim: (sim: SimSummary) => void;
+  /** Called when the user deselects via Escape. */
+  onDeselect?: () => void;
   className?: string;
 }
 
@@ -32,6 +34,12 @@ interface LerpState {
   to: Map<string, { x: number; y: number }>;
   start: number;
   duration: number;
+}
+
+/** Keyboard cursor position in grid coordinates. */
+interface GridCursor {
+  gx: number;
+  gy: number;
 }
 
 const ROOM_COLORS: Record<string, string> = {
@@ -380,6 +388,26 @@ function polarToCartesian(
   };
 }
 
+// Draw the keyboard cursor as a dashed highlight around a grid cell.
+function drawCursor(
+  ctx: CanvasRenderingContext2D,
+  cursor: GridCursor,
+  layout: Layout,
+): void {
+  const x = layout.originX + cursor.gx * layout.cellSize;
+  const y = layout.originY + cursor.gy * layout.cellSize;
+  ctx.save();
+  ctx.strokeStyle = "hsl(45, 100%, 45%)";
+  ctx.lineWidth = Math.max(2, layout.cellSize * 0.08);
+  ctx.setLineDash([4, 3]);
+  ctx.strokeRect(x + 1, y + 1, layout.cellSize - 2, layout.cellSize - 2);
+  ctx.restore();
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 // Draw a rounded rectangle path then optionally fill/stroke it.
 function roundRect(
   ctx: CanvasRenderingContext2D,
@@ -411,11 +439,14 @@ export default function WorldView({
   state,
   selectedSimId,
   onSelectSim,
+  onDeselect,
   className,
 }: WorldViewProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const frameIdRef = useRef<number>(0);
+  // Keyboard cursor (grid cell); null until an arrow key is pressed.
+  const cursorRef = useRef<GridCursor | null>(null);
   const layoutRef = useRef<Layout>({
     cellSize: 0,
     originX: 0,
@@ -576,6 +607,11 @@ export default function WorldView({
       // Draw entities (non-room-tagged) furniture too — usually none extra.
     }
 
+    // Keyboard cursor highlight (drawn above rooms/furniture, below Sims).
+    if (cursorRef.current) {
+      drawCursor(ctx, cursorRef.current, layout);
+    }
+
     // Interpolated sim frames
     const lerpState = lerpRef.current;
     // Only keep the animation loop alive while a transition is in flight;
@@ -637,17 +673,13 @@ export default function WorldView({
     };
   }, []);
 
-  // Click → hit test the nearest Sim (using target positions from latest state).
-  function handlePointerDown(e: PointerEvent<HTMLDivElement>) {
+  // Shared hit-test: nearest Sim to a canvas-space point, or null when none
+  // is within selection range. Used by both pointer and keyboard selection.
+  function nearestSimAt(px: number, py: number): SimSummary | null {
     const sims = latestStateRef.current?.sims;
-    if (!sims || sims.length === 0) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+    if (!sims || sims.length === 0) return null;
     const layout = layoutRef.current;
-    if (!layout.cellSize || layout.cellSize <= 0) return;
+    if (!layout.cellSize || layout.cellSize <= 0) return null;
 
     let best: { sim: SimSummary; dist: number } | null = null;
     for (const sim of sims) {
@@ -656,16 +688,100 @@ export default function WorldView({
       if (!best || dist < best.dist) best = { sim, dist };
     }
     if (best && best.dist <= Math.max(24, layout.cellSize * 0.7)) {
-      onSelectSim(best.sim);
+      return best.sim;
     }
+    return null;
   }
+
+  // Click → hit test the nearest Sim (using target positions from latest state).
+  function handlePointerDown(e: PointerEvent<HTMLDivElement>) {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    const sim = nearestSimAt(px, py);
+    if (sim) onSelectSim(sim);
+  }
+
+  // Keyboard navigation: arrows move a grid cursor, Enter/Space selects the
+  // nearest Sim under it, Escape clears cursor + selection.
+  function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    const cfg = latestStateRef.current?.config;
+    const cols = cfg?.grid_width ?? 20;
+    const rows = cfg?.grid_height ?? 20;
+    const step = e.shiftKey ? 5 : 1;
+
+    let cursor = cursorRef.current;
+
+    switch (e.key) {
+      case "ArrowUp":
+      case "ArrowDown":
+      case "ArrowLeft":
+      case "ArrowRight": {
+        if (!cursor) {
+          cursor = { gx: Math.floor(cols / 2), gy: Math.floor(rows / 2) };
+        }
+        const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+        const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+        cursor = {
+          gx: clamp(cursor.gx + dx, 0, cols - 1),
+          gy: clamp(cursor.gy + dy, 0, rows - 1),
+        };
+        break;
+      }
+      case "Enter":
+      case " ": {
+        if (!cursor) break;
+        const layout = layoutRef.current;
+        const { cx, cy } = cellCenter(cursor.gx, cursor.gy, layout);
+        const sim = nearestSimAt(cx, cy);
+        if (sim) onSelectSim(sim);
+        break;
+      }
+      case "Escape": {
+        cursorRef.current = null;
+        onDeselect?.();
+        scheduleFrame();
+        return;
+      }
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    cursorRef.current = cursor;
+    scheduleFrame();
+  }
+
+  function simLabel(sim: SimSummary): string {
+    const needLevel = minimumNeed(sim.needs_summary);
+    return `${sim.name}, position ${sim.position.x}, ${sim.position.y}, lowest need ${Math.round(needLevel)} percent`;
+  }
+
+  const selectedSim =
+    state?.sims?.find((s) => s.sim_id === selectedSimId) ?? null;
 
   return (
     <div
       ref={containerRef}
-      className={className}
+      className={
+        className
+          ? `${className} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`
+          : "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      }
       onPointerDown={handlePointerDown}
-      style={{ width: "100%", height: "100%", touchAction: "none", cursor: "crosshair" }}
+      onKeyDown={handleKeyDown}
+      role="application"
+      aria-label="Simulation world"
+      aria-describedby="world-canvas-keyboard-help"
+      tabIndex={0}
+      style={{
+        width: "100%",
+        height: "100%",
+        touchAction: "none",
+        cursor: "crosshair",
+      }}
     >
       <canvas
         ref={canvasRef}
@@ -673,6 +789,39 @@ export default function WorldView({
         height={dimensions.h}
         style={{ display: "block", width: "100%", height: "100%" }}
       />
+      {/* Screen-reader accessible Sim list — Tab traversal with announced
+          labels; activating an entry selects that Sim. */}
+      {state && state.sims && state.sims.length > 0 && (
+        <ul aria-label="Sims in the world" className="sr-only">
+          {state.sims.map((sim) => (
+            <li key={sim.sim_id}>
+              <button
+                type="button"
+                onClick={() => onSelectSim(sim)}
+                aria-pressed={sim.sim_id === selectedSimId}
+              >
+                {simLabel(sim)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {/* Live region announcing selection changes. */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {selectedSim
+          ? `${selectedSim.name} selected`
+          : selectedSimId
+            ? "Selection cleared"
+            : ""}
+      </div>
+      {/* Keyboard help target for aria-describedby (visible copy lives in
+          the world page below the canvas). */}
+      <div id="world-canvas-keyboard-help" className="sr-only">
+        Use arrow keys to move the keyboard cursor around the grid. Hold shift
+        with an arrow key to move five cells at a time. Press Enter or space to
+        select the nearest Sim under the cursor. Press Escape to clear the
+        selection.
+      </div>
       {state && state.sims && state.sims.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
           No Sims in the world yet.

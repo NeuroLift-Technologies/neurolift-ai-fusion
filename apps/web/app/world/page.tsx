@@ -78,17 +78,24 @@ export default function WorldPage() {
       )}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="relative h-[640px] w-full min-h-[420px] rounded-lg border border-border bg-card">
-          <WorldView
-            state={state}
-            selectedSimId={selectedSim ? selectedSim.sim_id : null}
-            onSelectSim={setSelectedSim}
-          />
-          {loading && !state && (
-            <div className="absolute inset-0 flex items-center justify-center bg-card/60 text-sm text-muted-foreground">
-              Connecting to the simulation…
-            </div>
-          )}
+        <div className="flex flex-col gap-2">
+          <div className="relative h-[640px] w-full min-h-[420px] rounded-lg border border-border bg-card">
+            <WorldView
+              state={state}
+              selectedSimId={selectedSim ? selectedSim.sim_id : null}
+              onSelectSim={setSelectedSim}
+              onDeselect={() => setSelectedSim(null)}
+            />
+            {loading && !state && (
+              <div className="absolute inset-0 flex items-center justify-center bg-card/60 text-sm text-muted-foreground">
+                Connecting to the simulation…
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Keyboard: arrow keys move the cursor (Shift + arrow moves 5 cells),
+            Enter selects the nearest Sim, Escape deselects.
+          </p>
         </div>
         {detailError && (
           <p className="text-xs text-destructive" role="alert">
