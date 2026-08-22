@@ -250,7 +250,7 @@ export function HeroSection() {
         {/* CTA Button */}
         <motion.button
           type="button"
-          className="cta-gradient-border mt-8 rounded-full bg-[#F38020] px-6 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(243,128,32,0.3)] transition-shadow duration-300 hover:scale-[1.03] hover:shadow-[0_0_32px_rgba(243,128,32,0.5)] sm:px-8 sm:py-3.5 sm:text-base"
+          className="mt-8 rounded-full border-2 border-red-500 bg-black px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03] hover:bg-red-950 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] sm:px-8 sm:py-3.5 sm:text-base"
           variants={fadeUp}
           onClick={() => {
             document.getElementById("pairs")?.scrollIntoView({ behavior: "smooth" });

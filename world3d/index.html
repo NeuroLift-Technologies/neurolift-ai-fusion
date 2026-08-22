@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sims World — 3D</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { overflow: hidden; background: #0a0a1a; font-family: system-ui, sans-serif; color: #fff; }
+#canvas-container { width: 100vw; height: 100vh; }
+#ui {
+  position: fixed; top: 16px; left: 16px; z-index: 10;
+  background: rgba(10,10,30,0.85); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 16px; min-width: 220px; backdrop-filter: blur(8px);
+}
+#ui h1 { font-size: 16px; margin-bottom: 4px; }
+#ui .sub { font-size: 12px; color: #888; margin-bottom: 12px; }
+#ui .stat { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+#ui .stat .label { color: #aaa; }
+#ui .stat .value { font-weight: 600; }
+#sim-info {
+  position: fixed; bottom: 16px; left: 16px; z-index: 10;
+  background: rgba(10,10,30,0.85); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 16px; min-width: 240px; backdrop-filter: blur(8px);
+  display: none;
+}
+#sim-info h2 { font-size: 14px; margin-bottom: 8px; }
+#sim-info .need-bar {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 11px;
+}
+#sim-info .need-bar .name { width: 56px; color: #aaa; }
+#sim-info .need-bar .bar {
+  flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;
+}
+#sim-info .need-bar .bar .fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+#loading {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: #0a0a1a; z-index: 100; font-size: 14px; color: #888;
+}
+#controls {
+  position: fixed; bottom: 16px; right: 16px; z-index: 10;
+  background: rgba(10,10,30,0.85); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 12px; font-size: 11px; color: #888;
+}
+</style>
+</head>
+<body>
+<div id="loading">Loading 3D world…</div>
+<div id="canvas-container"></div>
+<div id="ui">
+  <h1>Sims World</h1>
+  <div class="sub" id="time-display">Day 1 — 10:00 AM</div>
+  <div class="stat"><span class="label">Sims</span><span class="value" id="sim-count">0</span></div>
+  <div class="stat"><span class="label">Rooms</span><span class="value" id="room-count">0</span></div>
+  <div class="stat"><span class="label">Tick</span><span class="value" id="tick-count">0</span></div>
+</div>
+<div id="sim-info">
+  <h2 id="sim-name">Sim Name</h2>
+  <div id="sim-needs"></div>
+</div>
+<div id="controls">
+  Drag to orbit · Scroll to zoom · Right-drag to pan<br>Click a Sim to inspect
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const API = 'https://neurolift-world-engine.joshdorsey.workers.dev';
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// Scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a1a);
+scene.fog = new THREE.Fog(0x0a0a1a, 50, 150);
+
+// Camera
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(25, 25, 25);
+
+// Controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.maxPolarAngle = Math.PI / 2.1;
+controls.minDistance = 5;
+controls.maxDistance = 80;
+controls.target.set(8, 0, 8);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xffeedd, 1.5);
+sunLight.position.set(20, 30, 10);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+sunLight.shadow.camera.near = 0.5;
+sunLight.shadow.camera.far = 100;
+sunLight.shadow.camera.left = -30;
+sunLight.shadow.camera.right = 30;
+sunLight.shadow.camera.top = 30;
+sunLight.shadow.camera.bottom = -30;
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x8888ff, 0.3);
+fillLight.position.set(-10, 10, -10);
+scene.add(fillLight);
+
+// Ground plane
+const groundGeo = new THREE.PlaneGeometry(100, 100);
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.9 });
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.01;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Grid helper
+const gridHelper = new THREE.GridHelper(60, 60, 0x333355, 0x222244);
+gridHelper.position.y = 0.01;
+scene.add(gridHelper);
+
+// Materials
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x2a2a4a, roughness: 0.8 });
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x3a3a6a, roughness: 0.7, transparent: true, opacity: 0.6 });
+const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x1a1a3a, roughness: 0.9, transparent: true, opacity: 0.3 });
+
+// Furniture colors
+const furnitureColors = {
+  bed: 0x6b8cae, 'night stand': 0x8b6b4a, 'alarm clock': 0xff6b6b, dresser: 0x8b6b4a,
+  fridge: 0xcccccc, stove: 0x444444, sink: 0xaaaaaa, counter: 0x888888, 'coffee maker': 0x666666, table: 0x8b6b4a,
+  couch: 0x6b4a8b, tv: 0x111111, laptop: 0x555555, 'music stereo': 0x333333, 'coffee table': 0x8b6b4a,
+  toilet: 0xffffff, shower: 0x88aacc, bathtub: 0xeeeeee, mirror: 0xaaccff,
+  desk: 0x8b6b4a, chair: 0x666666, bookcase: 0x8b6b4a, computer: 0x444444,
+};
+
+// Scene objects
+const worldGroup = new THREE.Group();
+scene.add(worldGroup);
+
+const simMeshes = new Map();
+const furnitureMeshes = [];
+let selectedSim = null;
+let worldState = null;
+
+// Raycaster for clicking
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function createFurnitureMesh(furn) {
+  const color = furnitureColors[furn.furniture_type] || 0x888888;
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.1 });
+  let mesh;
+
+  const type = furn.furniture_type;
+  if (type === 'bed') {
+    const group = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.BoxGeometry(2, 0.4, 1.2), mat);
+    base.position.y = 0.2;
+    const mattress = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.2, 1.1), new THREE.MeshStandardMaterial({ color: 0xddddee }));
+    mattress.position.y = 0.5;
+    const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.15, 0.9), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+    pillow.position.set(-0.5, 0.65, 0);
+    group.add(base, mattress, pillow);
+    mesh = group;
+  } else if (type === 'couch') {
+    const group = new THREE.Group();
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(2, 0.4, 0.8), mat);
+    seat.position.y = 0.2;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(2, 0.6, 0.2), mat);
+    back.position.set(0, 0.5, -0.3);
+    const arm1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.5, 0.8), mat);
+    arm1.position.set(-0.9, 0.35, 0);
+    const arm2 = arm1.clone();
+    arm2.position.set(0.9, 0.35, 0);
+    group.add(seat, back, arm1, arm2);
+    mesh = group;
+  } else if (type === 'tv') {
+    const group = new THREE.Group();
+    const screen = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 0.05), new THREE.MeshStandardMaterial({ color: 0x111122, emissive: 0x222244, emissiveIntensity: 0.3 }));
+    screen.position.y = 0.8;
+    const stand = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.3, 0.3), mat);
+    stand.position.y = 0.15;
+    group.add(screen, stand);
+    mesh = group;
+  } else if (type === 'fridge') {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.6, 0.6), mat);
+    mesh.position.y = 0.8;
+  } else if (type === 'stove') {
+    const group = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.6), mat);
+    body.position.y = 0.4;
+    const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.02, 16), new THREE.MeshStandardMaterial({ color: 0x222222 }));
+    burner.position.set(-0.15, 0.82, -0.15);
+    const burner2 = burner.clone(); burner2.position.set(0.15, 0.82, -0.15);
+    const burner3 = burner.clone(); burner3.position.set(-0.15, 0.82, 0.15);
+    const burner4 = burner.clone(); burner4.position.set(0.15, 0.82, 0.15);
+    group.add(body, burner, burner2, burner3, burner4);
+    mesh = group;
+  } else if (type === 'toilet') {
+    const group = new THREE.Group();
+    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.4, 16), mat);
+    bowl.position.y = 0.2;
+    const tank = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.15), mat);
+    tank.position.set(0, 0.5, -0.2);
+    group.add(bowl, tank);
+    mesh = group;
+  } else if (type === 'shower') {
+    const group = new THREE.Group();
+    const tray = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.05, 0.8), mat);
+    tray.position.y = 0.025;
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8), new THREE.MeshStandardMaterial({ color: 0x888888 }));
+    head.position.set(0, 1.5, -0.35);
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5, 8), new THREE.MeshStandardMaterial({ color: 0x888888 }));
+    bar.position.set(0, 0.75, -0.35);
+    group.add(tray, head, bar);
+    mesh = group;
+  } else if (type === 'desk' || type === 'table') {
+    const group = new THREE.Group();
+    const top = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.05, 0.7), mat);
+    top.position.y = 0.75;
+    const legGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.75, 8);
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
+    const leg1 = new THREE.Mesh(legGeo, legMat); leg1.position.set(-0.6, 0.375, -0.25);
+    const leg2 = leg1.clone(); leg2.position.set(0.6, 0.375, -0.25);
+    const leg3 = leg1.clone(); leg3.position.set(-0.6, 0.375, 0.25);
+    const leg4 = leg1.clone(); leg4.position.set(0.6, 0.375, 0.25);
+    group.add(top, leg1, leg2, leg3, leg4);
+    mesh = group;
+  } else if (type === 'chair') {
+    const group = new THREE.Group();
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.4), mat);
+    seat.position.y = 0.45;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.05), mat);
+    back.position.set(0, 0.7, -0.18);
+    const legGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.45, 8);
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
+    const leg1 = new THREE.Mesh(legGeo, legMat); leg1.position.set(-0.15, 0.225, -0.15);
+    const leg2 = leg1.clone(); leg2.position.set(0.15, 0.225, -0.15);
+    const leg3 = leg1.clone(); leg3.position.set(-0.15, 0.225, 0.15);
+    const leg4 = leg1.clone(); leg4.position.set(0.15, 0.225, 0.15);
+    group.add(seat, back, leg1, leg2, leg3, leg4);
+    mesh = group;
+  } else if (type === 'computer') {
+    const group = new THREE.Group();
+    const monitor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.03), new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0x111133, emissiveIntensity: 0.2 }));
+    monitor.position.y = 0.6;
+    const stand = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.1), mat);
+    stand.position.y = 0.3;
+    const keyboard = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.02, 0.12), new THREE.MeshStandardMaterial({ color: 0x333333 }));
+    keyboard.position.y = 0.78;
+    group.add(monitor, stand, keyboard);
+    mesh = group;
+  } else if (type === 'bookcase') {
+    const group = new THREE.Group();
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.5, 0.3), mat);
+    frame.position.y = 0.75;
+    const shelfMat = new THREE.MeshStandardMaterial({ color: 0x666666 });
+    for (let i = 0; i < 3; i++) {
+      const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.02, 0.25), shelfMat);
+      shelf.position.set(0, 0.3 + i * 0.45, 0);
+      group.add(shelf);
+    }
+    group.add(frame);
+    mesh = group;
+  } else if (type === 'laptop') {
+    const group = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.02, 0.2), mat);
+    base.position.y = 0.77;
+    const screen = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.18, 0.01), new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0x222244, emissiveIntensity: 0.3 }));
+    screen.position.set(0, 0.86, -0.09);
+    screen.rotation.x = -0.3;
+    group.add(base, screen);
+    mesh = group;
+  } else if (type === 'bathtub') {
+    const group = new THREE.Group();
+    const outer = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 1.4), mat);
+    outer.position.y = 0.25;
+    const inner = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 1.2), new THREE.MeshStandardMaterial({ color: 0xddeeff }));
+    inner.position.y = 0.3;
+    group.add(outer, inner);
+    mesh = group;
+  } else if (type === 'mirror') {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.02), new THREE.MeshStandardMaterial({ color: 0xaaccff, metalness: 0.9, roughness: 0.1 }));
+    mesh.position.y = 1.2;
+  } else if (type === 'sink') {
+    const group = new THREE.Group();
+    const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.15, 16), mat);
+    basin.position.y = 0.75;
+    const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 0.75, 8), mat);
+    pedestal.position.y = 0.375;
+    group.add(basin, pedestal);
+    mesh = group;
+  } else if (type === 'counter') {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.5), mat);
+    mesh.position.y = 0.45;
+  } else if (type === 'coffee maker') {
+    const group = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 0.2), mat);
+    body.position.y = 0.85;
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 0.12, 8), new THREE.MeshStandardMaterial({ color: 0x333333 }));
+    pot.position.set(0, 0.72, 0.05);
+    group.add(body, pot);
+    mesh = group;
+  } else if (type === 'music stereo') {
+    const group = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 0.3), mat);
+    body.position.y = 0.8;
+    const speaker1 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.4, 0.25), mat);
+    speaker1.position.set(-0.4, 0.9, 0);
+    const speaker2 = speaker1.clone();
+    speaker2.position.set(0.4, 0.9, 0);
+    group.add(body, speaker1, speaker2);
+    mesh = group;
+  } else if (type === 'night stand') {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.4), mat);
+    mesh.position.y = 0.25;
+  } else if (type === 'dresser') {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.4), mat);
+    mesh.position.y = 0.4;
+  } else if (type === 'alarm clock') {
+    mesh = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), new THREE.MeshStandardMaterial({ color: 0xff4444, emissive: 0xff2222, emissiveIntensity: 0.3 }));
+    mesh.position.y = 0.9;
+  } else {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat);
+    mesh.position.y = 0.2;
+  }
+
+  if (mesh) {
+    mesh.position.x = furn.position.x;
+    mesh.position.z = furn.position.y;
+    mesh.traverse(child => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; } });
+  }
+  return mesh;
+}
+
+function createSimMesh(sim) {
+  const group = new THREE.Group();
+  const color = new THREE.Color().setHSL(Math.random(), 0.6, 0.5);
+
+  // Body
+  const bodyGeo = new THREE.CapsuleGeometry(0.2, 0.5, 8, 16);
+  const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 0.55;
+  body.castShadow = true;
+  group.add(body);
+
+  // Head
+  const headGeo = new THREE.SphereGeometry(0.15, 16, 16);
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xffddbb, roughness: 0.6 });
+  const head = new THREE.Mesh(headGeo, headMat);
+  head.position.y = 1.0;
+  head.castShadow = true;
+  group.add(head);
+
+  // Name label (sprite)
+  const canvas = document.createElement('canvas');
+  canvas.width = 256; canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  if (typeof ctx.roundRect === 'function') { ctx.beginPath(); ctx.roundRect(0, 0, 256, 64, 8); ctx.fill(); }
+  else { ctx.fillRect(0, 0, 256, 64); }
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 28px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(sim.name, 128, 40);
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+  const sprite = new THREE.Sprite(spriteMat);
+  sprite.position.y = 1.5;
+  sprite.scale.set(1.2, 0.3, 1);
+  group.add(sprite);
+
+  group.position.x = sim.position.x;
+  group.position.z = sim.position.y;
+  group.userData = { simId: sim.sim_id, simName: sim.name };
+
+  return group;
+}
+
+function clearWorld() {
+  while (worldGroup.children.length > 0) {
+    const child = worldGroup.children[0];
+    worldGroup.remove(child);
+    child.traverse?.(c => {
+      if (c.geometry) c.geometry.dispose?.();
+      if (c.material) {
+        if (Array.isArray(c.material)) c.material.forEach(m => m.dispose?.());
+        else c.material.dispose?.();
+      }
+    });
+  }
+  simMeshes.clear();
+  furnitureMeshes.length = 0;
+}
+
+function buildWorld(state) {
+  clearWorld();
+
+  // Create rooms (floors)
+  const roomSet = new Set(state.rooms.map(r => r.name));
+  let roomIdx = 0;
+  for (const room of state.rooms) {
+    const floorGeo = new THREE.PlaneGeometry(6, 6);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setHSL(roomIdx * 0.12, 0.3, 0.2),
+      roughness: 0.8,
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(roomIdx * 7 + 3, 0.02, 3);
+    floor.receiveShadow = true;
+    worldGroup.add(floor);
+
+    // Walls
+    const wallGeo1 = new THREE.BoxGeometry(6, 2.5, 0.1);
+    const wallGeo2 = new THREE.BoxGeometry(0.1, 2.5, 6);
+    const wall1 = new THREE.Mesh(wallGeo1, wallMat);
+    wall1.position.set(roomIdx * 7 + 3, 1.25, 0);
+    wall1.castShadow = true; wall1.receiveShadow = true;
+    const wall2 = new THREE.Mesh(wallGeo1, wallMat);
+    wall2.position.set(roomIdx * 7 + 3, 1.25, 6);
+    wall2.castShadow = true; wall2.receiveShadow = true;
+    const wall3 = new THREE.Mesh(wallGeo2, wallMat);
+    wall3.position.set(roomIdx * 7, 1.25, 3);
+    wall3.castShadow = true; wall3.receiveShadow = true;
+    const wall4 = new THREE.Mesh(wallGeo2, wallMat);
+    wall4.position.set(roomIdx * 7 + 6, 1.25, 3);
+    wall4.castShadow = true; wall4.receiveShadow = true;
+    worldGroup.add(wall1, wall2, wall3, wall4);
+
+    roomIdx++;
+  }
+
+  // Create furniture
+  for (const room of state.rooms) {
+    for (const furn of room.furniture) {
+      const mesh = createFurnitureMesh(furn);
+      if (mesh) {
+        worldGroup.add(mesh);
+        furnitureMeshes.push(mesh);
+      }
+    }
+  }
+
+  // Create Sims
+  for (const sim of state.sims) {
+    const mesh = createSimMesh(sim);
+    worldGroup.add(mesh);
+    simMeshes.set(sim.sim_id, mesh);
+  }
+
+  // Update UI
+  document.getElementById('sim-count').textContent = state.sims.length;
+  document.getElementById('room-count').textContent = state.rooms.length;
+  document.getElementById('tick-count').textContent = state.tick_count;
+  updateTimeDisplay(state.time);
+}
+
+function updateTimeDisplay(time) {
+  const period = time.hour < 12 ? 'AM' : 'PM';
+  const h12 = time.hour % 12 === 0 ? 12 : time.hour % 12;
+  const mm = String(time.minute).padStart(2, '0');
+  document.getElementById('time-display').textContent = `Day ${time.day} — ${h12}:${mm} ${period}`;
+}
+
+function updateSimPositions() {
+  if (!worldState) return;
+  for (const sim of worldState.sims) {
+    const mesh = simMeshes.get(sim.sim_id);
+    if (mesh) {
+      mesh.position.x += (sim.position.x - mesh.position.x) * 0.05;
+      mesh.position.z += (sim.position.y - mesh.position.z) * 0.05;
+    }
+  }
+}
+
+function escapeHtml(str: string): string {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function updateSimInfo() {
+  if (!selectedSim || !worldState) return;
+  const sim = worldState.sims.find(s => s.sim_id === selectedSim);
+  if (!sim) return;
+
+  const infoEl = document.getElementById('sim-info');
+  const nameEl = document.getElementById('sim-name');
+  const needsEl = document.getElementById('sim-needs');
+  infoEl.style.display = 'block';
+  nameEl.textContent = sim.name;
+
+  const needs = sim.needs_summary || sim.needs || {};
+  const needColors: Record<string, string> = {
+    hunger: '#ff6b6b', hygiene: '#6bb5ff', bladder: '#ffd93d',
+    energy: '#6bff95', social: '#ff6bf0', fun: '#ffa06b'
+  };
+  needsEl.innerHTML = '';
+  for (const [key, value] of Object.entries(needs)) {
+    const color = needColors[key] || '#888';
+    const pct = Math.max(0, Math.min(100, (value as number) * 10));
+    const bar = document.createElement('div');
+    bar.className = 'need-bar';
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = key;
+    const barBg = document.createElement('div');
+    barBg.className = 'bar';
+    const fill = document.createElement('div');
+    fill.className = 'fill';
+    fill.style.width = pct + '%';
+    fill.style.background = color;
+    barBg.appendChild(fill);
+    bar.appendChild(name);
+    bar.appendChild(barBg);
+    needsEl.appendChild(bar);
+  }
+}
+
+// Click handler
+function onClick(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  const simObjects = Array.from(simMeshes.values());
+  const intersects = raycaster.intersectObjects(simObjects, true);
+  if (intersects.length > 0) {
+    let obj = intersects[0].object;
+    while (obj && !obj.userData?.simId) obj = obj.parent;
+    if (obj?.userData?.simId) {
+      selectedSim = obj.userData.simId;
+      updateSimInfo();
+    }
+  }
+}
+window.addEventListener('click', onClick);
+
+// Fetch world state
+async function fetchWorld() {
+  try {
+    const res = await fetch(`${API}/api/world/state`);
+    if (!res.ok) throw new Error('Failed to fetch');
+    const state = await res.json();
+    worldState = state;
+    buildWorld(state);
+    document.getElementById('loading').style.display = 'none';
+  } catch (err) {
+    console.error('Fetch error:', err);
+    document.getElementById('loading').textContent = 'Connection error — retrying...';
+  }
+}
+
+// Poll every 2 seconds with concurrent-execution guard
+let fetchInProgress = false;
+async function fetchWorld() {
+  if (fetchInProgress) return;
+  fetchInProgress = true;
+  try {
+    const response = await fetch(`${API}/api/world/state`);
+    const data = await response.json();
+    worldState = data;
+    if (data.sims && data.sims.length > 0) {
+      if (!simMeshes.size) {
+        buildWorld(data);
+      } else {
+        updateSimPositions();
+        document.getElementById('tick-count').textContent = data.tick_count;
+        updateTimeDisplay(data.time);
+      }
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    document.getElementById('loading').textContent = 'Connection error — retrying...';
+  } finally {
+    fetchInProgress = false;
+  }
+}
+fetchWorld();
+setInterval(fetchWorld, 2000);
+
+// Animation loop
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  updateSimPositions();
+
+  // Animate Sims (bobbing)
+  const time = Date.now() * 0.003;
+  for (const [id, mesh] of simMeshes) {
+    mesh.position.y = Math.sin(time + mesh.position.x) * 0.02;
+  }
+
+  renderer.render(scene, camera);
+}
+animate();
+
+// Resize handler
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>

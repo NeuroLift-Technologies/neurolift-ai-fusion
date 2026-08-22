@@ -51,15 +51,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <nav className="border-b border-border bg-card px-6 py-3 flex flex-wrap items-center gap-4">
-            <span className="font-bold text-brand-600 text-lg">NeuroLift</span>
-            <a href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Home</a>
-            <a href="/pairs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pair Atlas</a>
-            <a href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Dashboard</a>
-            <a href="/session/new" className="text-sm text-muted-foreground hover:text-foreground transition-colors">New Session</a>
-            <a href="/simulation-lab" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Simulation Lab</a>
-            <a href="/world" className="text-sm text-muted-foreground hover:text-foreground transition-colors">World</a>
-          </nav>
           <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
           <Toaster />
         </ThemeProvider>

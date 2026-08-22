@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Loader2, Heart, Download, Eye } from "lucide-react";
 import { toast } from "sonner";
-import { NavHeader } from "@/components/neurolift/nav-header";
 import { HeroSection } from "@/components/neurolift/hero-section";
 import { PipelineSection } from "@/components/neurolift/pipeline-section";
 import { PairsGrid } from "@/components/neurolift/pairs-grid";
@@ -183,8 +182,6 @@ export default function HomePage() {
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
-      <NavHeader onOpenShortcuts={() => setShortcutsOpen(true)} />
-
       {/* Hero */}
       <main id="main-content">
         <HeroSection />
