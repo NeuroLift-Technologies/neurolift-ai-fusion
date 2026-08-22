@@ -23,6 +23,17 @@ Architecture notes
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_for_log(value: object, max_len: int = 200) -> str:
+    """Sanitize a value for safe logging (prevent log injection via CRLF)."""
+    text = str(value) if value is not None else ""
+    sanitized = text.replace("\r", "_").replace("\n", "_")
+    if len(sanitized) > max_len:
+        sanitized = sanitized[:max_len] + "…"
+    return sanitized
+
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -403,7 +414,11 @@ class BaseAvatar(ABC):
                 self.stress_level = float(pred.get("stress_level", self.stress_level))
                 model_driven_state = True
             except Exception as exc:  # model failure must never break the sim
-                logger.warning("Avatar %s model.predict failed; using rule-based fallback: %s", self.avatar_id, exc)
+                logger.warning(
+                    "Avatar %s model.predict failed; using rule-based fallback: %s",
+                    _sanitize_for_log(self.avatar_id),
+                    _sanitize_for_log(exc),
+                )
 
         # Success probability
         base_success_rate = task_context.get("base_success_rate", 0.5)

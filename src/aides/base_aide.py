@@ -21,6 +21,18 @@ Architecture notes
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_for_log(value: object, max_len: int = 200) -> str:
+    """Sanitize a value for safe logging (prevent log injection via CRLF)."""
+    text = str(value) if value is not None else ""
+    # Replace CR/LF to prevent log injection and truncate
+    sanitized = text.replace("\r", "_").replace("\n", "_")
+    if len(sanitized) > max_len:
+        sanitized = sanitized[:max_len] + "…"
+    return sanitized
+
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -446,7 +458,11 @@ class BaseAide(ABC):
                     independence_building=float(pred.get("independence_building", 0.0)),
                 )
             except Exception as exc:
-                logger.warning("Aide %s model.predict failed; using rule-based fallback: %s", self.aide_id, exc)
+                logger.warning(
+                    "Aide %s model.predict failed; using rule-based fallback: %s",
+                    _sanitize_for_log(self.aide_id),
+                    _sanitize_for_log(exc),
+                )
 
         expertise = self.get_expertise_strategies(context)
         insights = self.get_real_world_insights(context)
