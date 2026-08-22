@@ -1,7 +1,7 @@
 ---
 name: nlt-handoff-record
 description: 'Write a complete NLT session handoff record (OTOI Section 5). Use when ending a coding session, when asked to write a handoff, create a handoff record, document session end, or prepare work for the next agent.'
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.3
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -9,7 +9,7 @@ nlt-authority: Joshua W. Dorsey, Sr.
 
 # NLT Session Handoff Record (OTOI Section 5)
 
-This skill guides agents through writing a complete **session handoff record** as required by ORG-DEV-OTOI-1.0.0 Section 5. A handoff record must be written at the end of every significant session.
+This skill guides agents through writing a complete **session handoff record** as required by ORG-DEV-OTOI-1.0.3 Section 5. A handoff record must be written at the end of every significant session.
 
 The `/handoff` slash command automates this workflow.
 
@@ -28,7 +28,7 @@ docs/agent-log/handoffs/[date]-[session-id].json
     "session_id":         "[Branch or unique identifier]",
     "agent_name":         "Claude Code",
     "date":               "[YYYY-MM-DD]",
-    "otoi_version":       "ORG-DEV-OTOI-1.0.0",
+    "otoi_version":       "ORG-DEV-OTOI-1.0.3",
     "repo":               "NeuroLift-Technologies/neurolift-ai-fusion",
     "branch":             "[branch]",
     "work_completed":     [],
@@ -50,7 +50,7 @@ docs/agent-log/handoffs/[date]-[session-id].json
 
 All fields required; use empty arrays where there is no content.
 
-- `otoi_version`: Must be `"ORG-DEV-OTOI-1.0.0"`
+- `otoi_version`: Must be `"ORG-DEV-OTOI-1.0.3"`
 - `work_completed`: Specific, concrete list (not aspirational)
 - `tests_passing`: Boolean — do not assert `true` if tests were not run
 - `files_modified`: Match the actual diff

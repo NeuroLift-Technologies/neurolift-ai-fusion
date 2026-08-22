@@ -1,7 +1,7 @@
 ---
 name: nlt-commit-format
 description: 'Format NLT agent commit messages correctly (OTOI Section 4.2). Use when writing a commit message, when asked about the NLT commit format, when a commit is flagged as non-compliant, or when preparing to commit changes in any NeuroLift Technologies repository.'
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.3
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -44,7 +44,7 @@ Validated by `.github/workflows/agent-commit-format.yml`.
 [Claude] feat(claude-template): add .claude/ canonical template
 [Claude] fix(validate-governance): correct workflow path in required-files list
 [Codex] docs(sop-001): clarify step 7 commit format requirements
-[Copilot] chore(governance): add repo governance stubs (ORG-DEV-OTOI-1.0.0)
+[Copilot] chore(governance): add repo governance stubs (ORG-DEV-OTOI-1.0.3)
 ```
 
 ## Common Mistakes

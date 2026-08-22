@@ -1,7 +1,7 @@
 ---
 name: nlt-incident-response
 description: 'Respond to a coding agent that has gone off-rails or violated NLT governance (SOP-NLT-003). Use when an agent has made unauthorized changes, committed credentials, exceeded scope, or taken irreversible actions.'
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.3
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -17,7 +17,7 @@ Use this skill immediately when an incident is detected.
 - An agent committed secrets, credentials, or sensitive data
 - An agent exceeded authorized scope
 - An agent took irreversible actions without approval
-- Behavior is inconsistent with ORG-DEV-OTOI-1.0.0
+- Behavior is inconsistent with ORG-DEV-OTOI-1.0.3
 
 ## Severity Classification
 
