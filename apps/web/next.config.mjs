@@ -6,6 +6,7 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
   webpack: (config) => {
     // Explicit @ alias — ensures @/lib/* resolves to apps/web/lib/* regardless
     // of Vercel's rootDirectory or working-directory settings.

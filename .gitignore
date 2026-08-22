@@ -111,3 +111,4 @@ pgsa-reports/
 
 # Playwright test output
 output/playwright/
+.vercel
