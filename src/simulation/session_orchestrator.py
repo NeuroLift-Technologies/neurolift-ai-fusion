@@ -201,8 +201,8 @@ class SessionOrchestrator:
                 if backend is not None:
                     versions[owner] = backend.model_version
             self._session_result.model_versions = versions
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Failed to collect model versions: %s", exc)
 
         # Optional post-session training (non-blocking when auto_train)
         if self.auto_train and self.training_pipeline is not None:

@@ -445,18 +445,21 @@ class BaseAide(ABC):
         if self.use_model and self.model is not None:
             try:
                 pred = self.model.predict(self._build_model_inputs(context))
-                return CoachingAction(
-                    coaching_type=CoachingType(pred.get("coaching_type", "preventive")),
-                    urgency=InterventionUrgency(pred.get("urgency", "low")),
-                    strategy=pred.get("strategy", ""),
-                    specific_techniques=pred.get("specific_techniques", []),
-                    expected_outcomes=[],
-                    stress_reduction=float(pred.get("stress_reduction", 0.0)),
-                    emotional_boost=float(pred.get("emotional_boost", 0.0)),
-                    cognitive_support=float(pred.get("cognitive_support", 0.0)),
-                    focus_restoration=float(pred.get("focus_restoration", 0.0)),
-                    independence_building=float(pred.get("independence_building", 0.0)),
-                )
+                if pred is None:
+                    logger.warning("Aide %s model.predict returned None", _sanitize_for_log(self.aide_id))
+                else:
+                    return CoachingAction(
+                        coaching_type=CoachingType(pred.get("coaching_type") or "preventive"),
+                        urgency=InterventionUrgency(pred.get("urgency") or "low"),
+                        strategy=pred.get("strategy") or "",
+                        specific_techniques=pred.get("specific_techniques") or [],
+                        expected_outcomes=[],
+                        stress_reduction=float(pred.get("stress_reduction") or 0.0),
+                        emotional_boost=float(pred.get("emotional_boost") or 0.0),
+                        cognitive_support=float(pred.get("cognitive_support") or 0.0),
+                        focus_restoration=float(pred.get("focus_restoration") or 0.0),
+                        independence_building=float(pred.get("independence_building") or 0.0),
+                    )
             except Exception as exc:
                 logger.warning(
                     "Aide %s model.predict failed; using rule-based fallback: %s",

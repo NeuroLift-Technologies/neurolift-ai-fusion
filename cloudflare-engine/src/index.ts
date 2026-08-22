@@ -339,7 +339,7 @@ export class WorldEngineDO {
     const rooms = Array.from(roomMap.entries()).map(([name, furniture]) => ({
       name,
       furniture,
-      occupants: simResponses.filter((s: any) => s.room === name).map((s: any) => s.name)
+      occupants: simResponses.filter((s: any) => s.room && s.room !== "world" && s.room === name).map((s: any) => s.name)
     }));
 
     const state = {
@@ -394,7 +394,12 @@ export class WorldEngineDO {
   }
 
   private async handleSetSpeed(request: Request): Promise<Response> {
-    const body = await request.json() as any;
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } });
+    }
     const speed = body.speed;
     const multipliers: Record<string, number> = { realtime: 1, fast: 5, ultra: 20, hyper: 100 };
     const mult = multipliers[speed] || 1;
