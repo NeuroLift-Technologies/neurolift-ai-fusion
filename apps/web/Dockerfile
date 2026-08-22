@@ -23,4 +23,5 @@ COPY --from=builder /app/apps/web/package.json ./package.json
 COPY --from=builder /app/apps/web/node_modules ./node_modules
 EXPOSE 3000
 ENV PORT=3000
+USER node
 CMD ["npx", "next", "start"]
