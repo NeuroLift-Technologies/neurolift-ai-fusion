@@ -19,6 +19,8 @@ Architecture notes
   without polling.
 """
 
+import logging
+logger = logging.getLogger(__name__)
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -27,6 +29,7 @@ import uuid
 from datetime import datetime, timedelta
 
 from ..core.events import EventBus, Signal, SignalType
+from ..ai import ModelBackend
 from ..core.protocols import (
     CoachingIntervention,
     InteractionChannel,
@@ -205,6 +208,10 @@ class BaseAide(ABC):
         # Event subscriptions (populated on bind)
         self._subscriptions: List[str] = []
 
+        # Bound model backend (model-aware behavior is opt-in / default OFF)
+        self.model: Optional[ModelBackend] = None
+        self.use_model: bool = False
+
         # Timestamps
         self.created_at = datetime.now()
         self.last_intervention = datetime.now()
@@ -290,6 +297,36 @@ class BaseAide(ABC):
         self._subscriptions.clear()
         self._avatar = None
         self.channel = None
+
+    def bind_model(self, model: "ModelBackend") -> None:
+        """Bind a trainable model backend; enables model-driven behavior."""
+        self.model = model
+        self.use_model = True
+
+    def unbind_model(self) -> None:
+        """Remove any bound model; revert to rule-based behavior."""
+        self.model = None
+        self.use_model = False
+
+    def _build_model_inputs(self, context: "CoachingContext") -> Dict[str, Any]:
+        from dataclasses import asdict
+
+        observation = context.observation
+        # ObservationReport is a dataclass without a to_dict(); fall back to
+        # asdict so the model always receives a plain dict (per the AIDE I/O
+        # contract) even if a future ObservationReport gains a custom serializer.
+        observation_dict = (
+            observation.to_dict()
+            if hasattr(observation, "to_dict")
+            else asdict(observation)
+        )
+        return {
+            "role": "aide",
+            "aide_id": self.aide_id,
+            "observation": observation_dict,
+            "task_context": context.task_context,
+            "coaching_history_summary": context.coaching_history_summary,
+        }
 
     # ------------------------------------------------------------------
     # Signal handlers (reactive coaching)
@@ -392,6 +429,24 @@ class BaseAide(ABC):
         """
         if self._requires_crisis_intervention(context.observation):
             return self._build_crisis_action()
+
+        if self.use_model and self.model is not None:
+            try:
+                pred = self.model.predict(self._build_model_inputs(context))
+                return CoachingAction(
+                    coaching_type=CoachingType(pred.get("coaching_type", "preventive")),
+                    urgency=InterventionUrgency(pred.get("urgency", "low")),
+                    strategy=pred.get("strategy", ""),
+                    specific_techniques=pred.get("specific_techniques", []),
+                    expected_outcomes=[],
+                    stress_reduction=float(pred.get("stress_reduction", 0.0)),
+                    emotional_boost=float(pred.get("emotional_boost", 0.0)),
+                    cognitive_support=float(pred.get("cognitive_support", 0.0)),
+                    focus_restoration=float(pred.get("focus_restoration", 0.0)),
+                    independence_building=float(pred.get("independence_building", 0.0)),
+                )
+            except Exception as exc:
+                logger.warning("Aide %s model.predict failed; using rule-based fallback: %s", self.aide_id, exc)
 
         expertise = self.get_expertise_strategies(context)
         insights = self.get_real_world_insights(context)

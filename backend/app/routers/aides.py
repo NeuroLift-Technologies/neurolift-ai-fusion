@@ -4,10 +4,21 @@ CRUD for Aide coaching instances.
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import uuid
 
+from src.ai.registry import get_registry
+
 router = APIRouter()
+
+
+class ModelBind(BaseModel):
+    """Bind a model backend to an avatar/aide."""
+    type: str
+    checkpoint_path: Optional[str] = None
+    model_name: Optional[str] = None
+    base_url: Optional[str] = None
+    api_key_env: Optional[str] = None
 
 # ---------------------------------------------------------------------------
 # Schemas
@@ -69,3 +80,26 @@ async def delete_aide(aide_id: str):
     if aide_id not in _aides:
         raise HTTPException(status_code=404, detail="Aide not found")
     del _aides[aide_id]
+
+
+@router.post("/{aide_id}/bind-model", summary="Bind a model backend to an aide")
+async def bind_aide_model(aide_id: str, body: ModelBind):
+    reg = get_registry()
+    backend = reg.build_backend({
+        "type": body.type,
+        "kind": "aide",
+        "checkpoint_path": body.checkpoint_path,
+        "model_name": body.model_name,
+        "base_url": body.base_url,
+        "api_key_env": body.api_key_env,
+    })
+    reg.register(aide_id, backend)
+    reg.bind_config(aide_id, body.model_dump())
+    return backend.to_metadata()
+
+
+@router.delete("/{aide_id}/model", summary="Unbind a model from an aide")
+async def unbind_aide_model(aide_id: str):
+    reg = get_registry()
+    reg.unregister(aide_id)
+    return {"aide_id": aide_id, "status": "unbound"}
