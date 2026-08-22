@@ -438,7 +438,7 @@ def init_world_engine() -> WorldEngine:
 
 def shutdown_world_engine() -> None:
     """Stop the background ticker."""
-    global _ticker_stop, _ticker_thread
+    global _ticker_thread
     if _ticker_stop is not None:
         _ticker_stop.set()
     thread = _ticker_thread
