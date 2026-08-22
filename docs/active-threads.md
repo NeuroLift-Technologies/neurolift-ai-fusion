@@ -1,7 +1,7 @@
 # Active Threads — neurolift-ai-fusion
 
 **Governance:** ORG-DEV-OTOI-1.0.0
-**Last updated:** 2026-08-20
+**Last updated:** 2026-08-22
 **Maintained by:** All active agents (update at session start and end)
 
 ---
@@ -52,6 +52,7 @@ _No blocked threads at this time._
 | TH-017 | Restore missing web lib modules and clear current diagnostics | Zed GPT-5.6 Sol | 2026-08-20 | `docs/agent-log/handoffs/ZED-GPT-5.6-SOL-2026-08-20-web-lib-repair-and-diagnostics-handoff.json` |
 | TH-018 | Web validation follow-up + /pairs src/app route re-export fix | Zed GPT-5.6 Sol | 2026-08-20 | `docs/agent-log/handoffs/ZED-GPT-5.6-SOL-2026-08-20-web-validation-followup-handoff.json` |
 | TH-019 | Remove Next.js inferred workspace-root warning via outputFileTracingRoot | Zed GPT-5.6 Sol | 2026-08-20 | `docs/agent-log/handoffs/ZED-GPT-5.6-SOL-2026-08-20-next-output-file-tracing-root-handoff.json` |
+| TH-020 | Fix failed CI: shared-ci.yml references non-existent reusable workflows; web.yml/mobile.yml trigger on master instead of main | Toast (polecat) | 2026-08-22 | `docs/agent-log/handoffs/TOAST-2026-08-22-fix-failed-beads-ci.yml` |
 | — | PR Cleanup Agent setup | GitHub Copilot | — | `docs/handoffs/handoff_copilot_pr_cleanup_agent.json` |
 | — | WorldEngine EventBus integration | GitHub Copilot (via Claude Code) | — | `docs/handoffs/handoff_copilot_world_engine.json` |
 | — | ADHD research and scenario generation | Gemini / Advisory | — | `docs/handoffs/handoff_advisory_adhd_research.json` |
@@ -79,4 +80,5 @@ _No blocked threads at this time._
 - No active blockers. No architectural decisions pending.
 - TH-016 through TH-019 (Zed GPT-5.6 Sol): Initial visualization work and web lib repairs completed by Z.A.I; final integration (full home page composition, ThemeProvider/Toaster layout merge, build verification) completed by Poolside Agent on 2026-08-20. All threads moved to Completed status. See handoff: `docs/agent-log/handoffs/POOLSSIDE-2026-08-20-avatar-aide-integration-handoff.json`.
 - TH-006 preserved the pre-sync local work on `codex-cli/local-simulation-lab-before-main-sync`, fast-forwarded `main` to `origin/main`, and ported the fixture-driven `/simulation-lab` observer route into the current Next.js web app.
-- TH-007 produced a full open-items review report at `docs/reviews/2026-05-02-copilot-open-items-review.md` covering all open PRs, unresolved review comments, blockers, and pending decisions as of 2026-05-02.
+  - TH-007 produced a full open-items review report at `docs/reviews/2026-05-02-copilot-open-items-review.md` covering all open PRs, unresolved review comments, blockers, and pending decisions as of 2026-05-02.
+  - TH-020 (2026-08-22): Fixed failing CI workflows. `shared-ci.yml` called three reusable workflows that no longer exist in `.github-private` (python-lint.yml, python-test.yml, security-scan.yml), causing every push/PR to fail since ~May 2026. Rewrote with local lint/test/security jobs. Also fixed `web.yml` and `mobile.yml` which triggered on `master` instead of `main`. Updated `python-app.yml` to cover `backend/` changes. Fixed F824 lint error in `backend/app/routers/world.py`. PR #96.

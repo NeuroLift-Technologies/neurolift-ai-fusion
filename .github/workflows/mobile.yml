@@ -2,12 +2,12 @@ name: Mobile — Type Check & Lint
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "apps/mobile/**"
       - "package.json"
   pull_request:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "apps/mobile/**"
       - "package.json"

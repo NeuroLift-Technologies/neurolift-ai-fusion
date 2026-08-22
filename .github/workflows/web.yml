@@ -2,13 +2,13 @@ name: Web — Build & Type Check
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "apps/web/**"
       - "package.json"
       - "turbo.json"
   pull_request:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "apps/web/**"
       - "package.json"
