@@ -378,7 +378,8 @@ function createSimMesh(sim) {
   canvas.width = 256; canvas.height = 64;
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.roundRect(0, 0, 256, 64, 8);
+  if (typeof ctx.roundRect === 'function') { ctx.beginPath(); ctx.roundRect(0, 0, 256, 64, 8); ctx.fill(); }
+  else { ctx.fillRect(0, 0, 256, 64); }
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 28px system-ui';
   ctx.textAlign = 'center';
@@ -494,6 +495,12 @@ function updateSimPositions() {
   }
 }
 
+function escapeHtml(str: string): string {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function updateSimInfo() {
   if (!selectedSim || !worldState) return;
   const sim = worldState.sims.find(s => s.sim_id === selectedSim);
@@ -506,20 +513,29 @@ function updateSimInfo() {
   nameEl.textContent = sim.name;
 
   const needs = sim.needs_summary || sim.needs || {};
-  const needColors = {
+  const needColors: Record<string, string> = {
     hunger: '#ff6b6b', hygiene: '#6bb5ff', bladder: '#ffd93d',
     energy: '#6bff95', social: '#ff6bf0', fun: '#ffa06b'
   };
   needsEl.innerHTML = '';
   for (const [key, value] of Object.entries(needs)) {
     const color = needColors[key] || '#888';
-    const pct = Math.max(0, Math.min(100, value * 10));
-    needsEl.innerHTML += `
-      <div class="need-bar">
-        <span class="name">${key}</span>
-        <div class="bar"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
-      </div>
-    `;
+    const pct = Math.max(0, Math.min(100, (value as number) * 10));
+    const bar = document.createElement('div');
+    bar.className = 'need-bar';
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = key;
+    const barBg = document.createElement('div');
+    barBg.className = 'bar';
+    const fill = document.createElement('div');
+    fill.className = 'fill';
+    fill.style.width = pct + '%';
+    fill.style.background = color;
+    barBg.appendChild(fill);
+    bar.appendChild(name);
+    bar.appendChild(barBg);
+    needsEl.appendChild(bar);
   }
 }
 
@@ -557,7 +573,31 @@ async function fetchWorld() {
   }
 }
 
-// Poll every 2 seconds
+// Poll every 2 seconds with concurrent-execution guard
+let fetchInProgress = false;
+async function fetchWorld() {
+  if (fetchInProgress) return;
+  fetchInProgress = true;
+  try {
+    const response = await fetch(`${API}/api/world/state`);
+    const data = await response.json();
+    worldState = data;
+    if (data.sims && data.sims.length > 0) {
+      if (!simMeshes.size) {
+        buildWorld(data);
+      } else {
+        updateSimPositions();
+        document.getElementById('tick-count').textContent = data.tick_count;
+        updateTimeDisplay(data.time);
+      }
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    document.getElementById('loading').textContent = 'Connection error — retrying...';
+  } finally {
+    fetchInProgress = false;
+  }
+}
 fetchWorld();
 setInterval(fetchWorld, 2000);
 
