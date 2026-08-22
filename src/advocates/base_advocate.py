@@ -101,6 +101,10 @@ class FusionResult:
     avatar_experience_summary: Dict[str, Any] = field(default_factory=dict)
     aide_expertise_summary: Dict[str, Any] = field(default_factory=dict)
 
+    # Model-level fusion (optional, populated by ModelFusionEngine)
+    model_checkpoint: Optional[str] = None
+    model_evals: List[Dict[str, Any]] = field(default_factory=list)
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "fusion_id": self.fusion_id,
@@ -112,6 +116,8 @@ class FusionResult:
             "capabilities": self.capabilities.to_dict(),
             "validation_results": self.validation_results,
             "fusion_notes": self.fusion_notes,
+            "model_checkpoint": self.model_checkpoint,
+            "model_evals": self.model_evals,
         }
 
 

@@ -28,4 +28,5 @@ def run(payload: SessionRunRequest) -> dict:
         scenarios=serialized_scenarios,
         avatar_id=payload.avatar_id,
         aide_id=payload.aide_id,
+        model_config=payload.ai_config,
     )

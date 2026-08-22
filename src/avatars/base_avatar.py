@@ -21,6 +21,19 @@ Architecture notes
   all coaching flows through it.
 """
 
+import logging
+logger = logging.getLogger(__name__)
+
+
+def _sanitize_for_log(value: object, max_len: int = 200) -> str:
+    """Sanitize a value for safe logging (prevent log injection via CRLF)."""
+    text = str(value) if value is not None else ""
+    sanitized = text.replace("\r", "_").replace("\n", "_")
+    if len(sanitized) > max_len:
+        sanitized = sanitized[:max_len] + "…"
+    return sanitized
+
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -31,6 +44,7 @@ from datetime import datetime, timedelta
 
 from ..core.events import EventBus, Signal, SignalType
 from ..core.state_machine import StateMachine, InvalidTransitionError
+from ..ai import ModelBackend
 from ..core.protocols import (
     ExperienceMemory,
     ExperienceRecord,
@@ -258,6 +272,10 @@ class BaseAvatar(ABC):
         self.cognitive_load: float = 0.0
         self.stress_level: float = 0.0
 
+        # Bound model backend (model-aware behavior is opt-in / default OFF)
+        self.model: Optional[ModelBackend] = None
+        self.use_model: bool = False
+
         # Learning tracking
         self.learning_progress: Dict[str, LearningProgress] = {}
         self.struggle_patterns: List[Dict[str, Any]] = []
@@ -327,6 +345,27 @@ class BaseAvatar(ABC):
         """Bind this Avatar to an Aide via an InteractionChannel."""
         self.channel = channel
 
+    def bind_model(self, model: "ModelBackend") -> None:
+        """Bind a trainable model backend; enables model-driven behavior."""
+        self.model = model
+        self.use_model = True
+
+    def unbind_model(self) -> None:
+        """Remove any bound model; revert to rule-based behavior."""
+        self.model = None
+        self.use_model = False
+
+    def _build_model_inputs(self, task_context: Dict[str, Any]) -> Dict[str, Any]:
+        return {
+            "role": "avatar",
+            "avatar_id": self.avatar_id,
+            "task_context": task_context,
+            "current_emotional_state": self.emotional_state,
+            "current_cognitive_load": self.cognitive_load,
+            "current_stress_level": self.stress_level,
+            "experience_summary": None,
+        }
+
     def attempt_task(self, task_context: Dict[str, Any]) -> TaskResult:
         """
         Attempt a task with ADHD trait affecting performance.
@@ -363,6 +402,24 @@ class BaseAvatar(ABC):
                 "task_context": task_context,
             })
 
+        # Optional model-driven override (gated; never breaks the sim)
+        model_driven_state = False
+        if self.use_model and self.model is not None:
+            try:
+                pred = self.model.predict(self._build_model_inputs(task_context))
+                trait_impact = pred.get("trait_impact", trait_impact)
+                struggle_indicators = pred.get("struggle_indicators", struggle_indicators)
+                self.emotional_state = pred.get("emotional_state", self.emotional_state)
+                self.cognitive_load = float(pred.get("cognitive_load", self.cognitive_load))
+                self.stress_level = float(pred.get("stress_level", self.stress_level))
+                model_driven_state = True
+            except Exception as exc:  # model failure must never break the sim
+                logger.warning(
+                    "Avatar %s model.predict failed; using rule-based fallback: %s",
+                    _sanitize_for_log(self.avatar_id),
+                    _sanitize_for_log(exc),
+                )
+
         # Success probability
         base_success_rate = task_context.get("base_success_rate", 0.5)
         difficulty_modifier = trait_impact.get("difficulty_modifier", 1.0)
@@ -378,9 +435,10 @@ class BaseAvatar(ABC):
             success, trait_impact, struggle_indicators
         )
 
-        # Emotional & cognitive updates
-        self._update_emotional_state(success, struggle_indicators)
-        self._update_cognitive_load(task_context, trait_impact)
+        # Emotional & cognitive updates (skipped when the model set state)
+        if not model_driven_state:
+            self._update_emotional_state(success, struggle_indicators)
+            self._update_cognitive_load(task_context, trait_impact)
 
         # Determine if attempt was independent (no coaching this attempt)
         independent = not received_coaching_this_attempt

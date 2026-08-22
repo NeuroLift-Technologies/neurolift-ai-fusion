@@ -8,6 +8,7 @@ loop, tracks progress, and determines when the pair is ready for fusion.
 This is the "game loop" of the experiential learning system.
 """
 
+import logging
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Any, Dict, List, Optional
@@ -17,7 +18,10 @@ import uuid
 from ..core.events import EventBus, Signal, SignalType
 from ..avatars.base_avatar import BaseAvatar, TaskResult
 from ..aides.base_aide import BaseAide
+from ..ai.trainer import TrainingPipeline
 from ..fusion.readiness_assessor import ReadinessAssessor, FusionReadiness
+
+logger = logging.getLogger(__name__)
 
 
 class SessionPhase(Enum):
@@ -67,6 +71,7 @@ class SessionResult:
     total_coaching: int = 0
     final_independence: float = 0.0
     fusion_readiness: Optional[FusionReadiness] = None
+    model_versions: Dict[str, str] = field(default_factory=dict)
     started_at: datetime = field(default_factory=datetime.now)
     completed_at: Optional[datetime] = None
 
@@ -88,6 +93,7 @@ class SessionResult:
             "fusion_ready": (
                 self.fusion_readiness.ready if self.fusion_readiness else False
             ),
+            "model_versions": self.model_versions,
             "scenarios": [
                 {
                     "name": sr.scenario_name,
@@ -121,10 +127,14 @@ class SessionOrchestrator:
         aide: BaseAide,
         config: Optional[SessionConfig] = None,
         event_bus: Optional[EventBus] = None,
+        training_pipeline: Optional[TrainingPipeline] = None,
+        auto_train: bool = False,
     ) -> None:
         self.avatar = avatar
         self.aide = aide
         self.config = config or SessionConfig()
+        self.training_pipeline = training_pipeline
+        self.auto_train = auto_train
 
         # Share or create event bus
         self.event_bus = event_bus or avatar.event_bus
@@ -180,7 +190,34 @@ class SessionOrchestrator:
         self._session_result.completed_at = datetime.now()
 
         self._emit(SignalType.SESSION_COMPLETED, self._session_result.to_dict())
+
+        # Collect model versions for bound backends
+        try:
+            from ..ai.registry import get_registry
+            reg = get_registry()
+            versions: Dict[str, str] = {}
+            for owner in (self.avatar.avatar_id, self.aide.aide_id):
+                backend = reg.get(owner)
+                if backend is not None:
+                    versions[owner] = backend.model_version
+            self._session_result.model_versions = versions
+        except Exception:
+            pass
+
+        # Optional post-session training (non-blocking when auto_train)
+        if self.auto_train and self.training_pipeline is not None:
+            try:
+                self.training_pipeline.run_async(avatar=self.avatar, aide=self.aide)
+            except Exception as exc:
+                logger.warning("Auto-training failed for session %s: %s", self._session_result.session_id, exc)
+
         return self._session_result
+
+    def train_models_sync(self) -> Dict[str, Any]:
+        '''Synchronously train bound models (no-op summary if no pipeline).'''
+        if self.training_pipeline is None:
+            return {}
+        return self.training_pipeline.run(avatar=self.avatar, aide=self.aide)
 
     def run_single_attempt(
         self, task_context: Dict[str, Any]
