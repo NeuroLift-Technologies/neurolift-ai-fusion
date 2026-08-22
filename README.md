@@ -661,35 +661,51 @@ neuroLift-simulation/
 
 ## 🔬 Development Phases
 
+> **Source-verified as of 2026-08-22** — checked against `src/`, `tests/`, `pytest.ini` coverage and `docs/architecture.md` contracts. Branch `feat/advocate-model-fusion` (PR #98) is the current reference.
+
 ### Phase 1: Foundation ✅
-- [x] Repository structure
-- [x] Documentation framework
-- [x] Base classes implementation
-- [x] Configuration schemas
+- [x] Repository structure (`apps/web`, `apps/mobile`, `services/api`, `src/`, `cloudflare-engine/`, `world3d/`)
+- [x] Documentation framework (`docs/architecture.md`, `docs/CI_HARNESS_README.md`, `CLAUDE.md`, `NLT-DEV-OTOI.md`)
+- [x] Base classes (`BaseAvatar`, `BaseAide`, `BaseAdvocate`, `FusionEngine`, `ReadinessAssessor`)
+- [x] Configuration schemas (`config/`, `pytest.ini`, `mypy.ini`, `wrangler.toml`)
 
-### Phase 2: Simulation Core
-- [ ] World engine
-- [ ] Time and consequence systems
-- [ ] NPC base classes
+### Phase 2: Simulation Core — Mostly Done
+- [x] **World engine** — ECS (`src/simulation/environment/ecs.py` 93%), `world_engine.py` 89%, `world_map.py` 95%
+- [x] **Time and consequence** — `time_manager.py` 99%, `schedule.py` 95%, `consequence` via `SessionOrchestrator` + `relationships.py` 99%
+- [x] **NPC base** — `src/simulation/npcs/base_npc.py` 100% (`BaseNPC`)
+- [ ] **Scenario library** — `src/simulation/environment/scenarios.py` 0% (only `base_scenario.py` is implemented; workplace/personal/social scenario expansion still needed)
+- [ ] **Network client** — `src/simulation/network_client.py` 0% (stub for future multiplayer sync)
+- [ ] **Legacy training session** — `src/simulation/training_session.py` 0% (superseded by `SessionOrchestrator`; keep for reference or archive)
 
-### Phase 3: First Avatar-Aide Pair (Prototype)
-- [x] StayAlert Avatar implementation
-- [x] Corresponding Aide expertise
-- [ ] Basic training scenarios
-- [ ] Training loop validation
+### Phase 3: First Avatar-Aide Pair (Prototype) — Partial
+- [x] **StayAlert** — `stay_alert_avatar.py` 88% + `StayAlertAide` coaching/expertise (attention) — the reference pair
+- [ ] **TaskKickstart / AttentionDeficit** — scaffolds present (`task_kickstart_avatar.py` 0%, `attention_deficit.py` 16%) but not exercised by current `SessionOrchestrator` tests
+- [x] **Basic training scenarios** — `SessionOrchestrator.run_session()` is the canonical loop (`tests/test_simulation/test_session_orchestrator.py`), `scripts/test_training_loop.py` now passes end-to-end
+- [x] **Training loop validation** — 377 tests pass locally; `SessionOrchestrator` collects `model_versions` and optionally runs post-session `TrainingPipeline`
 
-### Phase 4: Expand and Validate
-- [ ] Remaining 18 Avatar-Aide pairs
-- [ ] Full scenario library
-- [ ] NPC variety and social dynamics
-- [ ] Random dysfunction injection
-- [ ] RRT burnout response system
+### Phase 4: Expand and Validate — In Progress
+- [ ] **Remaining 16 Avatar-Aide pairs** — 19 pairs are specified in this README; 3 traits have code scaffolds, 16 still need implementation per `src/avatars/adhd_traits/` and `src/aides/executive_function_expertise/`
+- [ ] **Full scenario library** — workplace/personal/social categories from Architecture Overview still need authored content
+- [ ] **NPC variety and social dynamics** — `biased`/`supportive`/`neurotypical` NPC behaviors and rejection-sensitivity dynamics are design-complete but not implemented beyond `BaseNPC`
+- [ ] **Random dysfunction injection** — design exists (`challenge_injector` concept) but no systematic injector is wired into `WorldEngine`
+- [x] **RRT burnout response (baseline)** — `BaseAide` crisis/recovery + `BaseAvatar.assess_burnout_risk()` and `Advocate.activate_rrt_mode()` implemented; full RRT therapeutic core still pending
 
-### Phase 5: Fusion and Testing
-- [ ] Fusion engine implementation
-- [ ] Fused Advocate validation
-- [ ] Real-world testing with neurodivergent community
-- [ ] Iteration based on feedback
+### Phase 5: Fusion and Testing — Core Done, Validation Pending
+- [x] **Fusion engine (symbolic)** — `src/fusion/fusion_engine.py` 87% + `readiness_assessor.py` 98% (6 dimensions, `overall >=0.65`)
+- [x] **Model-level fusion** — `src/fusion/model_fusion.py` 90% (`ModelFusionEngine`, `PairedTrajectoryStep`, `RouterTeacher` as TED teacher, `StudentTrainer` protocol) + `ExperienceDataset.to_paired_trajectory_steps()`
+- [x] **Fused Advocate validation** — readiness gates + acceptance evals (`corpus_has_successes`, `teacher_mode_validity`, `burnout_safety_proxy`) and `FusionResult.model_checkpoint`/`model_evals`
+- [x] **Spec + research basis** — `docs/specs/advocate-model-fusion-spec.md` (fusion-only) + `docs/research/Trajectory Distillation for Behavioral AI Fusion.md` (TOPD/TED/AgentArk vs. Model Soups/TIES/AlignMerge)
+- [ ] **Real-world testing with neurodivergent community** — not yet started (requires Phases 3–4 breadth)
+- [ ] **Iteration based on feedback** — pending
+
+### Phase 6: AI Model Layer & Full-Stack Integration (2026-08) ✅
+- [x] **Provider-agnostic `src/ai` framework** — `ModelBackend` protocol, `ModelAdapter` base, `ModelRegistry` (`get_registry()`), `ExperienceDataset` (flat/JSONL/`to_tensors`), `TrainingPipeline` + `NoOpTrainer`
+- [x] **Adapters (lazy, no hard torch dep)** — `RuleFallbackBackend` 100%, `TransformerPolicyBackend` + `OpenAICompatBackend` (stdlib `urllib`, `base_url` + env var, never logged)
+- [x] **Avatar/Aide model-aware** — `bind_model()`/`unbind_model()`, `use_model=False` default (safe fallback), `model.predict` wrapped in try/except with `_sanitize_for_log`
+- [x] **SessionOrchestrator training pipeline** — optional `training_pipeline`/`auto_train`, `model_versions` in `SessionResult`
+- [x] **API / backend wiring** — `services/api` `model_config`, `backend/app/routers/ai.py` (`/api/ai/train`, `/api/ai/status`, bind-model), `requirements-ai.txt`, `.github/workflows/ai-tests.yml` (now with `permissions: contents: read`)
+- [x] **Full-stack foundation** — `apps/web` (Next.js 14, `world3d` house mesh), `apps/mobile` (Expo), `services/api` (FastAPI), `cloudflare-engine` (WorldEngineDO), `world3d/` viewer
+- [x] **Tests & CI** — 377 passed / 1 skipped (local), 373 passed on CI; coverage gate 70% (was dead at 80% due to `[tool:pytest]` mis-header, now `[pytest]` with omits for lazy adapters/external clients); mypy `Success: no issues` (Level 2)
 
 ## 🛡️ Privacy-First Design
 
@@ -804,9 +820,11 @@ We'll know we've succeeded when:
 
 ## 🎯 Current Status
 
-**Development Phase:** Foundation (Phase 1)
-**Last Updated:** January 2026
-**Next Milestone:** Complete base classes and first Avatar-Aide pair prototype
+**Development Phase:** Fusion & AI Model Layer (Phases 5–6) — core complete, PR #98 in review (`feat/advocate-model-fusion`)  
+**Last Updated:** August 22, 2026  
+**Next Milestone:** Implement remaining 16 Avatar-Aide pairs + full scenario library → real-world testing with neurodivergent community  
+**Branch:** `feat/advocate-model-fusion` (Kilo `src/ai` + SWE trajectory-distillation fusion) — all checks green except `Clearance L3` (pending)  
+**Spec:** `docs/specs/advocate-model-fusion-spec.md` + research basis `docs/research/Trajectory Distillation for Behavioral AI Fusion.md`
 
 ---
 
