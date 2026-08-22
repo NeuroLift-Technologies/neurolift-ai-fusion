@@ -26,7 +26,7 @@
       "  - requirements.txt uncommented/pinned ML deps (lazy imported \u2014 NOT a hard dependency).",
       "  - requirements-ai.txt and .github/workflows/ai-tests.yml added.",
       "  - scripts/test_training_loop.py rewritten to the current API.",
-      "  - pytest.ini corrected from [tool:pytest] (silently ignored by pytest, so the 80% coverage gate was previously dead) to [pytest].",
+      "  - pytest.ini corrected from [tool:pytest] (silently ignored by pytest, so the 40% coverage gate was previously dead) to [pytest].",
       "(e) Tests:",
       "  - tests/test_ai/ added: test_protocol, test_adapters, test_dataset, test_registry, test_training_pipeline, test_avatar_model, test_aide_model, test_orchestrator_training, __init__.",
       "  - Backend/service integration tests: tests/test_backend/test_ai_router.py, tests/test_services/test_api_main.py."
