@@ -8,6 +8,7 @@ model is available.
 
 from typing import Any, Dict, List
 
+from ...core.protocols import ExperienceRecord
 from ..protocol import ModelAdapter, AVATAR_MODEL_KIND, AIDE_MODEL_KIND
 
 
@@ -70,6 +71,6 @@ class RuleFallbackBackend(ModelAdapter):
             "independence_building": 0.0,
         }
 
-    def update(self, records: List[Any]) -> None:
+    def update(self, records: List[ExperienceRecord]) -> None:
         """No-op: rule fallback is not trainable."""
         return None

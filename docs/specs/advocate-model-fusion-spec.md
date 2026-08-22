@@ -165,8 +165,50 @@ Failure on any blocking eval → `FusionReport.success=False` with blocking eval
 
 ---
 
-## 11. References
+## 11. Research Basis — Trajectory Distillation vs. Parameter-Space Merge
+
+*Evidence from `docs/research/Trajectory Distillation for Behavioral AI Fusion.md` (full study, 100+ citations). Summary below is distilled; see that file for full bibliography.*
+
+**Why trajectory, not weights, for the Advocate:** The study classifies “Trajectory Distillation” as an umbrella for techniques that distill *multi-step reasoning processes*, not static outputs — directly applicable to fusing Avatar lived-experience traces with Aide coaching trajectories. Three validated paradigms:
+
+| Paradigm | Mechanism | Training | Key Innovation | Demonstrated Use |
+|---|---|---|---|---|
+| **Trajectory-aware On-Policy Distillation (TOPD)** | Corrects student’s self-generated trajectories under teacher supervision via Optimal Transport (OT) over short-window continuations | Requires training (modified loss) | Identifies genuine divergence points, injects future-trajectory signal, down-weights “false alarm” tokens; 46.7%→53.3% on AIME25 | DeepSeek-V4, MiMo, Qwen-3 alignment |
+| **Training-Free Experience Distillation (TED)** | Extracts generalized experiences (principles, strategies, failure patterns) from teacher evaluation of student trajectories; stores in context, no weight updates | No parameter updates (frozen student) | Compression (merge/rewrite/prune) to prevent unbounded growth; 20× training-cost reduction on MathVision | Edge / black-box API, low-data multimodal |
+| **Multi-Agent Dynamics Distillation (AgentArk/PAD)** | Step-level RL via Process Reward Model (PRM) + GRPO on corrective patterns from multi-agent debates | Significant offline cost (e.g., 20h on 8×H100 for 7B) | Model-agnostic reasoning patterns (text→MLLM transfer), improved generalization | Single agent from team of specialists |
+
+*Takeaway:* All three are technically viable and **behavior-first** — they teach the *how* of reasoning, not just the *what*.
+
+**Parameter-space merge — high-risk aggregation:**
+
+| Technique | Core Principle | Strengths | Weaknesses |
+|---|---|---|---|
+| Model Soups | Linear weight averaging of same-arch fine-tunes | Simple, improves generalization on related tasks | Fails if not in connected low-loss region |
+| Task Arithmetic | Algebra on task vectors (fine-tune − base) | Only method that consistently gains in large systematic eval | No explicit interference handling |
+| TIES-Merging | Trim + elect sign + disjoint merge | Designed for many-model scaling | Catastrophic degradation on heterogeneous checkpoints (0% success as N grows) |
+| Subspace Boosting | Low-rank compression of task vectors | Seeks coherent directions | Steady accuracy decline as more models merged |
+| SLERP/NuSLERP | Spherical interpolation on weight manifold | More stable than linear | Expensive angle computation, arch-incompatible |
+| AlignMerge | Fisher-metric, geometry-constrained merge preserving alignment as invariant (AQI penalty) | Preserves safety/helpfulness while matching best expert on utility; multimodal via joint Fisher | Complex, requires aligned base |
+| Passthrough Merge | Dynamic routing, no weight fusion | Avoids interference (Goliath-120B) | Latency, no single efficient model |
+
+*Current evidence:* naive merging of heterogeneous LLMs frequently violates its own assumptions (mode connectivity, task orthogonality, sparsity) and causes catastrophic forgetting. AlignMerge is the only merging method that explicitly preserves alignment and is multimodal-capable — relevant if we later merge vision/audio encoders.
+
+**Comparative lens for Advocate fusion:**
+
+| Aspect | Trajectory Distillation | Parameter-Space Merge |
+|---|---|---|
+| Primary goal | Behavioral refinement — coherence, logic, empathy over multi-turn trajectories | Capability aggregation — broad skill set in one chassis |
+| Ideal use | Multi-step coaching, empathetic tone maintenance, cross-modal reasoning alignment (X-OPD: 11.29%→0.97% drop on BIG Bench Audio) | Combining complementary specialists (e.g., factual + sentiment + creative) |
+| Conflict handling | Corrects divergent paths via OT / PRM | Prone to destructive interference without Fisher/OT |
+| Suitability for empathy | Excellent (process-level) | Poor unless alignment-preserving |
+
+**Spec decision reaffirmed:** **Trajectory Distillation primary (4.1), router as TED-style teacher (4.3), parameter merge as AlignMerge-tracked ablation (4.2).** The study’s recommended *hybrid two-stage* — **AlignMerge (breadth) → TOPD/X-OPD (depth)** — is adopted as the *future* track when Avatar/Aide diverge to distinct backbones or modalities (e.g., VLM + LLM with 60/40 VLM-dominant selective attention merging). A future `TOPDTeacher` can add OT divergence detection to our `RouterTeacher` to suppress false-alarm tokens.
+
+Implementation note: our `RouterTeacher` today is a *TED* teacher (frozen parents, experience in `PairedTrajectoryStep.gold_weight`); a follow-up `TOPDTeacher` would add Optimal Transport short-window comparison.
+
+## 12. References
 
 * `docs/architecture.md` — Source-verified runtime contracts, fusion and Advocate contracts
+* `docs/research/Trajectory Distillation for Behavioral AI Fusion.md` — Full feasibility study (TOPD, TED, AgentArk/PAD vs. Model Soups/TIES/AlignMerge; 100+ refs)
 * `NLT-DEV-OTOI.md` — Authority and guardrails
 * Prior finding: `nlt-fusion` (infra repo) is **not** the Avatar/Aide/Advocate stack — this spec applies to `neurolift-ai-fusion` / `neurolift-ai-fusion-org`

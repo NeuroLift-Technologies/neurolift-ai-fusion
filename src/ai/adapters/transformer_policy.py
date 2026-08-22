@@ -16,6 +16,7 @@ import json
 import os
 from typing import Any, Dict, List, Optional
 
+from ...core.protocols import ExperienceRecord
 from ..protocol import ModelAdapter, AVATAR_MODEL_KIND, AIDE_MODEL_KIND
 
 
@@ -98,7 +99,7 @@ class TransformerPolicyBackend(ModelAdapter):
             else _aide_baseline()
         )
 
-    def update(self, records: List[Any]) -> Dict[str, Any]:
+    def update(self, records: List[ExperienceRecord]) -> None:
         """Persist records to JSONL. Real fine-tuning is out of scope."""
         try:
             import torch  # noqa: F401
@@ -106,10 +107,10 @@ class TransformerPolicyBackend(ModelAdapter):
             # Still allow JSONL export without torch.
             pass
         if not self.checkpoint_path:
-            return {"status": "skipped", "reason": "no checkpoint_path"}
+            return None
         from ..dataset import ExperienceDataset
 
         os.makedirs(self.checkpoint_path, exist_ok=True)
         path = os.path.join(self.checkpoint_path, "training_data.jsonl")
         ExperienceDataset(records).to_jsonl(path)
-        return {"status": "exported", "path": path}
+        return None

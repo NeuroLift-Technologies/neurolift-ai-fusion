@@ -153,6 +153,10 @@ class ModelBackend(Protocol):
         """Absorb experience records for (optional) training."""
         ...
 
+    def to_metadata(self) -> Dict[str, Any]:
+        """Return a serialisable description of this backend."""
+        ...
+
 
 class ModelAdapter:
     """Base class for model adapters.

@@ -12,6 +12,7 @@ import os
 import urllib.request
 from typing import Any, Dict, List, Optional
 
+from ...core.protocols import ExperienceRecord
 from ..protocol import ModelAdapter, AVATAR_MODEL_KIND, AIDE_MODEL_KIND
 
 
@@ -125,6 +126,6 @@ class OpenAICompatBackend(ModelAdapter):
             return {**baseline, **parsed}
         return baseline
 
-    def update(self, records: List[Any]) -> None:
+    def update(self, records: List[ExperienceRecord]) -> None:
         """No-op: external LLM providers are not trained inline."""
         return None
