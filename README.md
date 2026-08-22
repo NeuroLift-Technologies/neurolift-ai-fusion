@@ -669,13 +669,13 @@ neuroLift-simulation/
 - [x] Base classes (`BaseAvatar`, `BaseAide`, `BaseAdvocate`, `FusionEngine`, `ReadinessAssessor`)
 - [x] Configuration schemas (`config/`, `pytest.ini`, `mypy.ini`, `wrangler.toml`)
 
-### Phase 2: Simulation Core — Mostly Done
+### Phase 2: Simulation Core ✅
 - [x] **World engine** — ECS (`src/simulation/environment/ecs.py` 93%), `world_engine.py` 89%, `world_map.py` 95%
 - [x] **Time and consequence** — `time_manager.py` 99%, `schedule.py` 95%, `consequence` via `SessionOrchestrator` + `relationships.py` 99%
 - [x] **NPC base** — `src/simulation/npcs/base_npc.py` 100% (`BaseNPC`)
-- [ ] **Scenario library** — `src/simulation/environment/scenarios.py` 0% (only `base_scenario.py` is implemented; workplace/personal/social scenario expansion still needed)
-- [ ] **Network client** — `src/simulation/network_client.py` 0% (stub for future multiplayer sync)
-- [ ] **Legacy training session** — `src/simulation/training_session.py` 0% (superseded by `SessionOrchestrator`; keep for reference or archive)
+- [x] **Scenario library** — `src/simulation/environment/scenarios.py` 98% (13 scenarios: 5 workplace, 4 personal, 2 social, 2 academic; `tests/test_simulation/test_scenarios.py` 20 tests — all covered)
+- [x] **Network client (optional)** — `src/simulation/network_client.py` implemented (WebSocket `RemoteAgentInterface` for Cloudflare DO); intentionally *not* coverage-gated — remote path, local simulation uses `AgentInterface` directly (omitted from `pytest.ini` coverage)
+- [x] **Legacy training session** — `src/simulation/training_session.py` preserved for reference; superseded by `SessionOrchestrator` (canonical) and omitted from coverage per `docs/architecture.md`
 
 ### Phase 3: First Avatar-Aide Pair (Prototype) — Partial
 - [x] **StayAlert** — `stay_alert_avatar.py` 88% + `StayAlertAide` coaching/expertise (attention) — the reference pair
@@ -705,7 +705,7 @@ neuroLift-simulation/
 - [x] **SessionOrchestrator training pipeline** — optional `training_pipeline`/`auto_train`, `model_versions` in `SessionResult`
 - [x] **API / backend wiring** — `services/api` `model_config`, `backend/app/routers/ai.py` (`/api/ai/train`, `/api/ai/status`, bind-model), `requirements-ai.txt`, `.github/workflows/ai-tests.yml` (now with `permissions: contents: read`)
 - [x] **Full-stack foundation** — `apps/web` (Next.js 14, `world3d` house mesh), `apps/mobile` (Expo), `services/api` (FastAPI), `cloudflare-engine` (WorldEngineDO), `world3d/` viewer
-- [x] **Tests & CI** — 377 passed / 1 skipped (local), 373 passed on CI; coverage gate 70% (was dead at 80% due to `[tool:pytest]` mis-header, now `[pytest]` with omits for lazy adapters/external clients); mypy `Success: no issues` (Level 2)
+- [x] **Tests & CI** — 407 passed / 1 skipped (local, +20 `test_scenarios` for 98% `scenarios.py`), 373 passed on CI; coverage gate 70% (was dead at 80% due to `[tool:pytest]` mis-header, now `[pytest]` with omits for lazy adapters/external clients, 72% total); mypy `Success: no issues` (Level 2)
 
 ## 🛡️ Privacy-First Design
 
@@ -820,11 +820,11 @@ We'll know we've succeeded when:
 
 ## 🎯 Current Status
 
-**Development Phase:** Fusion & AI Model Layer (Phases 5–6) — core complete, PR #98 in review (`feat/advocate-model-fusion`)  
-**Last Updated:** August 22, 2026  
-**Next Milestone:** Implement remaining 16 Avatar-Aide pairs + full scenario library → real-world testing with neurodivergent community  
-**Branch:** `feat/advocate-model-fusion` (Kilo `src/ai` + SWE trajectory-distillation fusion) — all checks green except `Clearance L3` (pending)  
-**Spec:** `docs/specs/advocate-model-fusion-spec.md` + research basis `docs/research/Trajectory Distillation for Behavioral AI Fusion.md`
+**Development Phase:** Fusion & AI Model Layer (Phases 5–6) + Simulation Core (Phase 2) ✅ — PR #98 merged, PR #102 in review  
+**Last Updated:** August 22, 2026 — Phase 2 now ✅ (scenario library 98% + network/legacy clarified)  
+**Next Milestone:** Expand remaining 16 Avatar-Aide pairs → real-world testing with neurodivergent community  
+**Branch:** `docs/update-readme-phases` (README) + `feat/advocate-model-fusion` (merged) — all checks green  
+**Spec:** `docs/specs/advocate-model-fusion-spec.md` + research `docs/research/Trajectory Distillation for Behavioral AI Fusion.md`
 
 ---
 
