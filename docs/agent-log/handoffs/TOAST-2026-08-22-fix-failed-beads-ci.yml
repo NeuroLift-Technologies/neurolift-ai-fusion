@@ -1,0 +1,42 @@
+{
+  "handoff_record": {
+    "session_id": "TOAST-2026-08-22-fix-failed-beads-ci.yml",
+    "agent_name": "Toast (polecat)",
+    "date": "2026-08-22",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "gt/toast/e14aee9f",
+    "work_completed": [
+      "Fixed shared-ci.yml — replaced three non-existent reusable workflow calls (python-lint.yml, python-test.yml, security-scan.yml from .github-private) with local job definitions (lint, test, security) using the same patterns already in python-app.yml and pgsa-portability-gate.yml. The shared-ci.yml workflow had been failing on every push/PR to main with 'workflow file issue' for ~3 months.",
+      "Fixed web.yml and mobile.yml — changed branch triggers from 'master' to 'main' (the repo default branch). Both workflows had been silently never firing on main-branch activity.",
+      "Updated python-app.yml — added 'backend/**' to path filters so backend Python changes trigger CI, and added flake8 linting for backend/app/ directory.",
+      "Fixed F824 flake8 error in backend/app/routers/world.py:shutdown_world_engine() — _ticker_stop was declared global but never assigned; removed the unnecessary global declaration."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Replaced non-existent .github-private reusable workflows with inline local jobs rather than trying to find renamed equivalents — the .github-private repo has no python-lint.yml, python-test.yml, or security-scan.yml workflows.",
+      "Used gitleaks (via scripts/scan_secrets.py) for the security job, consistent with pgsa-portability-gate.yml.",
+      "Used Python 3.11 (matching the other passing workflows) instead of the original 3.10 specified in shared-ci.yml's with: python-version.",
+      "Did not change the PR #91 review feedback workflow comment about 'backend/app/schemas/world.py: HYPER' since HYPER is already present in the current branch (verified via git show)."
+    ],
+    "decisions_pending": [],
+    "escalations": [],
+    "next_agent_notes": "The fix is committed on gt/toast/e14aee9f and PR #96 is open. The shared-ci.yml will now run lint (flake8 on src/ and backend/app/), test (pytest), and security (gitleaks) on every push/PR to main. The web.yml and mobile.yml workflows will now trigger on main. The python-app.yml workflow now covers backend/ changes.",
+    "files_modified": [
+      ".github/workflows/shared-ci.yml",
+      ".github/workflows/web.yml",
+      ".github/workflows/mobile.yml",
+      ".github/workflows/python-app.yml",
+      "backend/app/routers/world.py"
+    ],
+    "tests_run": [
+      "flake8 src/ --select=E9,F63,F7,F82 (with --jobs=1): 0 issues",
+      "flake8 backend/app/ --select=E9,F63,F7,F82 (with --jobs=1): 0 issues after fix",
+      "pytest --tb=short: 315 passed, 2 warnings",
+      "YAML validation (pyyaml.safe_load): all 4 workflow files valid"
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/96"
+  }
+}
