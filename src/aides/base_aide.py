@@ -462,9 +462,9 @@ class BaseAide(ABC):
                     )
             except Exception as exc:
                 logger.warning(
-                    "Aide %s model.predict failed; using rule-based fallback: %s",
-                    _sanitize_for_log(self.aide_id),
-                    _sanitize_for_log(exc),
+                    "Aide %s model.predict failed (%s); using rule-based fallback",
+                    self.aide_id,
+                    type(exc).__name__,
                 )
 
         expertise = self.get_expertise_strategies(context)

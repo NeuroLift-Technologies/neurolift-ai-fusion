@@ -424,9 +424,9 @@ class BaseAvatar(ABC):
                     model_driven_state = True
             except Exception as exc:  # model failure must never break the sim
                 logger.warning(
-                    "Avatar %s model.predict failed; using rule-based fallback: %s",
-                    _sanitize_for_log(self.avatar_id),
-                    _sanitize_for_log(exc),
+                    "Avatar %s model.predict failed (%s); using rule-based fallback",
+                    self.avatar_id,
+                    type(exc).__name__,
                 )
 
         # Success probability
