@@ -50,6 +50,19 @@ class TestTrainingPipeline:
         assert owner in summary["owners"]
         assert summary["n_records"] == 3
 
+    def test_run_pulls_from_aide_memory(self):
+        reg = ModelRegistry()
+        owner = "aide_1"
+        reg.register(owner, RuleFallbackBackend(kind="aide"))
+        mem = ExperienceMemory(owner_id=owner)
+        for _ in range(3):
+            mem.record(_make_record("reading"))
+        aide = type("Aide", (), {"aide_id": owner, "experience_memory": mem})()
+        pipeline = TrainingPipeline(registry=reg)
+        summary = pipeline.run(aide=aide)
+        assert owner in summary["owners"]
+        assert summary["n_records"] == 3
+
     def test_run_async_returns_thread(self):
         import threading
 

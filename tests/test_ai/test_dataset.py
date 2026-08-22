@@ -78,3 +78,34 @@ class TestExperienceDataset:
         except ImportError:
             with pytest.raises(ImportError):
                 ds.to_tensors()
+
+    def test_to_records_returns_underlying_list(self):
+        recs = [_make_record("coding"), _make_record("writing")]
+        ds = ExperienceDataset(recs)
+        assert ds.to_records() == recs
+
+    def test_to_tensors_with_mock_torch(self):
+        import sys
+        import types
+
+        mock_torch = types.ModuleType("torch")
+        mock_torch.float32 = "float32"
+
+        def _tensor(values, dtype=None):
+            return list(values)
+
+        mock_torch.tensor = _tensor
+        sys.modules["torch"] = mock_torch
+        try:
+            ds = ExperienceDataset(
+                [_make_record("coding", True, 0.9), _make_record("writing", False, 0.3)]
+            )
+            tensors = ds.to_tensors()
+            assert "quality_score" in tensors
+            assert "cognitive_load_peak" in tensors
+            assert "stress_peak" in tensors
+            assert "independence_delta" in tensors
+            assert "outcome_success" in tensors
+            assert tensors["outcome_success"] == [1.0, 0.0]
+        finally:
+            del sys.modules["torch"]

@@ -30,6 +30,11 @@ class TestRegistry:
         with pytest.raises(ValueError):
             reg.build_backend({"type": "bogus"})
 
+    def test_build_openai_compat_missing_base_url_raises(self):
+        reg = ModelRegistry()
+        with pytest.raises(ValueError, match="base_url"):
+            reg.build_backend({"type": "openai_compat", "kind": "aide"})
+
     def test_config_binding(self):
         reg = ModelRegistry()
         reg.bind_config("a1", {"type": "rule_fallback"})
