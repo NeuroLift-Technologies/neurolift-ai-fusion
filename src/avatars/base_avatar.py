@@ -407,12 +407,21 @@ class BaseAvatar(ABC):
         if self.use_model and self.model is not None:
             try:
                 pred = self.model.predict(self._build_model_inputs(task_context))
-                trait_impact = pred.get("trait_impact", trait_impact)
-                struggle_indicators = pred.get("struggle_indicators", struggle_indicators)
-                self.emotional_state = pred.get("emotional_state", self.emotional_state)
-                self.cognitive_load = float(pred.get("cognitive_load", self.cognitive_load))
-                self.stress_level = float(pred.get("stress_level", self.stress_level))
-                model_driven_state = True
+                if pred is None:
+                    logger.warning("Avatar %s model.predict returned None", _sanitize_for_log(self.avatar_id))
+                else:
+                    trait_impact = pred.get("trait_impact") or trait_impact
+                    struggle_indicators = pred.get("struggle_indicators") or struggle_indicators
+                    emotional_state = pred.get("emotional_state")
+                    if emotional_state is not None:
+                        self.emotional_state = emotional_state
+                    cog_load = pred.get("cognitive_load")
+                    if cog_load is not None:
+                        self.cognitive_load = float(cog_load)
+                    stress = pred.get("stress_level")
+                    if stress is not None:
+                        self.stress_level = float(stress)
+                    model_driven_state = True
             except Exception as exc:  # model failure must never break the sim
                 logger.warning(
                     "Avatar %s model.predict failed; using rule-based fallback: %s",

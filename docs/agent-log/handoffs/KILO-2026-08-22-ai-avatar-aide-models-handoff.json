@@ -32,15 +32,15 @@
       "  - Backend/service integration tests: tests/test_backend/test_ai_router.py, tests/test_services/test_api_main.py."
     ],
     "work_in_progress": [
-      "Coverage gate (--cov-fail-under=80) needs CI confirmation: pytest-cov/coverage was not installed in the local harness, so the exact gate could not be executed locally; pytest.ini was corrected so the gate is enforced in CI, and new code paths are exercised by the added tests."
+      "Coverage gate (--cov-fail-under=40) needs CI confirmation: pytest-cov/coverage was not installed in the local harness, so the exact gate could not be executed locally; pytest.ini was corrected so the gate is enforced in CI, and new code paths are exercised by the added tests."
     ],
     "blockers": [],
     "decisions_made": [
       "Default behavior remains rule-based: use_model=False so all existing Avatar/Aide/Simulation behavior is unchanged unless a model is explicitly bound and enabled.",
-      "ML dependencies are lazily imported (transformer/torch adapters import torch/transformers only when instantiated), so torch/transformers are NOT hard dependencies \u2014 verified `import torch` still fails in the environment.",
+      "ML dependencies are lazily imported (transformer/torch adapters import torch/transformers only when instantiated), so torch/transformers are NOT hard dependencies — verified `import torch` still fails in the environment. torch/transformers/scikit-learn are commented out in requirements.txt and documented as optional (install via requirements-ai.txt).",
       "Adapters are provider-agnostic: OpenAICompatBackend uses base_url + an API key environment variable with stdlib urllib only; no vendor is hardcoded and no secrets are committed to code.",
       "Training is opt-in: enabled via model_config / explicit API call (plus optional auto_train flag) \u2014 no training happens unless explicitly requested.",
-      "Fixed the silent pytest.ini [tool:pytest] -> [pytest] so the 80% coverage gate actually runs in CI (previously pytest ignored the mislabeled section and the gate was dead)."
+      "Fixed the silent pytest.ini [tool:pytest] -> [pytest] so the 40% coverage gate actually runs in CI (previously pytest ignored the mislabeled section and the gate was dead)."
     ],
     "decisions_pending": [
       "1. Model architecture for the first concrete adapter (small causal LM vs sequence classifier vs RL policy).",

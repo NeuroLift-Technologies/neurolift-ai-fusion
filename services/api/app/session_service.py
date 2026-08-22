@@ -45,10 +45,14 @@ def run_session(
         expertise_config={"expertise_area": "sustained_attention"},
     )
 
-    if model_config:
+    if model_config and isinstance(model_config, dict):
         reg = get_registry()
         av_cfg = model_config.get("avatar") or {}
         ai_cfg = model_config.get("aide") or {}
+        if not isinstance(av_cfg, dict):
+            av_cfg = {}
+        if not isinstance(ai_cfg, dict):
+            ai_cfg = {}
         if av_cfg.get("type"):
             backend = reg.build_backend({**av_cfg, "kind": "avatar"})
             avatar.bind_model(backend)

@@ -91,6 +91,10 @@ class ModelRegistry:
         if btype == "openai_compat":
             from .adapters.openai_compat import OpenAICompatBackend
 
+            base_url = config.get("base_url")
+            if not base_url:
+                raise ValueError("openai_compat backend requires 'base_url' in config")
+
             return OpenAICompatBackend(
                 base_url=config["base_url"],
                 api_key_env=config.get("api_key_env", "OPENAI_COMPAT_API_KEY"),
