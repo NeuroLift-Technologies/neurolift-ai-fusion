@@ -681,7 +681,7 @@ neuroLift-simulation/
 - [x] **StayAlert** — `stay_alert_avatar.py` 88% + `StayAlertAide` coaching/expertise (attention) — the reference pair
 - [ ] **TaskKickstart / AttentionDeficit** — scaffolds present (`task_kickstart_avatar.py` 0%, `attention_deficit.py` 16%) but not exercised by current `SessionOrchestrator` tests
 - [x] **Basic training scenarios** — `SessionOrchestrator.run_session()` is the canonical loop (`tests/test_simulation/test_session_orchestrator.py`), `scripts/test_training_loop.py` now passes end-to-end
-- [x] **Training loop validation** — 377 tests pass locally; `SessionOrchestrator` collects `model_versions` and optionally runs post-session `TrainingPipeline`
+- [x] **Training loop validation** — 407 tests pass locally (+20 `test_scenarios` in Phase 2); `SessionOrchestrator` collects `model_versions` and optionally runs post-session `TrainingPipeline`
 
 ### Phase 4: Expand and Validate — In Progress
 - [ ] **Remaining 16 Avatar-Aide pairs** — 19 pairs are specified in this README; 3 traits have code scaffolds, 16 still need implementation per `src/avatars/adhd_traits/` and `src/aides/executive_function_expertise/`
