@@ -105,7 +105,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 **Role:** Coach, therapist, and assistant operating IN the simulation environment alongside the Avatar
 
 #### Phase 3: Simulation Training
-**Environment:** Sims/RPG-style virtual world — rendered and simulated by the **[UE 5.8 Unreal WorldEngine in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine)** (rooms, objects, NPCs, deterministic tick loop). This repo's Avatar/Aide intelligence connects to it through the agent interface (HTTP/WebSocket HTTP API).
+**Environment:** Sims/RPG-style virtual world — rendered and simulated by the **[UE 5.8 Unreal WorldEngine in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine)** (rooms, objects, NPCs, deterministic tick loop). This repo's Avatar/Aide intelligence connects to it through the agent interface (HTTP/WebSocket API).
 
 **Scenario Categories:**
 - **Workplace:** HR compliance, meetings, project management, performance reviews
