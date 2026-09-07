@@ -125,7 +125,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 
 ## 🎮 The 20 Avatar-Aide-Advocate Pairs
 
-> Canonical persona catalog: `StayAlert` → `RSDShield` (20 advocates). The App delivery runtime in [`nlt-adhd`](https://github.com/NeuroLift-Technologies/nlt-adhd) ships these 1:20 (20 advocate dirs in `src/advocates/`, mirroring this list).
+> Canonical persona catalog (spec): `StayAlert` → `RSDShield` (20 advocates). These are **catalog entries**, not an implementation status claim — this repo implements the generic `base_advocate` + prototype pairs (see [`docs/implementation_summary.md`](docs/implementation_summary.md)); the [`nlt-adhd`](https://github.com/NeuroLift-Technologies/nlt-adhd) App scaffolds all 20 dirs in `src/advocates/` (MVP wires 6: 01, 04, 05, 07, 09, 20 — the remaining 14 are stubs).
 
 ### Executive Function Focused (14 pairs):
 1. **StayAlert** - Sustained attention deficit
@@ -147,7 +147,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 15. **StressShield** - Stress sensitivity
 16. **SensoryBalance** - Sensory sensitivity
 17. **SocialSync** - Social challenges
-18. **SensorySeeker** - Sensory seeking behavior
+18. **SensorySeeker** - Sensory-seeking behavior
 19. **ConfidenceCoach** - Self-esteem and identity
 20. **RSDShield** - Rejection sensitivity dysphoria
 
@@ -171,8 +171,8 @@ UE-side plugin/tooling details: see the **UE Plugins Enabled** table and subsyst
 
 | Workflow | Role | Trigger |
 |----------|------|---------|
-| `shared-ci.yml` | Org-standard checks via reusable workflows | push to main, PR to main |
-| `python-app.yml` | Python/API checks for `src/`, `tests/`, `apps/api/` | push to main, PR to main (when Python paths change) |
+| `shared-ci.yml` | Shared lint, test, and security jobs (defined locally — the retired `.github-private` reusable workflows no longer exist) | push to main, PR to main, workflow_dispatch |
+| `python-app.yml` | Python/API checks for `src/`, `tests/`, `backend/`, `requirements.txt`, `pytest.ini`, `apps/api/` | push to main, PR to main (when those paths change), workflow_dispatch |
 | `redteam-ci.yml` | Progressive 3-level clearance (syntax → coverage → security) | push to main, PR to main |
 | `pgsa-portability-gate.yml` | Secrets scanning + provenance validation | push to main, PR to main |
 | `pr-cleanup.yml` | Stale PR marking, auto-close, merged branch deletion | daily schedule + manual |
@@ -181,7 +181,7 @@ UE-side plugin/tooling details: see the **UE Plugins Enabled** table and subsyst
 ### Key constraints
 
 - Pushes to non-`main` branches do not auto-run CI unless a PR targets `main`
-- `shared-ci.yml` calls reusable workflows from `NeuroLift-Technologies/.github-private` at `@main`
+- `shared-ci.yml` defines its lint/test/security jobs locally (the previous reusable workflows in `.github-private` were retired)
 - `pr-cleanup.yml` exempts draft PRs from staleness; branch deletion skips protected branches and forks
 - Governance sync requires `document_name` + base64-encoded `content` in `repository_dispatch` payload
 
@@ -198,9 +198,7 @@ Our infrastructure leverages Cloudflare for:
 
 | Worker | Purpose |
 |--------|---------|
-| **Main** | Request routing & caching |
-| **WordPress Optimizer** | Performance & WP caching |
-| **Security** | Bot protection & headers |
+| **`neurolift-world-engine`** | World Engine gateway (`cloudflare-engine/src/index.ts`) — WebSocket `/connect` + Durable Object (`WORLD_ENGINE` → `WorldEngineDO`, singleton `global-world-engine`); real-time entity simulation ticks, agent intent/perception messages |
 
 Deployment details: [`docs/cloudflare/CLOUDFLARE_SETUP.md`](docs/cloudflare/CLOUDFLARE_SETUP.md)
 
