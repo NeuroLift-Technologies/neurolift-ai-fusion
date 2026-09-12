@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "handoff_id": "HERMES-2026-09-12-th-022-governance-alignment",
+  "agent": "Hermes Agent",
+  "date": "2026-09-12T20:48:37Z",
+  "type": "session-complete",
+  "title": "Cross-repo alignment: neurolift-ai-fusion with nlt-world-engine + nlt-adhd",
+  "governance_version": "ORG-DEV-OTOI-1.0.3",
+  "summary": "Upgraded neurolift-ai-fusion governance from v1.0.0 to v1.0.3, aligned persona catalog (19→20 advocates with RSD Shield), updated architecture docs to show full World >> Fusion >> App pipeline, cleaned stale proposals, and fixed governance file index.",
+  "files_modified": [
+    "NLT-DEV-OTOI.md",
+    "AGENTS.md",
+    "REVIEW.md",
+    "nltotoi.json",
+    "README.md",
+    "docs/architecture.md",
+    "docs/active-threads.md",
+    ".nltotoi/scripts/validate-governance.sh",
+    ".nltotoi/index/governance-files.md",
+    "templates/review-record.md"
+  ],
+  "files_deleted": [
+    ".nltotoi/proposals/agent-commit-format.yml.proposed",
+    ".nltotoi/proposals/agent-profile-validation.yml.proposed",
+    ".nltotoi/proposals/agent-session-check.yml.proposed",
+    ".nltotoi/proposals/skill-profile-validation.yml.proposed"
+  ],
+  "validation": "bash .nltotoi/scripts/validate-governance.sh → 33/33 passed",
+  "pr": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/113",
+  "open_items": [
+    "Python kernel status: README says 'retired' but ~50 Python files remain — needs clarification from Joshua",
+    "Connection seam: No protocol contract for advocate export from ai-fusion → nlt-adhd — escalate if scope expands",
+    "nlt-adhd README still references 19 pairs — should be 20"
+  ],
+  "decisions_made": [
+    "Copied canonical NLT-DEV-OTOI.md v1.0.3 from nlt-adhd",
+    "Added RSD Shield as #20 advocate (matching nlt-adhd repo scaffold)",
+    "Removed stale .nltotoi/proposals/ files that were no longer tracked"
+  ],
+  "decisions_pending": []
+}
