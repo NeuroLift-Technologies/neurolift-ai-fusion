@@ -4,6 +4,32 @@
 **Version:** 1.2  
 **Author:** Cursor AI (Initial Implementation)
 
+**Document scope:** This document describes **this repo (`neurolift-ai-fusion`)** — the intelligence/task layer. The authoritative simulation world lives in the sibling repo.
+
+## Relationship to `nlt-world-engine` and `nlt-adhd`
+
+```
+┌───────────────────────────────────────────┐   ┌─────────────────────────────────────────────┐   ┌─────────────────────────────────────────────┐
+│   nlt-world-engine  (UE 5.8 WorldEngine)   │   │   neurolift-ai-fusion  (THIS REPO)           │   │   nlt-adhd  (App delivery)                   │
+│   The authoritative simulation world        │   │   The intelligence + platform layer         │   │   Personalized 1:20 runtime                  │
+│                                             │   │                                             │   │                                              │
+│  • Rooms, objects, NPCs, tick loop          │   │  • Avatar ADHD trait models (26-dim)        │   │  • 1 orchestrator + 20 advocates             │
+│  • Mass Entity simulation + StateTree       │◄──┼─►  • Aide coaching strategies               │◄──┼─►  • User-facing surfaces (Talk/Start/Top3)  │
+│  • Scenario execution (UScenarioDataAsset)  │   │  • Session orchestration / training loop    │   │  • ASFDK governance boundary                 │
+│  • Deterministic clock + event bus          │   │  • Fusion logic (Avatar + Aide → Advocate) │   │  • Local-first, no cloud dependency          │
+│  • RL training (Learning Agents)            │   │  • Web / mobile / API / Cloudflare surfaces│   │                                              │
+│                                             │   │                                             │   │                                              │
+│        "Unreal owns physical reality"       │   │        "Fusion owns semantic reality"       │   │        "App owns user reality"               │
+└───────────────────────────────────────────┘   └─────────────────────────────────────────────┘   └─────────────────────────────────────────────┘
+```
+
+**Pipeline:** World >> Fusion >> App
+- **World** builds the consequence-bearing environment where Avatars learn
+- **Fusion** trains the intelligence (20 advocates via Avatar-Aide pairs)
+- **App** delivers it — with Human Sovereignty preserved at runtime
+
+**Boundary:** This repo is the **brains**. `nlt-world-engine` is the **world**. `nlt-adhd` is the **user-facing delivery**. If it changes how an Avatar *thinks*, learns, or is coached → this repo. If it changes the *world* the Avatar lives in → `nlt-world-engine`. If it changes how the user *interacts* with their Advocate → `nlt-adhd`.
+
 ## System Architecture
 
 The NeuroLift Technologies Simulation Environment implements a novel approach to AI training through experiential learning. Unlike traditional machine learning approaches that train on datasets, this system creates realistic simulation environments where AI agents (Avatars) experience authentic challenges and learn through doing.

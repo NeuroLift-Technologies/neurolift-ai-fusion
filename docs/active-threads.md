@@ -1,6 +1,6 @@
 # Active Threads — neurolift-ai-fusion
 
-**Governance:** ORG-DEV-OTOI-1.0.0
+**Governance:** ORG-DEV-OTOI-1.0.3
 **Last updated:** 2026-08-22
 **Maintained by:** All active agents (update at session start and end)
 
@@ -19,6 +19,7 @@
 | Thread ID | Title | Owner | Agent | Branch | Status | Started |
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
+| TH-022 | Cross-repo governance alignment: upgrade OTOI v1.0.0→v1.0.3, add REVIEW.md, fix persona count (19→20), sync with nlt-world-engine + nlt-adhd | Joshua W. Dorsey, Sr. | Hermes Agent | hermes/th-022-governance-alignment-v2 | 🟡 In Progress | 2026-09-12T20:48:37-04:00 |
 
 
 ---
