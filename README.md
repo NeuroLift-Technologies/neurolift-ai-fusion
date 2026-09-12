@@ -119,7 +119,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 **How:** Combine Avatar's experiential struggle awareness with Aide's proven expertise  
 **Result:** An Advocate that both understands what ADHD struggles feel like AND knows what actually works
 
-## 🎮 The 20 Avatar-Aide-Advocate Pairs
+## 🎮 The 19 Avatar-Aide-Advocate Pairs
 
 ### Executive Function Focused (16 pairs):
 1. **StayAlert** - Sustained attention deficit
@@ -137,13 +137,12 @@ This simulation approach addresses both gaps through authentic experiential lear
 13. **FocusRecharge** - Effortful focus fatigue
 14. **EffortAlign** - Effort vs. productivity perception
 
-### Non-Executive Function (4 pairs):
+### Non-Executive Function (3 pairs):
 15. **StressShield** - Stress sensitivity
 16. **SensoryBalance** - Sensory sensitivity
 17. **SocialSync** - Social challenges
 18. **SensorySeeker** - Sensory seeking behavior
 19. **ConfidenceCoach** - Self-esteem and identity
-20. **RSD Shield** - Rejection sensitivity dysphoria
 
 
 ## 🧹 Repository Cleanup Update (2026-04-25)
