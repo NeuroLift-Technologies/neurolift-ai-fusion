@@ -1,12 +1,42 @@
 # NeuroLift Technologies Simulation Environment - Architecture Overview
 
-**Date:** Apr 25, 2026  
-**Version:** 1.2  
+**Date:** Apr 25, 2026 (intelligence-layer update: Sep 2026)  
+**Version:** 1.3  
 **Author:** Cursor AI (Initial Implementation)
+
+**Document scope:** This document describes **this repo (`neurolift-ai-fusion`)** — the intelligence/task layer. The authoritative simulation world lives in the sibling repo.
+
+## Relationship to `nlt-world-engine` and `nlt-adhd`
+
+```
+┌───────────────────────────────────────────┐   ┌─────────────────────────────────────────────┐   ┌─────────────────────────────────────────────┐
+│   nlt-world-engine  (UE 5.8 WorldEngine)   │   │   neurolift-ai-fusion  (THIS REPO)           │   │   nlt-adhd  (App delivery)                   │
+│   The authoritative simulation world        │   │   The intelligence + platform layer         │   │   Personalized 1:20 runtime                  │
+│                                             │   │                                             │   │                                              │
+│  • Rooms, objects, NPCs, tick loop          │   │  • Avatar ADHD trait models (26-dim)        │   │  • 1 orchestrator + 20 advocates             │
+│  • Mass Entity simulation + StateTree       │◄──┼─►  • Aide coaching strategies               │◄──┼─►  • User-facing surfaces (Talk/Start/Top3)  │
+│  • Scenario execution (UScenarioDataAsset)  │   │  • Session orchestration / training loop    │   │  • ASFDK governance boundary                 │
+│  • Deterministic clock + event bus          │   │  • Fusion logic (Avatar + Aide → Advocate) │   │  • Local-first, no cloud dependency          │
+│  • RL training (Learning Agents)            │   │  • Web / mobile / API / Cloudflare surfaces│   │                                              │
+│                                             │   │                                             │   │                                              │
+│        "Unreal owns physical reality"       │   │        "Fusion owns semantic reality"       │   │        "App owns user reality"               │
+└───────────────────────────────────────────┘   └─────────────────────────────────────────────┘   └─────────────────────────────────────────────┘
+```
+
+**Pipeline:** World >> Fusion >> App
+- **World** builds the consequence-bearing environment where Avatars learn
+- **Fusion** trains the intelligence (20 advocates via Avatar-Aide pairs)
+- **App** delivers it — with Human Sovereignty preserved at runtime
+
+**Boundary:** This repo is the **brains**. `nlt-world-engine` is the **world**. `nlt-adhd` is the **user-facing delivery**. If it changes how an Avatar *thinks*, learns, or is coached → this repo. If it changes the *world* the Avatar lives in → `nlt-world-engine`. If it changes how the user *interacts* with their Advocate → `nlt-adhd`.
+
+**Connection seam:** This repo's intelligence drives the UE WorldEngine through the agent interface (`AgentInterface` in `nlt-world-engine/world-engine`, `perceive`/intent contract) and the UE HTTP/WebSocket API (`NLTWebServerSubsystem`). See `nlt-world-engine/WorldEngine/docs/architecture/` for the authoritative UE-side architecture ([`unreal-simulation-architecture.md`](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/WorldEngine/docs/architecture/unreal-simulation-architecture.md), [`fusion-unreal-domain-mapping.md`](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/WorldEngine/docs/architecture/fusion-unreal-domain-mapping.md)).
 
 ## System Architecture
 
 The NeuroLift Technologies Simulation Environment implements a novel approach to AI training through experiential learning. Unlike traditional machine learning approaches that train on datasets, this system creates realistic simulation environments where AI agents (Avatars) experience authentic challenges and learn through doing.
+
+> **Note on terminology:** Sections below that refer to a "World Engine," "Time System," or "Consequence System" describe the **task/intelligence layer within this repo** (the Python `simulation.environment` for testing/reference, and the abstract contract for how Avatars experience scenarios). The **physical/world runtime** that Avatars actually live in is the UE 5.8 WorldEngine in `nlt-world-engine`.
 
 ## Source-Verified Runtime Contracts (Apr 2026)
 
@@ -112,7 +142,7 @@ returns a crisis-mode `SupportResponse` only when
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    NeuroLift Technologies Simulation Environment           │
+│                NeuroLift AI Fusion (Intelligence Layer)                     │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
 │  │   Avatars   │  │    Aides    │  │  Advocates  │        │
@@ -127,23 +157,19 @@ returns a crisis-mode `SupportResponse` only when
 │           └───────┬───────┘                               │
 │                   │                                       │
 │  ┌─────────────────────────────────────────────────────────┤
-│  │              Simulation Environment                    │
+│  │              Scenario / Task Layer (this repo)         │
 │  │                                                       │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐   │
-│  │  │   Scenarios │  │     NPCs    │  │  Challenges │   │
+│  │  │   Scenarios │  │  Challenge  │  │   Tasks /   │   │
+│  │  │  (as tasks) │  │  Injection  │  │  Tracker    │   │
 │  │  │             │  │             │  │             │   │
-│  │  │ • Workplace │  │ • Neurotyp. │  │ • Random    │   │
-│  │  │ • Personal  │  │ • Biased    │  │   Dysfunc.  │   │
-│  │  │ • Social    │  │ • Supportive│  │ • Burnout   │   │
-│  │  └─────────────┘  └─────────────┘  │   Sim.      │   │
-│  │                                   └─────────────┘   │
-│  │                                                       │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐   │
-│  │  │ World Engine│  │ Time System │  │ Consequence │   │
-│  │  │             │  │             │  │   System    │   │
-│  │  │ • Physics   │  │ • Scheduling│  │ • Real      │   │
-│  │  │ • Events    │  │ • Passage   │  │   Results   │   │
+│  │  │ • Workplace │  │ • Random    │  │ • Attempt   │   │
+│  │  │ • Personal  │  │   Dysfunc.  │  │ • Coaching  │   │
+│  │  │ • Social    │  │ • Burnout   │  │ • Result    │   │
 │  │  └─────────────┘  └─────────────┘  └─────────────┘   │
+│  │                                                       │
+│  │  (Physical world: rooms, NPCs, tick loop,             │
+│  │   consequences = nlt-world-engine UE WorldEngine)     │
 │  └─────────────────────────────────────────────────────────┤
 │                                                           │
 │  ┌─────────────────────────────────────────────────────────┤
@@ -229,27 +255,32 @@ class BaseAide:
         pass
 ```
 
-### 3. Simulation Environment
+### 3. Simulation Environment (Task/Intelligence Layer)
 
-**Purpose:** Create realistic scenarios with meaningful consequences
+**Purpose:** Define scenarios as *tasks* an Avatar attempts, and track struggle → coaching → outcome.
 
-**Key Features:**
-- **World Engine:** Manages simulation state, physics, and events
-- **Time System:** Handles scheduling, deadlines, and time passage
-- **Consequence System:** Ensures actions have realistic results
-- **NPCs:** Create social dynamics and comparison scenarios
-- **Random Challenges:** Inject unexpected difficulties to test resilience
+> **World runtime lives in `nlt-world-engine`:** The physical world (rooms, objects, NPCs, tick loop, consequences) is the UE 5.8 WorldEngine. This repo's "Simulation Environment" is the contract for *how Avatars experience* those scenarios — the semantic/task side. See [`fusion-unreal-domain-mapping.md`](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/WorldEngine/docs/architecture/fusion-unreal-domain-mapping.md) for the concept → Unreal component mapping ("Fusion owns semantic reality, Unreal owns physical reality").
 
-**Architecture:**
+**Key Features (this repo):**
+- **Scenario contract:** Scenarios as *tasks* (name, task_type, base_success_rate, cognitive_demand) the Avatar attempts
+- **Task tracking:** Session orchestration flows (attempt → coach → retry → outcome)
+- **Consequence evaluation:** How outcomes update Avatar independence/learning progress
+- **Challenge injection:** Random executive-function challenges to test resilience
+
+**Architecture (this repo's task-layer contract):**
 ```python
 class SimulationEnvironment:
-    """Core simulation environment"""
+    """Semantic task layer — defines how Avatars experience scenarios.
+
+    Physical world execution (rooms, objects, NPCs, tick loop) is owned by
+    the UE 5.8 WorldEngine in nlt-world-engine.
+    """
     
     def __init__(self, config: EnvironmentConfig):
-        self.world_engine = WorldEngine()
-        self.time_system = TimeSystem()
-        self.consequence_system = ConsequenceSystem()
-        self.npc_manager = NPCManager()
+        self.world_engine = WorldEngine()  # semantic world model / reference (Python)
+        self.time_system = TimeSystem()    # task-scheduling semantics
+        self.consequence_system = ConsequenceSystem()  # outcome evaluation
+        self.npc_manager = NPCManager()    # semantic NPC definitions
         self.challenge_injector = ChallengeInjector()
     
     def run_scenario(self, scenario: Scenario, avatar: BaseAvatar, aide: BaseAide) -> ScenarioResult:
@@ -294,19 +325,19 @@ class FusionEngine:
 ### Training Loop Flow
 
 ```
-1. Scenario Selection
+1. Scenario Selection (task contract, this repo)
    ↓
-2. Avatar Attempts Task
+2. Avatar Attempts Task (executed in UE WorldEngine world, nlt-world-engine)
    ↓
-3. ADHD Trait Affects Performance
+3. ADHD Trait Affects Performance (this repo — semantic)
    ↓
-4. Aide Observes Struggle
+4. Aide Observes Struggle (this repo)
    ↓
-5. Aide Provides Coaching
+5. Aide Provides Coaching (this repo)
    ↓
-6. Avatar Tries Again (with support)
+6. Avatar Tries Again (with support, in UE WorldEngine world)
    ↓
-7. Consequence System Evaluates Result
+7. Outcome Assessed (world state → semantic result via agent interface)
    ↓
 8. Progress Tracking Updates
    ↓

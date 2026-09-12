@@ -1,15 +1,16 @@
 {
-  "nltotoi_version": "1.0.0",
-  "document_id": "ORG-DEV-OTOI-1.0.0",
+  "nltotoi_version": "1.0.3",
+  "document_id": "ORG-DEV-OTOI-1.0.3",
   "repository": {
     "name": "NeuroLift-Technologies/neurolift-ai-fusion",
-    "purpose": "Internal coding agent governance — TOI-OTOI operational contracts",
+    "purpose": "Intelligence/training layer — Avatar/Aide/Advocate models, simulation scenarios, fusion logic",
     "mode": "production",
     "visibility": "private",
     "audience": "internal-coding-agents"
   },
   "canonical_contract": "NLT-DEV-OTOI.md",
   "agents_gateway": "AGENTS.md",
+  "review_format": "REVIEW.md",
   "discovery": {
     "file_index": ".nltotoi/index/governance-files.md",
     "validation_script": ".nltotoi/scripts/validate-governance.sh",
@@ -20,6 +21,7 @@
   "required_files": [
     "NLT-DEV-OTOI.md",
     "AGENTS.md",
+    "REVIEW.md",
     "nltotoi.json",
     ".nltotoi/README.md",
     ".nltotoi/index/governance-files.md",
@@ -29,6 +31,7 @@
     "templates/handoff-record.json",
     "templates/escalation.md",
     "templates/intent-log.md",
+    "templates/review-record.md",
     "ISSUE_TEMPLATE/agent-escalation.md",
     "ISSUE_TEMPLATE/governance-proposal.md",
     "PULL_REQUEST_TEMPLATE/agent-contribution.md",
@@ -50,7 +53,7 @@
   },
   "metadata": {
     "created": "2026-03-31",
-    "version": "1.0.0",
-    "last_updated": "2026-04-04"
+    "version": "1.0.3",
+    "last_updated": "2026-09-12"
   }
 }
