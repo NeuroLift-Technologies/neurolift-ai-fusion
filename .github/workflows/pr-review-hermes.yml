@@ -1,0 +1,41 @@
+name: PR Review Hermes Bot
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  statuses: read
+
+jobs:
+  hermes-review:
+    name: PR Review Hermes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: checks } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.payload.pull_request.head.sha
+            });
+            
+            const failed = checks.check_runs.filter(c => c.conclusion === 'failure');
+            if (failed.length > 0) {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                event: 'REQUEST_CHANGES',
+                body: `Hermes Bot: ${failed.length} check(s) failed:\n` +
+                  failed.map(c => `- ${c.name}: ${c.conclusion}`).join('\n')
+              });
+            }

@@ -1,0 +1,30 @@
+[run]
+source = src
+omit =
+    */tests/*
+    */test_*
+    */__pycache__*/
+    */venv/*
+    */env/*
+    setup.py
+    # Lazily-imported adapters (require torch/transformers or external API)
+    */transformer_policy.py
+    */openai_compat.py
+    # Legacy / non-canonical paths noted in docs/architecture.md
+    */training_session.py
+    */network_client.py
+    # External-service clients (graceful degradation when Supabase unavailable)
+    */supabase_client.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod

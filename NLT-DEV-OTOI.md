@@ -160,7 +160,7 @@ When escalating, use this format (also available as `templates/escalation.md`):
 
 ### 4.5 Review Format
 
-All agent-conducted reviews — code, content, governance, or security — must follow the canonical format defined in [`REVIEW.md`](REVIEW.md), with the fillable template at [`templates/review-record.md`](templates/review-record.md). Reviews must include: Review Metadata, Pre-Review Checklist, Findings (Critical / High / Low), Factual Accuracy, Governance Compliance, a Verdict (APPROVED / CHANGES REQUESTED / BLOCKED), and Handoff Notes. See [`REVIEW.md`](REVIEW.md) for the full structure and `agents/nlt-code-reviewer.md` for the code-review specialization.
+All agent-conducted reviews — code, content, governance, or security — must follow the canonical format defined in [`REVIEW.md`](REVIEW.md), with the fillable template at [`templates/review-record.md`](templates/review-record.md). Reviews must include: Review Metadata, Pre-Review Checklist, Findings (Critical / High / Low), Factual Accuracy, Governance Compliance, a Verdict (APPROVED / CHANGES REQUESTED / BLOCKED), and Handoff Notes. See [`REVIEW.md`](REVIEW.md) for the full structure and `.claude/agents/nlt-code-reviewer.md` for the code-review specialization.
 
 ---
 

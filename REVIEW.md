@@ -15,7 +15,7 @@ This file defines the canonical format for agent-conducted reviews in NLT reposi
 ## Review Metadata
 
 **Reviewer:** [Agent name / platform]
-**Review Date:** [ISO 8601 date]
+**Review Date:** [ISO 8601 timestamp with UTC offset, e.g. 2026-09-12T20:48:37-04:00]
 **Review Type:** [Code | Content | Governance | Security]
 **Scope:** [Files, pages, or sections reviewed]
 **OTOI Version:** ORG-DEV-OTOI-1.0.3

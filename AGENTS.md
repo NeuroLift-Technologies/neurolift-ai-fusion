@@ -103,7 +103,7 @@ For any Pull Request to be merged in a NeuroLift Technologies repository:
 
 **All of the following must be true:**
 
-1. **All status checks must pass (green)** — No failing checks allowed
+1. **All required status checks must pass (green)** — No failing checks allowed, including:
    - OSSAR-Scan (security vulnerabilities)
    - Check Contact Email Compliance
    - Scan PR for Credential Exposure (SOP-NLT-003)
@@ -112,6 +112,7 @@ For any Pull Request to be merged in a NeuroLift Technologies repository:
    - Validate Agent Commit Format (SOP-NLT-001)
    - Check Agent Handoff Record (SOP-NLT-001)
    - Any repository-specific required checks
+   (Branch protection requires ALL configured checks to pass before merge.)
 
 2. **At least 1 human approval required** — Automated approvals do not count
 
@@ -140,10 +141,15 @@ The **PR Review Hermes Bot** enforces these requirements automatically:
 To enable the Hermes bot on a repository, add `.github/workflows/pr-review-hermes.yml`:
 
 ```yaml
+# NOTE: This is pseudocode showing intended Hermes Bot behavior.
 name: PR Review Hermes Bot
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
 
 permissions:
   contents: read
@@ -212,9 +218,9 @@ PULL_REQUEST_TEMPLATE/
 └── agent-contribution.md              ← Agent PR checklist
 
 workflows/
-├── pr-review-hermes.yml               ← PR Review Hermes Bot (NEW)
-├── validate-governance.yml            ← CI: runs validate-governance.sh
-└── other workflow files...
+├── .github/workflows/pr-review-hermes.yml ← PR Review Hermes Bot (if present)
+├── .github/workflows/validate-governance.yml ← CI: runs validate-governance.sh
+└── (other workflow files in .github/workflows/)
 
 SOPs/
 ├── new-agent-onboarding.md            ← How to onboard a new coding agent

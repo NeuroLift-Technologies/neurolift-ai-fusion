@@ -14,7 +14,7 @@
 ## Review Metadata
 
 **Reviewer:** [Agent name / platform]
-**Review Date:** [ISO 8601 date, e.g. 2026-03-31T14:30:00-04:00]
+**Review Date:** [ISO 8601 timestamp with UTC offset, e.g. 2026-09-12T20:48:37-04:00]
 **Review Type:** [Code | Content | Governance | Security]
 **Scope:** [Files, pages, or sections reviewed]
 **OTOI Version:** ORG-DEV-OTOI-1.0.3
