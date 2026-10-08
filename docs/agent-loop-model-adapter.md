@@ -39,8 +39,10 @@ Qwen3. Set `NLT_AGENT_LOOP_MODEL_PATH` to the local directory and run:
 
 ```powershell
 $env:NLT_AGENT_LOOP_MODEL_PATH = "C:\Users\<user>\Local_models\Qwen3-0.6B-Safetensors"
-python -m pytest tests/test_fusion/test_transformers_agent_decision.py -q
+python -m pytest tests/test_fusion/test_transformers_agent_decision.py -q -o addopts="--verbose --tb=short --strict-markers --strict-config --durations=10"
 ```
+
+This override is for the same `pytest.ini` reason described under the GGUF path below.
 
 Fusion code can compose the adapter with the existing protocol seam:
 
@@ -63,14 +65,36 @@ py -3.11 -m venv "C:\Users\<user>\Local_models\fusion-gguf-env"
 & "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pip install -r requirements-gguf.txt pytest
 ```
 
+The leading `&` is PowerShell's call operator and is mandatory here. Without it, a quoted path is
+read as a string literal and the following `-m` is a syntax error:
+
+```
+"C:\...\Scripts\python.exe" -m pip install -r requirements-gguf.txt pytest
+                                       ~~
+Unexpected token '-m' in expression or statement.
+```
+
+If the environment already exists, confirm it has pip before reinstalling. Environments created by
+`uv` contain `_virtualenv.pth` and ship without pip, so `python -m pip` fails with
+`No module named pip`; in that case install with `uv pip install --python <env>\Scripts\python.exe -r
+requirements-gguf.txt pytest`, or bootstrap pip once with `python -m ensurepip`.
+
 On Windows, if pip cannot find a compatible prebuilt CPU wheel, install from the llama-cpp-python
 CPU wheel index or use the project's documented CMake/Visual Studio build instructions. Set the
 GGUF path and run both the mocked contract tests and the opt-in local smoke test:
 
 ```powershell
 $env:NLT_AGENT_LOOP_GGUF_PATH = "C:\Users\<user>\Downloads\Qwen3-0.6B-Q8_0.gguf"
-& "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pytest tests/test_fusion/test_gguf_agent_decision.py -q
+& "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pytest tests/test_fusion/test_gguf_agent_decision.py -q -o addopts="--verbose --tb=short --strict-markers --strict-config --durations=10"
 ```
+
+The `-o addopts` override is required because the repository `pytest.ini` puts `--cov` options in
+`addopts` and `pytest-cov` is not part of the optional GGUF runtime. Without it, pytest aborts before
+running a test with `error: unrecognized arguments: --cov=src`. The override re-states every other
+`addopts` flag so that `--strict-markers` and `--strict-config` still apply; this suite depends on
+`--strict-markers` because of its `slow` marker. Use `-o addopts=""` only when `pytest-cov` is not
+needed and the strict flags are irrelevant, and drop the override entirely if `pytest-cov` is
+installed.
 
 The GGUF adapter defaults to a 2048-token context, two CPU threads, and no GPU layers to keep the
 first run bounded. It constrains model output to `wait` or `approach` with a visible entity that
