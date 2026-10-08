@@ -63,8 +63,15 @@ py -3.11 -m venv "C:\Users\<user>\Local_models\fusion-gguf-env"
 & "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pip install -r requirements-gguf.txt pytest
 ```
 
-The leading `&` is PowerShell's call operator and is mandatory here. Without it, a quoted path is
-read as a string literal and the following `-m` is a syntax error:
+The leading `&` is PowerShell's call operator. It is **only required when the path contains a
+space**. The default paths above have none, so this also works:
+
+```powershell
+C:\Users\joshd\Local_models\fusion-gguf-env\Scripts\python.exe -m pip install -r requirements-gguf.txt pytest
+```
+
+Dropping `&` while the path *is* quoted makes PowerShell read it as a string literal, and the
+following `-m` becomes a syntax error:
 
 ```
 "C:\...\Scripts\python.exe" -m pip install -r requirements-gguf.txt pytest
