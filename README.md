@@ -131,7 +131,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 **Role:** Coach, therapist, and assistant operating IN the simulation environment alongside the Avatar
 
 #### Phase 3: Simulation Training
-**Environment:** Sims/RPG-style virtual world — the target physical runtime is **[Godot 4.7.2 in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot)**. `WorldEngine/` retains the UE 5.8 reference implementation while the migration is in progress. The transport-neutral agent-loop contract is defined, but no live Fusion ↔ Godot endpoint or HTTP/WebSocket connection is implemented.
+**Environment:** Sims/RPG-style virtual world — the target physical runtime is **[Godot 4.7.2 in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot)**. `WorldEngine/` retains the UE 5.8 reference implementation. The transport-neutral agent-loop contract is defined, and Fusion exposes a loopback HTTP endpoint at `POST /agent-loop/perception`. Live Godot ↔ Fusion transport and runtime dispatch are not yet wired.
 
 **Scenario Categories:**
 - **Workplace:** HR compliance, meetings, project management, performance reviews

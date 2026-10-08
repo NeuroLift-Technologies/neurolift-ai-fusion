@@ -1,6 +1,9 @@
 """Tests for the separate local GGUF agent-loop decision path."""
 
 import os
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -46,6 +49,27 @@ class FakeLlama:
     def create_chat_completion(self, **kwargs):
         self.kwargs = kwargs
         return {"choices": [{"message": {"content": self.content}}]}
+
+
+class ConcurrentFakeLlama(FakeLlama):
+    def __init__(self, content):
+        super().__init__(content)
+        self._guard = threading.Lock()
+        self.active_calls = 0
+        self.max_concurrent_calls = 0
+
+    def create_chat_completion(self, **kwargs):
+        with self._guard:
+            self.active_calls += 1
+            self.max_concurrent_calls = max(
+                self.max_concurrent_calls, self.active_calls
+            )
+        try:
+            time.sleep(0.03)
+            return super().create_chat_completion(**kwargs)
+        finally:
+            with self._guard:
+                self.active_calls -= 1
 
 
 def test_gguf_adapter_emits_grounded_approach_intent(observation):
@@ -97,6 +121,18 @@ def test_gguf_adapter_emits_wait_intent(observation):
 
     assert intent["verb"] == "wait"
     assert "targetId" not in intent
+
+
+def test_gguf_adapter_serializes_shared_model_inference(observation):
+    model = ConcurrentFakeLlama('{"verb":"wait"}')
+    adapter = LlamaCppAgentLoopDecision("unused-injected-model.gguf", model=model)
+    second_observation = {**observation, "agentId": "avatar_2"}
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        intents = list(executor.map(adapter, [observation, second_observation]))
+
+    assert [intent["agentId"] for intent in intents] == ["avatar_1", "avatar_2"]
+    assert model.max_concurrent_calls == 1
 
 
 @pytest.mark.parametrize(

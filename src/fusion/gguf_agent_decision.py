@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 import uuid
 from pathlib import Path
 from typing import Any, Mapping
@@ -54,6 +55,7 @@ class LlamaCppAgentLoopDecision:
         self.model_path = Path(model_path)
         self.context_size = context_size
         self.threads = threads
+        self._inference_lock = threading.Lock()
 
         if model is None:
             if not self.model_path.is_file():
@@ -111,25 +113,26 @@ class LlamaCppAgentLoopDecision:
                 }
             )
 
-        response = self._model.create_chat_completion(
-            messages=[
-                {"role": "system", "content": self._SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": json.dumps(
-                        model_input,
-                        separators=(",", ":"),
-                        ensure_ascii=False,
-                    ),
+        with self._inference_lock:
+            response = self._model.create_chat_completion(
+                messages=[
+                    {"role": "system", "content": self._SYSTEM_PROMPT},
+                    {
+                        "role": "user",
+                        "content": json.dumps(
+                            model_input,
+                            separators=(",", ":"),
+                            ensure_ascii=False,
+                        ),
+                    },
+                ],
+                temperature=0.0,
+                max_tokens=48,
+                response_format={
+                    "type": "json_object",
+                    "schema": {"oneOf": decision_schemas},
                 },
-            ],
-            temperature=0.0,
-            max_tokens=48,
-            response_format={
-                "type": "json_object",
-                "schema": {"oneOf": decision_schemas},
-            },
-        )
+            )
 
         try:
             content = response["choices"][0]["message"]["content"]

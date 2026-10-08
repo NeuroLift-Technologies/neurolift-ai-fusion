@@ -99,8 +99,8 @@ def create_app(
         # Envelope check before anything else touches it.
         try:
             validate_perception(body)
-        except AgentLoopProtocolError as exc:
-            return _error(422, str(exc))
+        except AgentLoopProtocolError:
+            return _error(422, "invalid perception envelope")
 
         agent_id = body["agentId"]
 
@@ -114,10 +114,10 @@ def create_app(
             # Inference off the event loop: GGUF calls take seconds and must not
             # stall uvicorn (or, on the Godot side, its physics/render thread).
             intent = await asyncio.to_thread(loop.handle_observation, body)
-        except AgentLoopProtocolError as exc:
-            return _error(422, str(exc))
-        except Exception as exc:  # noqa: BLE001 - transport boundary fails closed
-            return _error(503, f"decision source unavailable: {type(exc).__name__}")
+        except AgentLoopProtocolError:
+            return _error(422, "decision did not satisfy the agent-loop contract")
+        except Exception:  # noqa: BLE001 - transport boundary fails closed
+            return _error(503, "decision source unavailable")
         finally:
             in_flight.discard(agent_id)
 
@@ -143,15 +143,12 @@ def _error(status: int, reason: str) -> Response:
     )
 
 
-app = create_app()
-
-
 def main() -> None:
     """Run with uvicorn. Port matches Godot FusionHttpLink.FusionEndpoint."""
     import uvicorn
 
     uvicorn.run(
-        app,
+        create_app(),
         host="127.0.0.1",
         port=int(os.environ.get("FUSION_AGENT_LOOP_PORT", "8001")),
         log_level="info",

@@ -85,7 +85,8 @@ def test_decision_source_error_fails_closed():
     client = TestClient(create_app(decide=exploding))
     response = client.post("/agent-loop/perception", json=_perception())
     assert response.status_code == 503
-    assert "decision source unavailable" in response.json()["error"]
+    assert response.json()["error"] == "decision source unavailable"
+    assert "model exploded" not in response.text
 
 
 def test_stale_or_mismatched_intent_rejected_by_seam():
@@ -99,7 +100,7 @@ def test_stale_or_mismatched_intent_rejected_by_seam():
     client = TestClient(create_app(decide=stale_decide))
     response = client.post("/agent-loop/perception", json=_perception())
     assert response.status_code == 422
-    assert "stale" in response.json()["error"]
+    assert response.json()["error"] == "decision did not satisfy the agent-loop contract"
 
 
 def test_target_outside_perception_rejected_by_seam():
@@ -111,7 +112,8 @@ def test_target_outside_perception_rejected_by_seam():
     client = TestClient(create_app(decide=hidden_target_decide))
     response = client.post("/agent-loop/perception", json=_perception())
     assert response.status_code == 422
-    assert "hidden_object" in response.json()["error"]
+    assert response.json()["error"] == "decision did not satisfy the agent-loop contract"
+    assert "hidden_object" not in response.text
 
 
 def test_protocol_error_type_used_by_seam():
