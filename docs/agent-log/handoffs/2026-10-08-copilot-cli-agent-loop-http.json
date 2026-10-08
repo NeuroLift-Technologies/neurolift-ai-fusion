@@ -1,0 +1,53 @@
+{
+  "handoff_record": {
+    "session_id": "92e7cf1a-7135-4f27-87d3-99e4826f528f",
+    "agent_name": "GitHub Copilot CLI",
+    "date": "2026-10-08",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "feat/agent-loop-http-gguf-20261008",
+    "work_completed": [
+      "Added independent Transformers/Safetensors and llama.cpp/GGUF decision adapters that validate semantic intents without returning or applying physical state.",
+      "Added a loopback FastAPI endpoint for nlt.agent-loop.v1 perception-to-intent requests, with async worker-thread inference, correlation/grounding validation, one in-flight request per avatar, and fail-closed errors.",
+      "Documented local model setup, HTTP endpoint usage, runtime boundaries, and updated the optional Transformers minimum for Qwen3 compatibility."
+    ],
+    "work_in_progress": [
+      "Pull request review and cross-repository runtime integration."
+    ],
+    "blockers": [
+      "Fusion's model decision seam is not wired into SessionOrchestrator; the HTTP endpoint is the current integration path.",
+      "No cross-process Godot-to-Fusion end-to-end run has been recorded."
+    ],
+    "decisions_made": [
+      "Use loopback HTTP request/response for the single-avatar low-frequency integration; the endpoint binds to 127.0.0.1 by default.",
+      "Keep GGUF and Transformers as separate optional local model paths; do not add model weights to Git.",
+      "Keep ASFDK governance, live-world revalidation, and physical execution on the Godot side."
+    ],
+    "decisions_pending": [],
+    "escalations": [],
+    "next_agent_notes": "Review the PR and coordinate with the nlt-world-engine transport client implementation. The endpoint defaults to a deterministic model-free control decision unless FUSION_GGUF_MODEL points to a local GGUF file. The real local GGUF adapter smoke test passed; the HTTP endpoint tests use injected decision functions. Do not describe this as a verified cross-process end-to-end run.",
+    "files_modified": [
+      "README.md",
+      "docs/active-threads.md",
+      "docs/agent-loop-model-adapter.md",
+      "docs/architecture.md",
+      "requirements-ai.txt",
+      "requirements-gguf.txt",
+      "src/fusion/__init__.py",
+      "src/fusion/agent_loop_http.py",
+      "src/fusion/gguf_agent_decision.py",
+      "src/fusion/transformers_agent_decision.py",
+      "tests/test_fusion/test_agent_loop_http.py",
+      "tests/test_fusion/test_gguf_agent_decision.py",
+      "tests/test_fusion/test_transformers_agent_decision.py"
+    ],
+    "tests_run": [
+      "python -m pytest -o addopts= tests/test_fusion -q — 62 passed, 2 skipped.",
+      "bash .nltotoi/scripts/validate-governance.sh --strict — 33 passed, 0 failed, 0 warned.",
+      "NLT_AGENT_LOOP_GGUF_PATH=<local Qwen3-0.6B-Q8_0.gguf> python -m pytest -o addopts= tests/test_fusion/test_gguf_agent_decision.py -q — 11 passed with the real local model.",
+      "git diff --cached --check — passed."
+    ],
+    "tests_passing": true,
+    "pr_url": "pending"
+  }
+}

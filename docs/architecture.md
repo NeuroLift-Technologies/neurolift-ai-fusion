@@ -34,14 +34,18 @@ The diagram's UE-specific systems are retained-reference context, not a claim th
 
 ## Physical-world runtime connection
 
-The transport-neutral `nlt.agent-loop.v1` contract, maintained at
+The `nlt.agent-loop.v1` contract, maintained at
 `nlt-world-engine/docs/contracts/agent-loop-v1.md`, defines the Godot ↔ Fusion control boundary:
 the world engine sends physical perception snapshots;
 Fusion returns semantic intents; the engine validates and executes their physical consequences.
-The transport is intentionally undecided.
+Fusion exposes this boundary over loopback HTTP via `src/fusion/agent_loop_http.py`, at
+`POST /agent-loop/perception`.
+
+Godot applies the sibling `asfdk-csharp` library at intent ingress before its independent physical
+validation and execution. Fusion's HTTP service does not perform governance or physical actions.
 
 `src/fusion/agent_loop.py` is the validating Fusion seam for an injected semantic decision source.
-It is not a live endpoint and is not yet wired into `SessionOrchestrator`. The existing
+It is exposed by the HTTP endpoint but is not wired into `SessionOrchestrator`. The existing
 `src/simulation/environment/agent_interface.py` remains a separate environment implementation;
 it must not become a second source of physical truth for an integrated Godot runtime.
 

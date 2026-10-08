@@ -1,0 +1,2 @@
+# Optional CPU GGUF inference for src.fusion.LlamaCppAgentLoopDecision.
+llama-cpp-python>=0.3.16
