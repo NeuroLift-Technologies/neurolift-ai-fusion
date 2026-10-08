@@ -21,7 +21,15 @@ from .readiness_assessor import (
     FusionReadiness,
 )
 from .state_feed import build_state_feed
-from .agent_loop import AgentLoopProtocolError, FusionAgentLoop
+from .agent_loop import AgentLoopProtocolError, FusionAgentLoop, PROTOCOL_VERSION
+from .transformers_agent_decision import (
+    AgentLoopModelOutputError,
+    TransformersAgentLoopDecision,
+)
+from .gguf_agent_decision import (
+    GgufAgentLoopModelOutputError,
+    LlamaCppAgentLoopDecision,
+)
 
 __all__ = [
     "FusionEngine",
@@ -32,6 +40,11 @@ __all__ = [
     "build_state_feed",
     "AgentLoopProtocolError",
     "FusionAgentLoop",
+    "PROTOCOL_VERSION",
+    "AgentLoopModelOutputError",
+    "TransformersAgentLoopDecision",
+    "GgufAgentLoopModelOutputError",
+    "LlamaCppAgentLoopDecision",
     # Model-level fusion (trajectory distillation)
     "ModelFusionEngine",
     "ModelFusionReport",

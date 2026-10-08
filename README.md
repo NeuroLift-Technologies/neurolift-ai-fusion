@@ -62,17 +62,20 @@ Godot physical perception → Fusion semantic intent → Godot validation/execut
 The world engine supplies an agent-specific snapshot of physical facts (self state, scene, visible
 entities, and affordances). Fusion may respond with semantic intents such as `approach`, `look_at`,
 `use`, `sit`, `rest`, `communicate`, or `wait`—never coordinates, velocity, teleportation, or
-object-state writes. The engine remains responsible for validating an intent against current world
-conditions and reporting acceptance or an explicit rejection reason.
+object-state writes. Godot applies ASFDK-C# governance at intent ingress, then independently
+validates current physical conditions before executing consequences. Fusion returns semantic
+intent only; it does not govern or execute physical effects.
 
 The protocol and current status are documented in the
 [agent-loop feature overview](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/agent-loop.md)
 and [versioned contract](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/contracts/agent-loop-v1.md).
-Fusion's `src/fusion/agent_loop.py` provides a transport-neutral validation seam around an injected
-decision callback; it is not yet wired into `SessionOrchestrator` or a live endpoint. Transport
-selection is deferred, and Godot's runtime dispatch and physical interaction/collision execution
-remain incomplete. The existing `nlt.state-feed.v1` is a separate observer feed, not this control
-protocol.
+Fusion's `src/fusion/agent_loop.py` provides the validating decision seam, exposed locally by
+`src/fusion/agent_loop_http.py` at `POST http://127.0.0.1:8001/agent-loop/perception`. Set
+`FUSION_GGUF_MODEL` to select the optional local GGUF model; without it the endpoint uses a
+deterministic model-free control decision. Inference runs outside the ASGI event loop, and malformed,
+stale, or unavailable decisions fail closed. The endpoint is loopback-only and does not perform
+ASFDK governance or physical execution. The existing `nlt.state-feed.v1` is a separate observer
+feed, not this control protocol.
 
 ### JavaScript dependency boundaries
 
@@ -128,7 +131,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 **Role:** Coach, therapist, and assistant operating IN the simulation environment alongside the Avatar
 
 #### Phase 3: Simulation Training
-**Environment:** Sims/RPG-style virtual world — the target physical runtime is **[Godot 4.7.2 in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot)**. `WorldEngine/` retains the UE 5.8 reference implementation while the migration is in progress. The transport-neutral agent-loop contract is defined, but no live Fusion ↔ Godot endpoint or HTTP/WebSocket connection is implemented.
+**Environment:** Sims/RPG-style virtual world — the target physical runtime is **[Godot 4.7.2 in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot)**. `WorldEngine/` retains the UE 5.8 reference implementation. The transport-neutral agent-loop contract is defined, and Fusion exposes a loopback HTTP endpoint at `POST /agent-loop/perception`. Live Godot ↔ Fusion transport and runtime dispatch are not yet wired.
 
 **Scenario Categories:**
 - **Workplace:** HR compliance, meetings, project management, performance reviews
