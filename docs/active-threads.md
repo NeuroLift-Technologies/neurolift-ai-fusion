@@ -20,7 +20,7 @@
 |-----------|-------|-------|-------|--------|--------|---------|
 | TH-008 | Document PR #43 Cloudflare workspace/config changes | Automation | Cursor Automation | cursor/documentation-automation-system-99aa | 🟡 In Progress | 2026-05-02 |
 | TH-022 | Cross-repo governance alignment: upgrade OTOI v1.0.0→v1.0.3, add REVIEW.md, fix persona count (19→20), sync with nlt-world-engine + nlt-adhd | Joshua W. Dorsey, Sr. | Hermes Agent | hermes/th-022-governance-alignment-v2 | 🟡 In Progress | 2026-09-12T20:48:37-04:00 |
-| TH-023 | Add local model adapters and loopback HTTP endpoint for the Godot agent loop | Joshua W. Dorsey, Sr. | Copilot CLI | feat/agent-loop-http-gguf-20261008 | 🟡 PR review pending | 2026-10-08 |
+| TH-023 | Add local model adapters and loopback HTTP endpoint for the Godot agent loop ([PR #119](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/119)) | Joshua W. Dorsey, Sr. | Copilot CLI | feat/agent-loop-http-gguf-20261008 | 🟡 PR review pending | 2026-10-08 |
 
 
 ---

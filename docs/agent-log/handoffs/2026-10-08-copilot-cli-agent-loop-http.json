@@ -48,6 +48,6 @@
       "git diff --cached --check — passed."
     ],
     "tests_passing": true,
-    "pr_url": "pending"
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/119"
   }
 }
