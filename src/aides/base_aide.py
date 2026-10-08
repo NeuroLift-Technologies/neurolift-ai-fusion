@@ -108,6 +108,7 @@ class CoachingAction:
     focus_restoration: float = 0.0
     independence_building: float = 0.0
     timestamp: datetime = field(default_factory=datetime.now)
+    helped: Optional[bool] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -387,6 +388,7 @@ class BaseAide(ABC):
             self._pending_interventions.pop(last_action.action_id, None)
             return
 
+        last_action.helped = True
         self._record_strategy_outcome(last_action.strategy, effective=True)
         self._pending_interventions.pop(last_action.action_id, None)
 
@@ -511,6 +513,7 @@ class BaseAide(ABC):
             avatar_result.emotional_state in ("confident", "relieved", "hopeful"),
         ]
         effective = sum(success_indicators) >= 2
+        action.helped = effective
 
         if effective:
             self.successful_interventions += 1

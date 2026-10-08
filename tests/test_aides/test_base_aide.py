@@ -71,6 +71,7 @@ class TestBaseAideOutcomeAttribution:
                 cognitive_load=0.8,
             ),
         )
+        assert action.helped is False
 
         aide._on_avatar_task_completed(self._task_completed_signal(avatar.avatar_id))
         summary = aide.get_strategy_effectiveness_summary()
@@ -86,6 +87,7 @@ class TestBaseAideOutcomeAttribution:
 
         signal = self._task_completed_signal(avatar.avatar_id)
         aide._on_avatar_task_completed(signal)
+        assert action.helped is True
         aide._on_avatar_task_completed(signal)
 
         summary = aide.get_strategy_effectiveness_summary()

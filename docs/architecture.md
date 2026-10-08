@@ -10,16 +10,16 @@
 
 ```
 ┌───────────────────────────────────────────┐   ┌─────────────────────────────────────────────┐   ┌─────────────────────────────────────────────┐
-│   nlt-world-engine  (UE 5.8 WorldEngine)   │   │   neurolift-ai-fusion  (THIS REPO)           │   │   nlt-adhd  (App delivery)                   │
-│   The authoritative simulation world        │   │   The intelligence + platform layer         │   │   Personalized 1:20 runtime                  │
+│   nlt-world-engine (Godot target; UE ref.)   │   │   neurolift-ai-fusion  (THIS REPO)           │   │   nlt-adhd  (App delivery)                   │
+│   Physical simulation runtime               │   │   The intelligence + platform layer         │   │   Personalized 1:20 runtime                  │
 │                                             │   │                                             │   │                                              │
-│  • Rooms, objects, NPCs, tick loop          │   │  • Avatar ADHD trait models (26-dim)        │   │  • 1 orchestrator + 20 advocates             │
-│  • Mass Entity simulation + StateTree       │◄──┼─►  • Aide coaching strategies               │◄──┼─►  • User-facing surfaces (Talk/Start/Top3)  │
-│  • Scenario execution (UScenarioDataAsset)  │   │  • Session orchestration / training loop    │   │  • ASFDK governance boundary                 │
-│  • Deterministic clock + event bus          │   │  • Fusion logic (Avatar + Aide → Advocate) │   │  • Local-first, no cloud dependency          │
-│  • RL training (Learning Agents)            │   │  • Web / mobile / API / Cloudflare surfaces│   │                                              │
+│  • Godot 4.7.2 target runtime               │   │  • Avatar ADHD trait models (26-dim)        │   │  • 1 orchestrator + 20 advocates             │
+│  • UE 5.8 retained behavioral reference     │◄──┼─►  • Aide coaching strategies               │◄──┼─►  • User-facing surfaces (Talk/Start/Top3)  │
+│  • Rooms, objects, agents, physical state   │   │  • Session orchestration / training loop    │   │  • ASFDK governance boundary                 │
+│  • UE Mass/StateTree/RL (reference only)    │   │  • Fusion logic (Avatar + Aide → Advocate) │   │  • Local-first, no cloud dependency          │
+│                                             │   │  • Web / mobile / API / Cloudflare surfaces│   │                                              │
 │                                             │   │                                             │   │                                              │
-│        "Unreal owns physical reality"       │   │        "Fusion owns semantic reality"       │   │        "App owns user reality"               │
+│       "World Engine owns physical reality"  │   │        "Fusion owns semantic reality"       │   │        "App owns user reality"               │
 └───────────────────────────────────────────┘   └─────────────────────────────────────────────┘   └─────────────────────────────────────────────┘
 ```
 
@@ -28,7 +28,22 @@
 - **Fusion** trains the intelligence (20 advocates via Avatar-Aide pairs)
 - **App** delivers it — with Human Sovereignty preserved at runtime
 
+The diagram's UE-specific systems are retained-reference context, not a claim that Unreal is the active target. Godot 4.7.2 is the target physical runtime; the live Fusion ↔ Godot transport and runtime dispatch are not yet wired.
+
 **Boundary:** This repo is the **brains**. `nlt-world-engine` is the **world**. `nlt-adhd` is the **user-facing delivery**. If it changes how an Avatar *thinks*, learns, or is coached → this repo. If it changes the *world* the Avatar lives in → `nlt-world-engine`. If it changes how the user *interacts* with their Advocate → `nlt-adhd`.
+
+## Physical-world runtime connection
+
+The transport-neutral `nlt.agent-loop.v1` contract, maintained at
+`nlt-world-engine/docs/contracts/agent-loop-v1.md`, defines the Godot ↔ Fusion control boundary:
+the world engine sends physical perception snapshots;
+Fusion returns semantic intents; the engine validates and executes their physical consequences.
+The transport is intentionally undecided.
+
+`src/fusion/agent_loop.py` is the validating Fusion seam for an injected semantic decision source.
+It is not a live endpoint and is not yet wired into `SessionOrchestrator`. The existing
+`src/simulation/environment/agent_interface.py` remains a separate environment implementation;
+it must not become a second source of physical truth for an integrated Godot runtime.
 
 ## System Architecture
 

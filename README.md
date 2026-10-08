@@ -4,7 +4,7 @@
 
 A full-stack web and mobile platform backed by a Python AI simulation engine. AI Avatars with ADHD traits experience authentic life struggles in a Sims/RPG-style environment while AI Aides provide real-time coaching. After sufficient training they fuse into Advocates that combine lived understanding with expert solutions.
 
-> **Sibling repo:** [`nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine) owns the **authoritative simulation training environment** — the UE 5.8 Unreal WorldEngine (rooms, objects, NPCs, tick loop, Mass Entity entities). This repo owns the **intelligence** that drives it: ADHD trait models, Aide coaching, session orchestration, and the fusion process. If `nlt-world-engine` is the **Sims game**, this repo is the **AI mod + web/mobile wrapper**.
+> **Sibling repo:** [`nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine) owns the **physical simulation layer**. Godot 4.7.2 is the target runtime; `WorldEngine/` is the retained UE reference implementation. This repo owns the **intelligence**—ADHD trait models, Aide coaching, session orchestration, and fusion. The closed-loop agent contract is defined, but the live Fusion ↔ Godot runtime connection is not yet wired.
 
 ```yaml
 ai_assistant_directive:
@@ -49,7 +49,30 @@ pip install -r requirements.txt
 pytest
 ```
 
-> **Note:** The simulation *runtime* (world, rooms, objects, tick loop) is the **Unreal WorldEngine in [`nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine)**, not this repo. This repo provides the Python intelligence (Avatar trait models, Aide coaching, session orchestration) that drives that world via the agent interface. The legacy lightweight Python world in `src/simulation/environment/` is for testing and reference only.
+> **Note:** The physical simulation runtime is in [`nlt-world-engine/world-engine-godot`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot), not this repo. This repo provides the Python intelligence (Avatar trait models, Aide coaching, session orchestration). The legacy lightweight Python world in `src/simulation/environment/` is for testing and reference only; it is not a second physical source of truth for a Godot integration.
+
+### Physical-world agent loop
+
+The `nlt.agent-loop.v1` contract describes a closed-loop boundary between the two repositories:
+
+```text
+Godot physical perception → Fusion semantic intent → Godot validation/execution → next perception
+```
+
+The world engine supplies an agent-specific snapshot of physical facts (self state, scene, visible
+entities, and affordances). Fusion may respond with semantic intents such as `approach`, `look_at`,
+`use`, `sit`, `rest`, `communicate`, or `wait`—never coordinates, velocity, teleportation, or
+object-state writes. The engine remains responsible for validating an intent against current world
+conditions and reporting acceptance or an explicit rejection reason.
+
+The protocol and current status are documented in the
+[agent-loop feature overview](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/agent-loop.md)
+and [versioned contract](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/contracts/agent-loop-v1.md).
+Fusion's `src/fusion/agent_loop.py` provides a transport-neutral validation seam around an injected
+decision callback; it is not yet wired into `SessionOrchestrator` or a live endpoint. Transport
+selection is deferred, and Godot's runtime dispatch and physical interaction/collision execution
+remain incomplete. The existing `nlt.state-feed.v1` is a separate observer feed, not this control
+protocol.
 
 ### JavaScript dependency boundaries
 
@@ -105,7 +128,7 @@ This simulation approach addresses both gaps through authentic experiential lear
 **Role:** Coach, therapist, and assistant operating IN the simulation environment alongside the Avatar
 
 #### Phase 3: Simulation Training
-**Environment:** Sims/RPG-style virtual world — rendered and simulated by the **[UE 5.8 Unreal WorldEngine in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine)** (rooms, objects, NPCs, deterministic tick loop). This repo's Avatar/Aide intelligence connects to it through the agent interface (HTTP/WebSocket API).
+**Environment:** Sims/RPG-style virtual world — the target physical runtime is **[Godot 4.7.2 in `nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot)**. `WorldEngine/` retains the UE 5.8 reference implementation while the migration is in progress. The transport-neutral agent-loop contract is defined, but no live Fusion ↔ Godot endpoint or HTTP/WebSocket connection is implemented.
 
 **Scenario Categories:**
 - **Workplace:** HR compliance, meetings, project management, performance reviews
@@ -151,15 +174,15 @@ This simulation approach addresses both gaps through authentic experiential lear
 19. **ConfidenceCoach** - Self-esteem and identity
 20. **RSDShield** - Rejection sensitivity dysphoria
 
-## 🎮 Unreal Engine AI Tools
+## 🎮 Unreal Engine AI Tools (Retained Reference)
 
-> **Note:** The Unreal Engine 5.8 project — and therefore all UE plugin configuration, RL/PPO training, and UE AI tooling — lives in [`nlt-world-engine/WorldEngine`](https://github.com/NeuroLift-Technologies/nlt-world-engine). This catalog was historically kept here as reference context for the AI layer; it is now maintained in the sibling repo only.
+> **Note:** This catalog describes the retained UE 5.8 reference project in [`nlt-world-engine/WorldEngine`](https://github.com/NeuroLift-Technologies/nlt-world-engine). Godot 4.7.2 is the target physical runtime; the UE implementation remains a frozen behavioral oracle until the port passes conformance.
 
 **What this repo needs to know:**
 
-- The WorldEngine (UE 5.8) is the **authoritative simulation training environment** — Mass Entity population, StateTree behavior, Smart Objects, deterministic tick, and RL/PPO training (Learning Agents plugin).
-- The in-engine **LLM control path** (`UMLInferenceBridgeSubsystem` in nlt-world-engine) drives `AAvatarAIController::ExecuteLLMCommand` directly — the model controls the actor inside the engine, not through the public web server.
-- Fusion's intelligence connects over the agent interface (HTTP/WebSocket API) — see [`docs/architecture.md`](docs/architecture.md) and the fusion-unreal domain mapping in nlt-world-engine.
+- The UE WorldEngine is the retained reference for Mass Entity population, StateTree behavior, Smart Objects, deterministic tick, and RL/PPO training (Learning Agents plugin); it is not the target runtime.
+- The retained UE reference's in-engine **LLM control path** (`UMLInferenceBridgeSubsystem` in nlt-world-engine) drives `AAvatarAIController::ExecuteLLMCommand` directly — the model controls the actor inside the engine, not through the public web server.
+- Fusion's transport-neutral agent-loop contract is documented in [`docs/architecture.md`](docs/architecture.md); runtime wiring and transport selection remain deferred.
 
 UE-side plugin/tooling details: see the **UE Plugins Enabled** table and subsystem docs in [`nlt-world-engine/README.md`](https://github.com/NeuroLift-Technologies/nlt-world-engine).
 
@@ -198,7 +221,7 @@ Our infrastructure leverages Cloudflare for:
 
 | Worker | Purpose |
 |--------|---------|
-| **`neurolift-world-engine`** | World Engine gateway (`cloudflare-engine/src/index.ts`) — WebSocket `/connect` + Durable Object (`WORLD_ENGINE` → `WorldEngineDO`, singleton `global-world-engine`); real-time entity simulation ticks, agent intent/perception messages |
+| **`neurolift-world-engine`** | Separate Cloudflare ECS prototype (`cloudflare-engine/src/index.ts`) with a WebSocket `/connect` gateway; it is not the Godot 4.7.2 runtime or the `nlt.agent-loop.v1` Fusion ↔ Godot connection |
 
 Deployment details: [`docs/cloudflare/CLOUDFLARE_SETUP.md`](docs/cloudflare/CLOUDFLARE_SETUP.md)
 
@@ -263,7 +286,7 @@ Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workf
 
 ## 🎯 Current Status
 
-**Development Phase:** Fusion & AI Model Layer (Phases 5–6) — intelligence layer driving the UE WorldEngine (in `nlt-world-engine`) ✅  
+**Development Phase:** Fusion & AI Model Layer (Phases 5–6); Godot 4.7.2 migration and the Fusion ↔ Godot runtime connection remain in progress.
 **Last Updated:** September 2026  
 **Next Milestone:** Expand remaining 16 Avatar-Aide pairs → real-world testing with neurodivergent community  
 **Spec:** [`docs/specs/advocate-model-fusion-spec.md`](docs/specs/advocate-model-fusion-spec.md) + [`docs/research/Trajectory Distillation for Behavioral AI Fusion.md`](docs/research/Trajectory%20Distillation%20for%20Behavioral%20AI%20Fusion.md)
