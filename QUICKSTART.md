@@ -14,6 +14,75 @@ cd /path/to/neurolift-ai-fusion
 python3 -m pip install -r requirements.txt
 ```
 
+### Run the Local Godot Agent Loop (GGUF)
+
+Fusion can serve `nlt.agent-loop.v1` decisions to the sibling Godot world-engine project over
+loopback HTTP. This opt-in test path is separate from `SessionOrchestrator` and does not change the
+default observer-only Godot run. The commands below are for Windows PowerShell, with the Fusion and
+`nlt-world-engine` repositories checked out next to each other. Adjust `$worldEngineProject` if your
+checkouts are elsewhere.
+
+**Terminal 1 — start Fusion with the local model:**
+
+```powershell
+Set-Location C:\path\to\neurolift-ai-fusion
+
+$fusionVenv = 'C:\path\to\your\GGUF-enabled\virtualenv'
+$fusionPython = Join-Path $fusionVenv 'Scripts\python.exe'
+$worldEngineProject = '..\nlt-world-engine\world-engine-godot'
+$env:FUSION_GGUF_MODEL = Join-Path $HOME 'Downloads\Qwen3-0.6B-Q8_0.gguf'
+$env:FUSION_AGENT_LOOP_PORT = '8001'
+
+# The GGUF environment needs both llama-cpp-python and the HTTP server packages.
+uv pip install --python $fusionPython -r requirements-gguf.txt
+uv pip install --python $fusionPython 'fastapi>=0.115.0' 'uvicorn>=0.30.0'
+& $fusionPython -m src.fusion.agent_loop_http
+```
+
+Keep this terminal running. The GGUF environment can be created and populated with
+`uv venv --python 3.11 $fusionVenv`; install the GGUF dependency using the platform-appropriate
+wheel instructions in [`requirements-gguf.txt`](requirements-gguf.txt) if `uv pip install` cannot
+find a compatible wheel.
+
+**Terminal 2 — run the opt-in Godot scene interactively:**
+
+```powershell
+$worldEngineProject = '..\nlt-world-engine\world-engine-godot'
+$env:NLT_AGENT_LOOP_ENABLED = '1'
+$env:NLT_AGENT_LOOP_ENDPOINT = 'http://127.0.0.1:8001/agent-loop/perception'
+& $env:GDA_GODOT --path $worldEngineProject
+```
+
+`GDA_GODOT` must point to the Godot 4.7.2 .NET executable. The opt-in scene creates the dedicated
+`__local_avatar__` and a visible `agent_loop_test_target`; only that avatar receives decisions.
+Watch the Fusion terminal for `POST /agent-loop/perception` responses and the Godot output for
+perception, intent acceptance/rejection, and movement. The model is constrained to return `approach`
+for a visible target or `wait`. When it returns `approach`, verify the avatar moves toward the marker,
+stops within the one-metre arrival radius, and the next perception reports the new position.
+
+**GDA headless startup/HTTP check:** close the Godot editor first if it is holding the C# build
+outputs, then run this from the Fusion repository while Terminal 1 is serving the model:
+
+```powershell
+$worldEngineProject = (Resolve-Path '..\nlt-world-engine\world-engine-godot').Path
+$env:NLT_AGENT_LOOP_ENABLED = '1'
+$env:NLT_AGENT_LOOP_ENDPOINT = 'http://127.0.0.1:8001/agent-loop/perception'
+gda scene preflight res://Main.tscn --project $worldEngineProject --frames 600 --timeout 60 --json
+```
+
+On a successful result, check `started: true` and `status: "ready"`; also inspect engine output for
+errors. The observed headless run started and sent a model-backed perception that received HTTP 200.
+A separate request to the same GGUF returned a correlated `approach` intent. **Preflight is not
+proof of physical completion:** it does not confirm the intent was accepted, visible Jolt movement
+or arrival, or updated position in a later perception. Use the interactive run to check those
+outcomes. On Windows, GDA's live daemon is not supported; `scene preflight` is a one-shot headless
+check. Existing Godot output may include `Capture not registered: 'beehave'` even when the structured
+preflight result is `started: true`.
+
+Stop either process with `Ctrl+C`; unset `FUSION_GGUF_MODEL`, `NLT_AGENT_LOOP_ENABLED`, and
+`NLT_AGENT_LOOP_ENDPOINT` when done. Leaving `FUSION_GGUF_MODEL` unset starts Fusion's deterministic
+fallback instead of loading the GGUF.
+
 ### Entrypoint Status Matrix (Verified Against Current Code)
 
 | Entrypoint | Current behavior | Recommended use |
