@@ -39,10 +39,8 @@ Qwen3. Set `NLT_AGENT_LOOP_MODEL_PATH` to the local directory and run:
 
 ```powershell
 $env:NLT_AGENT_LOOP_MODEL_PATH = "C:\Users\<user>\Local_models\Qwen3-0.6B-Safetensors"
-python -m pytest tests/test_fusion/test_transformers_agent_decision.py -q -o addopts="--verbose --tb=short --strict-markers --strict-config --durations=10"
+python -m pytest tests/test_fusion/test_transformers_agent_decision.py -q
 ```
-
-This override is for the same `pytest.ini` reason described under the GGUF path below.
 
 Fusion code can compose the adapter with the existing protocol seam:
 
@@ -85,16 +83,12 @@ GGUF path and run both the mocked contract tests and the opt-in local smoke test
 
 ```powershell
 $env:NLT_AGENT_LOOP_GGUF_PATH = "C:\Users\<user>\Downloads\Qwen3-0.6B-Q8_0.gguf"
-& "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pytest tests/test_fusion/test_gguf_agent_decision.py -q -o addopts="--verbose --tb=short --strict-markers --strict-config --durations=10"
+& "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pytest tests/test_fusion/test_gguf_agent_decision.py -q
 ```
 
-The `-o addopts` override is required because the repository `pytest.ini` puts `--cov` options in
-`addopts` and `pytest-cov` is not part of the optional GGUF runtime. Without it, pytest aborts before
-running a test with `error: unrecognized arguments: --cov=src`. The override re-states every other
-`addopts` flag so that `--strict-markers` and `--strict-config` still apply; this suite depends on
-`--strict-markers` because of its `slow` marker. Use `-o addopts=""` only when `pytest-cov` is not
-needed and the strict flags are irrelevant, and drop the override entirely if `pytest-cov` is
-installed.
+The environment installs `pytest` but not `pytest-cov`, so coverage is not requested here. Coverage
+flags are passed explicitly by CI and by `scripts/run_clearance_tests.py` rather than through
+`pytest.ini` addopts; see `pytest.ini` for the 40% gate.
 
 The GGUF adapter defaults to a 2048-token context, two CPU threads, and no GPU layers to keep the
 first run bounded. It constrains model output to `wait` or `approach` with a visible entity that

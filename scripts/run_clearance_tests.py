@@ -96,7 +96,21 @@ LEVEL_STEPS: dict[int, List[tuple[str, List[str]]]] = {
         ),
         (
             "unit-tests",
-            [sys.executable, "-m", "pytest", "tests/", "--tb=short", "-q"],
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/",
+                "--tb=short",
+                "-q",
+                # Coverage flags are explicit because pytest.ini addopts no longer
+                # carries them; this preserves the level 1 gate of 40.
+                "--cov=src",
+                "--cov-report=term-missing",
+                "--cov-report=html:htmlcov",
+                "--cov-report=xml",
+                "--cov-fail-under=40",
+            ],
         ),
     ],
     2: [
