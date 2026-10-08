@@ -30,6 +30,19 @@
 
 **Boundary:** This repo is the **brains**. `nlt-world-engine` is the **world**. `nlt-adhd` is the **user-facing delivery**. If it changes how an Avatar *thinks*, learns, or is coached → this repo. If it changes the *world* the Avatar lives in → `nlt-world-engine`. If it changes how the user *interacts* with their Advocate → `nlt-adhd`.
 
+## Physical-world runtime connection
+
+The transport-neutral `nlt.agent-loop.v1` contract, maintained at
+`nlt-world-engine/docs/contracts/agent-loop-v1.md`, defines the Godot ↔ Fusion control boundary:
+the world engine sends physical perception snapshots;
+Fusion returns semantic intents; the engine validates and executes their physical consequences.
+The transport is intentionally undecided.
+
+`src/fusion/agent_loop.py` is the validating Fusion seam for an injected semantic decision source.
+It is not a live endpoint and is not yet wired into `SessionOrchestrator`. The existing
+`src/simulation/environment/agent_interface.py` remains a separate environment implementation;
+it must not become a second source of physical truth for an integrated Godot runtime.
+
 ## System Architecture
 
 The NeuroLift Technologies Simulation Environment implements a novel approach to AI training through experiential learning. Unlike traditional machine learning approaches that train on datasets, this system creates realistic simulation environments where AI agents (Avatars) experience authentic challenges and learn through doing.

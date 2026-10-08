@@ -4,7 +4,7 @@
 
 A full-stack web and mobile platform backed by a Python AI simulation engine. AI Avatars with ADHD traits experience authentic life struggles in a Sims/RPG-style environment while AI Aides provide real-time coaching. After sufficient training they fuse into Advocates that combine lived understanding with expert solutions.
 
-> **Sibling repo:** [`nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine) owns the **authoritative simulation training environment** — the UE 5.8 Unreal WorldEngine (rooms, objects, NPCs, tick loop, Mass Entity entities). This repo owns the **intelligence** that drives it: ADHD trait models, Aide coaching, session orchestration, and the fusion process. If `nlt-world-engine` is the **Sims game**, this repo is the **AI mod + web/mobile wrapper**.
+> **Sibling repo:** [`nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine) owns the **physical simulation layer**. Godot 4.7.2 is the target runtime; `WorldEngine/` is the retained UE reference implementation. This repo owns the **intelligence**—ADHD trait models, Aide coaching, session orchestration, and fusion. The closed-loop agent contract is defined, but the live Fusion ↔ Godot runtime connection is not yet wired.
 
 ```yaml
 ai_assistant_directive:
@@ -49,7 +49,30 @@ pip install -r requirements.txt
 pytest
 ```
 
-> **Note:** The simulation *runtime* (world, rooms, objects, tick loop) is the **Unreal WorldEngine in [`nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine)**, not this repo. This repo provides the Python intelligence (Avatar trait models, Aide coaching, session orchestration) that drives that world via the agent interface. The legacy lightweight Python world in `src/simulation/environment/` is for testing and reference only.
+> **Note:** The physical simulation runtime is in [`nlt-world-engine/world-engine-godot`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot), not this repo. This repo provides the Python intelligence (Avatar trait models, Aide coaching, session orchestration). The legacy lightweight Python world in `src/simulation/environment/` is for testing and reference only; it is not a second physical source of truth for a Godot integration.
+
+### Physical-world agent loop
+
+The `nlt.agent-loop.v1` contract describes a closed-loop boundary between the two repositories:
+
+```text
+Godot physical perception → Fusion semantic intent → Godot validation/execution → next perception
+```
+
+The world engine supplies an agent-specific snapshot of physical facts (self state, scene, visible
+entities, and affordances). Fusion may respond with semantic intents such as `approach`, `look_at`,
+`use`, `sit`, `rest`, `communicate`, or `wait`—never coordinates, velocity, teleportation, or
+object-state writes. The engine remains responsible for validating an intent against current world
+conditions and reporting acceptance or an explicit rejection reason.
+
+The protocol and current status are documented in the
+[agent-loop feature overview](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/agent-loop.md)
+and [versioned contract](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/contracts/agent-loop-v1.md).
+Fusion's `src/fusion/agent_loop.py` provides a transport-neutral validation seam around an injected
+decision callback; it is not yet wired into `SessionOrchestrator` or a live endpoint. Transport
+selection is deferred, and Godot's runtime dispatch and physical interaction/collision execution
+remain incomplete. The existing `nlt.state-feed.v1` is a separate observer feed, not this control
+protocol.
 
 ### JavaScript dependency boundaries
 

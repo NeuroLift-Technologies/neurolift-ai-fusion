@@ -20,6 +20,8 @@ from .readiness_assessor import (
     FusionDimension,
     FusionReadiness,
 )
+from .state_feed import build_state_feed
+from .agent_loop import AgentLoopProtocolError, FusionAgentLoop
 
 __all__ = [
     "FusionEngine",
@@ -27,6 +29,9 @@ __all__ = [
     "FusionReadiness",
     "ReadinessAssessor",
     "DimensionScore",
+    "build_state_feed",
+    "AgentLoopProtocolError",
+    "FusionAgentLoop",
     # Model-level fusion (trajectory distillation)
     "ModelFusionEngine",
     "ModelFusionReport",
