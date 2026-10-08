@@ -275,6 +275,12 @@ class FusionAgentLoop:
         self._decide = decide
 
     def handle_observation(self, observation: Mapping[str, Any]) -> dict[str, Any]:
+        """Validate a perception, request an intent, then validate the intent.
+
+        Raises:
+            AgentLoopProtocolError: If the perception or returned intent violates the protocol.
+            Exception: Any exception raised by the injected decision source.
+        """
         validate_perception(observation)
         intent = self._decide(deepcopy(dict(observation)))
         validate_intent(intent, observation)
