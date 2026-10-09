@@ -63,6 +63,27 @@ py -3.11 -m venv "C:\Users\<user>\Local_models\fusion-gguf-env"
 & "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pip install -r requirements-gguf.txt pytest
 ```
 
+The leading `&` is PowerShell's call operator. It is **only required when the path contains a
+space**. The default paths above have none, so this also works:
+
+```powershell
+C:\Users\joshd\Local_models\fusion-gguf-env\Scripts\python.exe -m pip install -r requirements-gguf.txt pytest
+```
+
+Dropping `&` while the path *is* quoted makes PowerShell read it as a string literal, and the
+following `-m` becomes a syntax error:
+
+```
+"C:\...\Scripts\python.exe" -m pip install -r requirements-gguf.txt pytest
+                                       ~~
+Unexpected token '-m' in expression or statement.
+```
+
+If the environment already exists, confirm it has pip before reinstalling. Environments created by
+`uv` contain `_virtualenv.pth` and ship without pip, so `python -m pip` fails with
+`No module named pip`; in that case install with `uv pip install --python <env>\Scripts\python.exe -r
+requirements-gguf.txt pytest`, or bootstrap pip once with `python -m ensurepip`.
+
 On Windows, if pip cannot find a compatible prebuilt CPU wheel, install from the llama-cpp-python
 CPU wheel index or use the project's documented CMake/Visual Studio build instructions. Set the
 GGUF path and run both the mocked contract tests and the opt-in local smoke test:
@@ -71,6 +92,10 @@ GGUF path and run both the mocked contract tests and the opt-in local smoke test
 $env:NLT_AGENT_LOOP_GGUF_PATH = "C:\Users\<user>\Downloads\Qwen3-0.6B-Q8_0.gguf"
 & "C:\Users\<user>\Local_models\fusion-gguf-env\Scripts\python.exe" -m pytest tests/test_fusion/test_gguf_agent_decision.py -q
 ```
+
+The environment installs `pytest` but not `pytest-cov`, so coverage is not requested here. Coverage
+flags are passed explicitly by CI and by `scripts/run_clearance_tests.py` rather than through
+`pytest.ini` addopts; see `pytest.ini` for the 40% gate.
 
 The GGUF adapter defaults to a 2048-token context, two CPU threads, and no GPU layers to keep the
 first run bounded. It constrains model output to `wait` or `approach` with a visible entity that

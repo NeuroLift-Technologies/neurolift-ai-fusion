@@ -66,9 +66,13 @@ Source-verified constraints:
 
 - The Level 2 coverage threshold is defined in
   `scripts/run_clearance_tests.py` as `--cov-fail-under=60`.
-- The repository-level `pytest.ini` still sets `--cov-fail-under=80` for
-  bare `pytest`; use `scripts/run_clearance_tests.py --level 2` when
-  reproducing Red Team CI exactly.
+- `pytest.ini` addopts deliberately contains no coverage flags, so bare
+  `pytest` does not enforce a gate and works in environments without
+  `pytest-cov`. CI workflows and `scripts/run_clearance_tests.py` pass the
+  coverage flags explicitly; CI uses `--cov-fail-under=40` and Level 1 uses
+  `--cov-fail-under=40`, so Level 2 remains the stricter gate. Use
+  `scripts/run_clearance_tests.py --level 2` when reproducing Red Team CI
+  exactly.
 - `mypy.ini` is loaded by mypy during the Level 2 `type-check` step. It keeps
   `ignore_missing_imports = True` and suppresses only the currently excluded
   modules:
@@ -110,7 +114,7 @@ Each level uploads a Markdown report as a GitHub Actions artifact (`clearance-le
 | Python file discovery | `scripts/run_clearance_tests.py::_collect_python_files` | Syntax check only scans `src/` and `scripts/`. |
 | Stop-on-failure behavior | `scripts/run_clearance_tests.py::main` | `--level N` runs levels `1..N` and stops after the first failed level. |
 | Report formats | `scripts/run_clearance_tests.py::write_report` | Supports `markdown` and `json`; workflow uses Markdown. |
-| Level 2 coverage threshold | `scripts/run_clearance_tests.py::LEVEL_STEPS[2]` | Uses `--cov-fail-under=60`, overriding the stricter bare-`pytest` threshold in `pytest.ini`. |
+| Level 2 coverage threshold | `scripts/run_clearance_tests.py::LEVEL_STEPS[2]` | Uses `--cov-fail-under=60`, stricter than the `--cov-fail-under=40` used by CI and Level 1. |
 | Level 2 mypy exclusions | `mypy.ini` | Suppresses only external-service clients, legacy `training_session`, and the known `stay_alert_aide` context mismatch. |
 
 ### Local reproduction
@@ -382,7 +386,8 @@ curl -sSfL \
 | --- | --- | --- |
 | `redteam-ci.yml` manual run ignores selected `clearance_level` | Workflow jobs currently pass fixed `--level` values | Inspect each `Run Level <N> clearance tests` step before assuming the input changes the job graph. |
 | Level 2 or Level 3 appears to rerun earlier checks | `run_clearance_tests.py --level N` executes levels `1..N` | This is expected script behavior; review the generated report to see which level failed first. |
-| Bare `pytest` fails coverage at 80% while Red Team Level 2 passes | `pytest.ini` sets `--cov-fail-under=80`, but the clearance harness passes `--cov-fail-under=60` | Reproduce CI with `python scripts/run_clearance_tests.py --level 2 --verbose`; raise both thresholds together only after source coverage supports it. |
+| Bare `pytest` reports no coverage | Coverage flags were removed from `pytest.ini` addopts so environments without `pytest-cov` can run tests | Pass `--cov=src --cov-fail-under=40` explicitly, or run `python scripts/run_clearance_tests.py --level 2 --verbose` for the stricter 60 gate. |
+| `pytest` aborts with `unrecognized arguments: --cov=src` | A stale `-o addopts` override is still on the command line, or an older `pytest.ini` is in effect | Drop any `-o addopts` workaround; coverage is no longer in addopts. Confirm the resolved config with `pytest --collect-only -q`. |
 | Mypy passes in CI but fails when run on a single excluded module | `mypy.ini` suppresses known problematic modules only during normal config-loaded mypy runs | Inspect `mypy.ini` before treating a local one-off mypy command as equivalent to Level 2. |
 | Local secret scan reports no tools available | Neither Gitleaks nor TruffleHog is installed | Install Gitleaks for parity with CI, or run with the scanner available on `PATH`. |
 | PGSA provenance passes with zero manifests | No files matched `**/provenance.json` or `**/*.provenance.json` | Add a manifest only for components that require provenance tracking. |
