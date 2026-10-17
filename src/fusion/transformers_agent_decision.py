@@ -192,11 +192,7 @@ class TransformersAgentLoopDecision:
                 f"Model decision is not grounded in the observation: {exc}"
             ) from exc
         return intent
-
-        )
-        raise AgentLoopModelOutputError(
-            "Model decision must be one of the 7 allowed verbs: wait, approach, look_at, use, sit, rest, communicate"
-        )
+        raise AgentLoopModelOutputError('Model decision must be one of the 7 allowed verbs: wait, approach, look_at, use, sit, rest, communicate')
 
     @staticmethod
     def _parse_decision(response: str) -> dict[str, str]:
