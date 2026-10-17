@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { ChevronDown, User, HeartHandshake, Sparkles, ChevronRight, ArrowRight } from "lucide-react";
+import { ChevronDown, User, HeartHandshake, Sparkles, ChevronRight, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getStats } from "@/lib/avatar-pairs-data";
+import { WORLD_ENGINE_URL } from "@/lib/links";
 import { ParticleCanvas } from "./particle-canvas";
 
 const container: Variants = {
@@ -247,20 +248,36 @@ export function HeroSection() {
           </Badge>
         </motion.div>
 
-        {/* CTA Button */}
-        <motion.button
-          type="button"
-          className="mt-8 rounded-full border-2 border-red-500 bg-black px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03] hover:bg-red-950 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] sm:px-8 sm:py-3.5 sm:text-base"
+        {/* CTA Buttons */}
+        <motion.div
+          className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
           variants={fadeUp}
-          onClick={() => {
-            document.getElementById("pairs")?.scrollIntoView({ behavior: "smooth" });
-          }}
         >
-          <span className="flex items-center gap-2">
-            Explore All 19 Pairs
-            <ArrowRight className="h-4 w-4" />
-          </span>
-        </motion.button>
+          <button
+            type="button"
+            className="rounded-full border-2 border-red-500 bg-black px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03] hover:bg-red-950 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] sm:px-8 sm:py-3.5 sm:text-base"
+            onClick={() => {
+              document.getElementById("pairs")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            <span className="flex items-center gap-2">
+              Explore All 19 Pairs
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </button>
+          <a
+            href={WORLD_ENGINE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border-2 border-orange-500/60 px-6 py-3 text-sm font-semibold text-foreground transition-all duration-300 hover:scale-[1.03] hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(243,128,32,0.35)] sm:px-8 sm:py-3.5 sm:text-base"
+          >
+            <span className="flex items-center gap-2">
+              Visit the World Engine
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only">(opens in a new tab)</span>
+            </span>
+          </a>
+        </motion.div>
       </motion.div>
       <motion.div
         className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2"

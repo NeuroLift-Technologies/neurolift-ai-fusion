@@ -6,6 +6,7 @@ import { Loader2, Heart, Download, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { HeroSection } from "@/components/neurolift/hero-section";
 import { PipelineSection } from "@/components/neurolift/pipeline-section";
+import { WorldEngineSection } from "@/components/neurolift/world-engine-section";
 import { PairsGrid } from "@/components/neurolift/pairs-grid";
 import StatsFooter from "@/components/neurolift/stats-footer";
 import { BackToTop } from "@/components/neurolift/back-to-top";
@@ -190,6 +191,11 @@ export default function HomePage() {
 
         {/* Fusion Pipeline Explanation */}
         <PipelineSection />
+
+        <div className="section-divider section-divider-animated" aria-hidden="true"><div className="section-divider-icon" /><span className="divider-flow-dot" /></div>
+
+        {/* NLT World Engine — where Avatars live */}
+        <WorldEngineSection />
 
         <div className="section-divider section-divider-animated" aria-hidden="true"><div className="section-divider-icon" /><span className="divider-flow-dot" /></div>
 
