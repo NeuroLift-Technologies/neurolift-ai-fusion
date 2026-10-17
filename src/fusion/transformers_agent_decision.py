@@ -80,7 +80,9 @@ class TransformersAgentLoopDecision:
                 torch_dtype="auto",
             )
 
-        self._tokenizer = tokenizer
+        # Both branches above leave a loaded tokenizer here; annotate so mypy
+        # does not carry the parameter's Optional through to call sites.
+        self._tokenizer: Any = tokenizer
         self._model = model.to(device)
         self._model.eval()
 
