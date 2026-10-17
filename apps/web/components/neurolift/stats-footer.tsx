@@ -204,7 +204,7 @@ function ChartsSection({
       transition={{ duration: 0.6, delay: 0.2 }}
     >
       {/* ── 1. Readiness Score Bar Chart ─────────────────────────── */}
-      <Card className="col-span-1 md:col-span-2 rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+      <Card className="col-span-1 md:col-span-2 rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">Readiness Scores</CardTitle>
         </CardHeader>
@@ -252,7 +252,7 @@ function ChartsSection({
       </Card>
 
       {/* ── 2. Empathy Depth Radar Chart ─────────────────────────── */}
-      <Card className="rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+      <Card className="rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">Empathy Depth Distribution</CardTitle>
         </CardHeader>
@@ -294,7 +294,7 @@ function ChartsSection({
       </Card>
 
       {/* ── 3. Status Donut Chart ────────────────────────────────── */}
-      <Card className="rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+      <Card className="rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">Training Status Breakdown</CardTitle>
         </CardHeader>
@@ -564,7 +564,7 @@ export default function StatsFooter() {
           </div>
 
           {/* ═══════════════════ Section 1: Overview Cards ═══════════════════ */}
-          <Card className="rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+          <Card className="rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
             <Collapsible open={openSections.overview} onOpenChange={() => toggleSection('overview')}>
               <CollapsibleTrigger className="-m-6 mb-0 w-full p-6 cursor-pointer select-none hover:bg-muted/50 rounded-t-lg transition-colors">
                 <div className="flex items-center justify-between">
@@ -585,7 +585,7 @@ export default function StatsFooter() {
                   >
                     {statItems.map((item, i) => (
                       <motion.div key={item.label} variants={itemVariants}>
-                        <Card className="rounded-xl border border-border/60 bg-card shadow-sm transition-shadow hover:shadow-md dark:shadow-none dark:hover:shadow-lg">
+                        <Card className="rounded-xl border border-border/60 bg-card shadow-xs transition-shadow hover:shadow-md dark:shadow-none dark:hover:shadow-lg">
                           <CardContent className="flex flex-col items-center gap-3 p-5 text-center sm:p-6">
                             <div
                               className={`flex h-11 w-11 items-center justify-center rounded-full ${item.iconBg}`}
@@ -617,7 +617,7 @@ export default function StatsFooter() {
           </Card>
 
           {/* ═══════════════════ Section 2: Development Progress ═══════════════════ */}
-          <Card className="mt-6 rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+          <Card className="mt-6 rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
             <Collapsible open={openSections.progress} onOpenChange={() => toggleSection('progress')}>
               <CollapsibleTrigger className="-m-6 mb-0 w-full p-6 cursor-pointer select-none hover:bg-muted/50 rounded-t-lg transition-colors">
                 <div className="flex items-center justify-between">
@@ -675,7 +675,7 @@ export default function StatsFooter() {
           </Card>
 
           {/* ═══════════════════ Section 3: Category Distribution ═══════════════════ */}
-          <Card className="mt-6 rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+          <Card className="mt-6 rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
             <Collapsible open={openSections.charts} onOpenChange={() => toggleSection('charts')}>
               <CollapsibleTrigger className="-m-6 mb-0 w-full p-6 cursor-pointer select-none hover:bg-muted/50 rounded-t-lg transition-colors">
                 <div className="flex items-center justify-between">
@@ -689,7 +689,7 @@ export default function StatsFooter() {
                 <CardContent className="p-5 sm:p-6 pt-0">
                   <div className="grid gap-4 md:grid-cols-2 md:gap-6">
                     {/* Executive Function */}
-                    <Card className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+                    <Card className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
                       <CardHeader className="border-b border-orange-500/20 bg-orange-500/5 pb-3">
                         <CardTitle className="flex items-center justify-between text-base font-semibold">
                           <span className="flex items-center gap-2">
@@ -720,7 +720,7 @@ export default function StatsFooter() {
                     </Card>
 
                     {/* Non-Executive Function */}
-                    <Card className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+                    <Card className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
                       <CardHeader className="border-b border-emerald-500/20 bg-emerald-500/5 pb-3">
                         <CardTitle className="flex items-center justify-between text-base font-semibold">
                           <span className="flex items-center gap-2">
@@ -755,7 +755,7 @@ export default function StatsFooter() {
             </Collapsible>
           </Card>
           {/* ═══════════════════ Section 4: Interactive Charts ═══════════════════ */}
-          <Card className="mt-6 rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+          <Card className="mt-6 rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
             <Collapsible open={openSections.detailed} onOpenChange={() => toggleSection('detailed')}>
               <CollapsibleTrigger className="-m-6 mb-0 w-full p-6 cursor-pointer select-none hover:bg-muted/50 rounded-t-lg transition-colors">
                 <div className="flex items-center justify-between">
@@ -771,7 +771,7 @@ export default function StatsFooter() {
 
             {/* ── Readiness Distribution Treemap ────────────────────── */}
             <div ref={treemapRef} className="mt-6">
-              <Card className="rounded-xl border border-border/60 bg-card shadow-sm dark:shadow-none">
+              <Card className="rounded-xl border border-border/60 bg-card shadow-xs dark:shadow-none">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
                     <BarChartIcon className="h-4 w-4 text-muted-foreground" />
@@ -841,7 +841,7 @@ export default function StatsFooter() {
       </section>
 
       {/* ═══════════════════ Section 5: Footer ═══════════════════ */}
-      <footer className="mt-auto border-t border-border bg-foreground/[0.03] dark:bg-foreground/[0.02]">
+      <footer className="mt-auto border-t border-border bg-foreground/3 dark:bg-foreground/2">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
           <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
             {/* Branding */}

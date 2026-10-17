@@ -839,7 +839,7 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
       />
 
       {/* ── Filter bar ────────────────────────────────────── */}
-      <Card className="mb-8 rounded-xl border bg-card/50 backdrop-blur-sm shadow-sm">
+      <Card className="mb-8 rounded-xl border bg-card/50 backdrop-blur-xs shadow-xs">
         <CardContent className="p-3 sm:p-4">
         {/* Category filter tabs (including Favorites) */}
         <div
@@ -859,11 +859,11 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
                 onClick={() => { setActiveFilter(opt.key); setSelectedRows(new Set()); }}
                 className={`
                   inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium
-                  transition-all duration-200 focus-visible:outline-none focus-visible:ring-2
+                  transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2
                   focus-visible:ring-offset-2 focus-visible:ring-orange-500/50
                   ${
                     isActive
-                      ? "bg-orange-500/15 text-orange-600 shadow-sm ring-1 ring-orange-500/30 dark:text-orange-400"
+                      ? "bg-orange-500/15 text-orange-600 shadow-xs ring-1 ring-orange-500/30 dark:text-orange-400"
                       : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                   }
                 `}
@@ -1064,11 +1064,11 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
               onClick={() => { setActiveStatusFilter(opt.key); setSelectedRows(new Set()); }}
               className={`
                 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium
-                transition-all duration-200 focus-visible:outline-none focus-visible:ring-2
+                transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2
                 focus-visible:ring-offset-2 focus-visible:ring-orange-500/50
                 ${
                   isActive
-                    ? "bg-orange-500/15 text-orange-600 shadow-sm ring-1 ring-orange-500/30 dark:text-orange-400"
+                    ? "bg-orange-500/15 text-orange-600 shadow-xs ring-1 ring-orange-500/30 dark:text-orange-400"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                 }
               `}
@@ -1351,7 +1351,7 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.12 }}
-            className="fixed z-[100] min-w-[180px] rounded-lg border bg-popover p-1 shadow-xl"
+            className="fixed z-100 min-w-[180px] rounded-lg border bg-popover p-1 shadow-xl"
             style={{ left: contextMenu.x, top: contextMenu.y }}
             role="menu"
             aria-label={`Actions for ${contextMenu.pair.avatarName}`}
@@ -1567,9 +1567,9 @@ function PairCard({
       aria-label={`View details for ${pair.avatarName} — ${pair.trait}`}
       className={`
         group relative cursor-pointer overflow-hidden rounded-xl border border-border/60
-        border-l-[3px] bg-card p-5 shadow-sm transition-all duration-300
+        border-l-[3px] bg-card p-5 shadow-xs transition-all duration-300
         hover:shadow-lg
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50
+        focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/50
         dark:shadow-none dark:hover:shadow-orange-900/20 dark:hover:shadow-lg
       `}
       style={{

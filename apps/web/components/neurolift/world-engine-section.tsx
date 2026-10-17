@@ -27,7 +27,7 @@ const roles = [
     textColor: "text-orange-500",
     circleColor: "bg-orange-500/15",
     borderColor: "border-orange-500/30",
-    bgTint: "bg-orange-500/[0.03]",
+    bgTint: "bg-orange-500/3",
   },
   {
     icon: Earth,
@@ -37,7 +37,7 @@ const roles = [
     textColor: "text-teal-500",
     circleColor: "bg-teal-500/15",
     borderColor: "border-teal-500/30",
-    bgTint: "bg-teal-500/[0.03]",
+    bgTint: "bg-teal-500/3",
   },
 ];
 

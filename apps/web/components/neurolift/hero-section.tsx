@@ -89,7 +89,7 @@ function RotatingTagline() {
 
 function GradientOrbs() {
   return (
-    <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
+    <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden" aria-hidden="true">
       {/* Primary large orb */}
       <div
         className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-25 blur-[120px]"
@@ -159,7 +159,7 @@ export function HeroSection() {
       <GradientOrbs />
 
       {/* Subtle noise overlay for texture */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(255,255,255,0.03)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(255,255,255,0.03)_100%)]" />
 
       {/* Content */}
       <motion.div

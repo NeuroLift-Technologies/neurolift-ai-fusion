@@ -31,7 +31,7 @@ const phases: Phase[] = [
     circleColor: "bg-orange-500/15",
     glowColor: "shadow-[0_0_40px_rgba(243,128,32,0.15)]",
     borderColor: "border-orange-500/30",
-    bgTint: "bg-orange-500/[0.03]",
+    bgTint: "bg-orange-500/3",
     textColor: "text-orange-500",
     gradientBorderColor: "rgba(243,128,32,0.5)",
     pulseGlowColor: "rgba(243,128,32,0.1)",
@@ -46,7 +46,7 @@ const phases: Phase[] = [
     circleColor: "bg-teal-500/15",
     glowColor: "shadow-[0_0_40px_rgba(20,184,166,0.15)]",
     borderColor: "border-teal-500/30",
-    bgTint: "bg-teal-500/[0.03]",
+    bgTint: "bg-teal-500/3",
     textColor: "text-teal-500",
     gradientBorderColor: "rgba(20,184,166,0.5)",
     pulseGlowColor: "rgba(20,184,166,0.1)",
@@ -61,7 +61,7 @@ const phases: Phase[] = [
     circleColor: "bg-violet-500/15",
     glowColor: "shadow-[0_0_40px_rgba(139,92,246,0.15)]",
     borderColor: "border-violet-500/30",
-    bgTint: "bg-violet-500/[0.03]",
+    bgTint: "bg-violet-500/3",
     textColor: "text-violet-500",
     gradientBorderColor: "rgba(139,92,246,0.5)",
     pulseGlowColor: "rgba(139,92,246,0.1)",
@@ -122,7 +122,7 @@ function ConnectionLine({ index, isInView }: { index: number; isInView: boolean 
           {FLOW_DOTS.map((dot) => (
             <motion.div
               key={dot.delayOffset}
-              className="absolute -left-[3px] rounded-full bg-orange-400"
+              className="absolute left-[-3px] rounded-full bg-orange-400"
               style={{
                 width: dot.size,
                 height: dot.size,
@@ -206,7 +206,7 @@ function PhaseCard({ phase, index, isInView }: { phase: Phase; index: number; is
       }}
     >
       {/* Phase number - decorative background */}
-      <span className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 text-6xl font-bold text-muted-foreground/[0.04] select-none">
+      <span className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 text-6xl font-bold text-muted-foreground/4 select-none">
         {PHASE_NUMBERS[index]}
       </span>
 

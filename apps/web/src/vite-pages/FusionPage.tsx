@@ -78,7 +78,7 @@ export default function FusionPage() {
           <button
             onClick={handleFusion}
             disabled={attempting || !avatarId || !aideId}
-            className="bg-gradient-to-r from-[#6c63ff] to-[#48cfad] text-white px-5 py-2 rounded-lg text-sm font-semibold transition-opacity disabled:opacity-50"
+            className="bg-linear-to-r from-[#6c63ff] to-[#48cfad] text-white px-5 py-2 rounded-lg text-sm font-semibold transition-opacity disabled:opacity-50"
           >
             {attempting ? "Fusing…" : "⚡ Attempt Fusion"}
           </button>

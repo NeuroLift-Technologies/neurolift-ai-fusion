@@ -254,7 +254,7 @@ export function PairComparisonDialog({
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
                 >
-                  <Card className="[background-image:radial-gradient(circle,hsl(var(--border))_1px,transparent_1px)] [background-size:16px_16px] overflow-hidden">
+                  <Card className="bg-[radial-gradient(circle,hsl(var(--border))_1px,transparent_1px)] bg-size-[16px_16px] overflow-hidden">
                     <CardHeader className="pb-0">
                       <CardTitle className="text-sm font-semibold">
                         Metrics Comparison

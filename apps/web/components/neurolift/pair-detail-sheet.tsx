@@ -155,7 +155,7 @@ function ExpandableSection({
           className={`
             flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left
             transition-colors duration-200 hover:bg-muted/50
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+            focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2
           `}
           style={{
             // @ts-expect-error CSS custom property
@@ -379,7 +379,7 @@ function FusionJourney({ pair, hideHeading }: { pair: AvatarAidePair; hideHeadin
                   onClick={() =>
                     setActiveStep(isActive ? null : (i as JourneyStep))
                   }
-                  className="group relative flex flex-col items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-lg"
+                  className="group relative flex flex-col items-center gap-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 rounded-lg"
                   style={{ "--ring-color": pair.color } as React.CSSProperties}
                   aria-label={`${step.label}: ${step.name}${isActive ? " (selected)" : ""}`}
                   aria-pressed={isActive}
@@ -928,7 +928,7 @@ export function PairDetailSheet({
         {/* ── Sticky Header ──────────────────────────────────── */}
         <div
           className={`
-            sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm
+            sticky top-0 z-10 border-b bg-background/95 backdrop-blur-xs
           `}
           style={{ borderBottomColor: `${pair.color}20` }}
         >
@@ -967,7 +967,7 @@ export function PairDetailSheet({
                 className={`
                   rounded-md p-1.5 transition-colors duration-200
                   text-muted-foreground hover:bg-muted hover:text-foreground
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                  focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2
                 `}
                 aria-label="Close details"
               >
