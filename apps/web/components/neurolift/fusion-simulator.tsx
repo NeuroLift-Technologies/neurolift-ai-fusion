@@ -99,7 +99,7 @@ export function FusionSimulator() {
       setRunning(false);
       setCompleted(true);
     }
-  }, [clearTimer, clearFlashTimers]);
+  }, [clearTimer, clearFlashTimers, completed]);
 
   useEffect(() => {
     if (running && step < 2) {

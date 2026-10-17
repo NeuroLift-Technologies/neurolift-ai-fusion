@@ -334,7 +334,16 @@ interface PairsGridProps {
   onExportToast?: () => void;
 }
 
+// Empathy level sort order
+const EMPATHY_ORDER: Record<string, number> = {
+  theoretical: 1,
+  observational: 2,
+  experiential: 3,
+  deep_experiential: 4,
+};
+
 // ─── Component ───────────────────────────────────────────────────────
+
 export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExportToast }: PairsGridProps) {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
   const [activeStatusFilter, setActiveStatusFilter] = useState<StatusFilterKey>("all");
@@ -418,14 +427,6 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
       onSelectPair(random);
     }
   }, [activeFilter, activeStatusFilter, searchQuery, favorites, onSelectPair]);
-
-  // Empathy level sort order
-  const EMPATHY_ORDER: Record<string, number> = {
-    theoretical: 1,
-    observational: 2,
-    experiential: 3,
-    deep_experiential: 4,
-  };
 
   // Count pairs per category filter (for badges)
   const filterCounts = useMemo(() => {
@@ -522,7 +523,7 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
         break;
     }
     return sorted;
-  }, [filteredPairs, tableSort, EMPATHY_ORDER]);
+  }, [filteredPairs, tableSort]);
 
   // Search suggestions (max 5 matches)
   const suggestions = useMemo(() => {
