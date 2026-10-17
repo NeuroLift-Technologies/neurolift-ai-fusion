@@ -35,8 +35,8 @@ export default function NewSessionScreen() {
         avatar_type: selectedAvatar,
         aide_type: selectedAide,
         scenarios: [
-          { type: "workplace", difficulty },
-          { type: "personal", difficulty: difficulty * 0.8 },
+          { type: "workplace", difficulty, description: "Workplace productivity task" },
+          { type: "personal", difficulty: difficulty * 0.8, description: "Personal organisation task" },
         ],
       });
       router.replace(`/session/${s.session_id}`);
