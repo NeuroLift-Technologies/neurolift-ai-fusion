@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { Brain, Earth, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,9 +41,16 @@ const roles = [
   },
 ];
 
+/**
+ * Homepage section that introduces the NLT World Engine and links to its site,
+ * so visitors learn where Fusion's Avatars live and can go there.
+ */
 export function WorldEngineSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px 0px" });
+  // The global prefers-reduced-motion CSS does not reach Framer Motion's JS
+  // animations, so skip the slide-in here for visitors who ask for less motion.
+  const reduceMotion = useReducedMotion();
 
   return (
     <section
@@ -55,8 +62,8 @@ export function WorldEngineSection() {
       <motion.div
         className="mx-auto flex max-w-4xl flex-col items-center text-center"
         variants={fadeUp}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
+        initial={reduceMotion ? false : "hidden"}
+        animate={reduceMotion || isInView ? "visible" : "hidden"}
       >
         <p className="text-xs font-semibold uppercase tracking-widest text-orange-500 sm:text-sm">
           Where the Avatars live

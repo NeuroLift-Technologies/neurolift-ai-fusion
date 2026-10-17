@@ -126,6 +126,10 @@ function GradientOrbs() {
   );
 }
 
+/**
+ * Full-height homepage hero: title, tagline, pair counts, and two calls to
+ * action — scroll to the pairs grid, or visit the NLT World Engine site.
+ */
 export function HeroSection() {
   const stats = getStats();
   const titleRef = useRef<HTMLHeadingElement>(null);

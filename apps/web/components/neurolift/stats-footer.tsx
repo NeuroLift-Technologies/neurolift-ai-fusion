@@ -411,6 +411,10 @@ function MiniRadialGauge({ pct, inView }: { pct: number; inView: boolean }) {
 }
 
 // ─── Main component ──────────────────────────────────────────────
+/**
+ * Stats overview for the 19 pairs, followed by the site footer with branding
+ * and outbound links (World Engine, GitHub, website, email).
+ */
 export default function StatsFooter() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
@@ -861,7 +865,7 @@ export default function StatsFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="NLT World Engine"
+                aria-label="NLT World Engine (opens in a new tab)"
               >
                 <Earth className="h-4 w-4" />
                 <span>World Engine</span>

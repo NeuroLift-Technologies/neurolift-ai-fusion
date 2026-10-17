@@ -43,6 +43,11 @@ const KeyboardShortcutsDialog = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false },
 );
 
+/**
+ * Homepage: hero, Fusion pipeline, NLT World Engine, simulator, pairs grid and
+ * stats. Owns the pair-detail sheet, comparison dialog, and keyboard shortcuts,
+ * and keeps the open pair in the URL (?pair=ID) so it can be shared.
+ */
 export default function HomePage() {
   const [selectedPair, setSelectedPair] = useState<AvatarAidePair | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
