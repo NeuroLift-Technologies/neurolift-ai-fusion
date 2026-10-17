@@ -549,6 +549,8 @@ export default function WorldView({
     latestStateRef.current = state;
     rafPendingRef.current = false;
     scheduleFrame();
+    // scheduleFrame only touches refs, so a stale closure is harmless here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   function scheduleFrame() {

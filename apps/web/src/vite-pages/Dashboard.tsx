@@ -67,7 +67,7 @@ export default function Dashboard() {
       <div className="bg-[#1a1a2e] border border-[#2e2e4e] rounded-xl p-6 mb-6">
         <h2 className="text-lg font-semibold mb-2 text-[#6c63ff]">Mission</h2>
         <p className="text-[#8888aa] leading-relaxed">
-          <em>"Nothing About Us Without Us"</em> — neurodivergent voices lead development. NeuroLift
+          <em>&ldquo;Nothing About Us Without Us&rdquo;</em> — neurodivergent voices lead development. NeuroLift
           trains AI Avatars with ADHD traits through authentic experiential learning in a Sims/RPG-style
           simulation. Paired Aides coach them through real struggles until they are ready to fuse into
           Advocates that combine lived understanding with expert solutions.
