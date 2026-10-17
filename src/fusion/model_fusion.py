@@ -61,6 +61,11 @@ class PairedTrajectoryStep:
     channel_messages: List[Dict[str, Any]] = field(default_factory=list)
     outcome: Dict[str, Any] = field(default_factory=dict)
     counterfactual_label: Optional[Dict[str, Any]] = None
+    token_ids: List[int] = field(default_factory=list)  # New: token IDs for decision
+    engine_tick: int = field(default=0)  # New: engine tick when decision was made
+    decision_source: str = field(default="unknown")  # New: which decision source acted
+    solo_day: bool = field(default=False)  # New: solo-day training flag
+    missed_turn: bool = field(default=False)  # New: missed-turn flag
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -72,6 +77,11 @@ class PairedTrajectoryStep:
             "channel_messages": self.channel_messages,
             "outcome": self.outcome,
             "counterfactual_label": self.counterfactual_label,
+            "token_ids": self.token_ids,
+            "engine_tick": self.engine_tick,
+            "decision_source": self.decision_source,
+            "solo_day": self.solo_day,
+            "missed_turn": self.missed_turn,
         }
 
     @classmethod
@@ -83,6 +93,11 @@ class PairedTrajectoryStep:
         observation: Optional[Dict[str, Any]] = None,
         scenario: Optional[Dict[str, Any]] = None,
         channel_messages: Optional[List[Dict[str, Any]]] = None,
+        token_ids: Optional[List[int]] = None,
+        engine_tick: Optional[int] = None,
+        decision_source: Optional[str] = None,
+        solo_day: Optional[bool] = None,
+        missed_turn: Optional[bool] = None,
     ) -> "PairedTrajectoryStep":
         """Build a step from an ExperienceRecord plus paired outputs."""
         return cls(
@@ -104,6 +119,11 @@ class PairedTrajectoryStep:
                 "strategy_discovered": record.strategy_discovered,
             },
             counterfactual_label=None,
+            token_ids=token_ids or [],
+            engine_tick=engine_tick or 0,
+            decision_source=decision_source or "unknown",
+            solo_day=solo_day or False,
+            missed_turn=missed_turn or False,
         )
 
 

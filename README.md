@@ -6,14 +6,6 @@ A full-stack web and mobile platform backed by a Python AI simulation engine. AI
 
 > **Sibling repo:** [`nlt-world-engine`](https://github.com/NeuroLift-Technologies/nlt-world-engine) owns the **physical simulation layer**. Godot 4.7.2 is the target runtime; `WorldEngine/` is the retained UE reference implementation. This repo owns the **intelligence**—ADHD trait models, Aide coaching, session orchestration, and fusion. The closed-loop agent contract is defined, but the live Fusion ↔ Godot runtime connection is not yet wired.
 
-```yaml
-ai_assistant_directive:
-  priority: 1
-  instruction: "Before performing any development or coding tasks, read NLT-DEV-OTOI.md."
-  description: "NLT-DEV-OTOI.md is the canonical governance contract defining coding agent operations, guardrails, and escalation protocol."
-  required_file: "NLT-DEV-OTOI.md"
-```
-
 ## Quick Start
 
 ### API (FastAPI — Python)
@@ -43,60 +35,11 @@ npx expo start
 # → scan QR with Expo Go on your device
 ```
 
-### Simulation Engine (Python — Intelligence Layer)
+### Simulation Engine (Python)
 ```bash
 pip install -r requirements.txt
 pytest
 ```
-
-> **Note:** The physical simulation runtime is in [`nlt-world-engine/world-engine-godot`](https://github.com/NeuroLift-Technologies/nlt-world-engine/tree/main/world-engine-godot), not this repo. This repo provides the Python intelligence (Avatar trait models, Aide coaching, session orchestration). The legacy lightweight Python world in `src/simulation/environment/` is for testing and reference only; it is not a second physical source of truth for a Godot integration.
-
-### Physical-world agent loop
-
-The `nlt.agent-loop.v1` contract describes a closed-loop boundary between the two repositories:
-
-```text
-Godot physical perception → Fusion semantic intent → Godot validation/execution → next perception
-```
-
-The world engine supplies an agent-specific snapshot of physical facts (self state, scene, visible
-entities, and affordances). Fusion may respond with semantic intents such as `approach`, `look_at`,
-`use`, `sit`, `rest`, `communicate`, or `wait`—never coordinates, velocity, teleportation, or
-object-state writes. Godot applies ASFDK-C# governance at intent ingress, then independently
-validates current physical conditions before executing consequences. Fusion returns semantic
-intent only; it does not govern or execute physical effects.
-
-The protocol and current status are documented in the
-[agent-loop feature overview](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/agent-loop.md)
-and [versioned contract](https://github.com/NeuroLift-Technologies/nlt-world-engine/blob/main/docs/contracts/agent-loop-v1.md).
-Fusion's `src/fusion/agent_loop.py` provides the validating decision seam, exposed locally by
-`src/fusion/agent_loop_http.py` at `POST http://127.0.0.1:8001/agent-loop/perception`. Set
-`FUSION_GGUF_MODEL` to select the optional local GGUF model; without it the endpoint uses a
-deterministic model-free control decision. Inference runs outside the ASGI event loop, and malformed,
-stale, or unavailable decisions fail closed. The endpoint is loopback-only and does not perform
-ASFDK governance or physical execution. The existing `nlt.state-feed.v1` is a separate observer
-feed, not this control protocol.
-
-### JavaScript dependency boundaries
-
-The repository currently has multiple JavaScript package-manager surfaces:
-
-| Path | Lockfile | Use for |
-| --- | --- | --- |
-| `apps/web/` | `pnpm-lock.yaml` | Next.js web surface and `/simulation-lab` |
-| `apps/mobile/` | `package-lock.json` | Expo mobile starter |
-| `cloudflare-engine/` | `package-lock.json` | World Engine Worker and local Wrangler CLI |
-
-Use the lockfile in the package you are changing. For web-only dependency work,
-run pnpm inside `apps/web/` so the checked-in `pnpm-lock.yaml` stays in sync and
-avoid creating an `apps/web/package-lock.json`. For the Cloudflare worker, run
-`npm ci` from `cloudflare-engine/` so local `npx wrangler ...` commands use the
-repo-pinned Wrangler v4 dependency instead of a global install.
-
----
-
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NeuroLift-Technologies/neurolift-ai-fusion)
-[![Visit Site](https://img.shields.io/badge/Visit%20Site-neuroliftsolutions.com-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://neuroliftsolutions.com)
 
 ## 🎯 Project Vision
 
@@ -177,75 +120,6 @@ This simulation approach addresses both gaps through authentic experiential lear
 19. **ConfidenceCoach** - Self-esteem and identity
 20. **RSDShield** - Rejection sensitivity dysphoria
 
-## 🎮 Unreal Engine AI Tools (Retained Reference)
-
-> **Note:** This catalog describes the retained UE 5.8 reference project in [`nlt-world-engine/WorldEngine`](https://github.com/NeuroLift-Technologies/nlt-world-engine). Godot 4.7.2 is the target physical runtime; the UE implementation remains a frozen behavioral oracle until the port passes conformance.
-
-**What this repo needs to know:**
-
-- The UE WorldEngine is the retained reference for Mass Entity population, StateTree behavior, Smart Objects, deterministic tick, and RL/PPO training (Learning Agents plugin); it is not the target runtime.
-- The retained UE reference's in-engine **LLM control path** (`UMLInferenceBridgeSubsystem` in nlt-world-engine) drives `AAvatarAIController::ExecuteLLMCommand` directly — the model controls the actor inside the engine, not through the public web server.
-- Fusion's transport-neutral agent-loop contract is documented in [`docs/architecture.md`](docs/architecture.md); runtime wiring and transport selection remain deferred.
-
-UE-side plugin/tooling details: see the **UE Plugins Enabled** table and subsystem docs in [`nlt-world-engine/README.md`](https://github.com/NeuroLift-Technologies/nlt-world-engine).
-
----
-
-## 🔁 CI and Repository Automation
-
-### Workflows
-
-| Workflow | Role | Trigger |
-|----------|------|---------|
-| `shared-ci.yml` | Shared lint, test, and security jobs (defined locally — the retired `.github-private` reusable workflows no longer exist) | push to main, PR to main, workflow_dispatch |
-| `python-app.yml` | Python/API checks for `src/`, `tests/`, `backend/`, `requirements.txt`, `pytest.ini`, `apps/api/` | push to main, PR to main (when those paths change), workflow_dispatch |
-| `redteam-ci.yml` | Progressive 3-level clearance (syntax → coverage → security) | push to main, PR to main |
-| `pgsa-portability-gate.yml` | Secrets scanning + provenance validation | push to main, PR to main |
-| `pr-cleanup.yml` | Stale PR marking, auto-close, merged branch deletion | daily schedule + manual |
-| `sync-governance-public.yml` | Syncs governance docs from `.github-private` | repository_dispatch + weekly schedule |
-
-### Key constraints
-
-- Pushes to non-`main` branches do not auto-run CI unless a PR targets `main`
-- `shared-ci.yml` defines its lint/test/security jobs locally (the previous reusable workflows in `.github-private` were retired)
-- `pr-cleanup.yml` exempts draft PRs from staleness; branch deletion skips protected branches and forks
-- Governance sync requires `document_name` + base64-encoded `content` in `repository_dispatch` payload
-
-Full CI/CD documentation: [`docs/CI_HARNESS_README.md`](docs/CI_HARNESS_README.md)
-
-### 🌐 Cloudflare Integration
-
-Our infrastructure leverages Cloudflare for:
-- **WordPress Hosting**: Optimized performance and caching
-- **Cloudflare Workers**: Serverless edge computing
-- **Cloudflare Pages**: Static site hosting for documentation and app interfaces
-- **CDN**: Global content delivery for fast access
-- **Security**: DDoS protection, WAF, and bot mitigation
-
-| Worker | Purpose |
-|--------|---------|
-| **`neurolift-world-engine`** | Separate Cloudflare ECS prototype (`cloudflare-engine/src/index.ts`) with a WebSocket `/connect` gateway; it is not the Godot 4.7.2 runtime or the `nlt.agent-loop.v1` Fusion ↔ Godot connection |
-
-Deployment details: [`docs/cloudflare/CLOUDFLARE_SETUP.md`](docs/cloudflare/CLOUDFLARE_SETUP.md)
-
-## 🛡️ Privacy-First Design
-
-<!-- 
-NON-NEGOTIABLES FOR PRODUCTION & END USER USE:
-The following 4 principles are mandatory requirements for any production 
-deployment or end-user facing application of this framework.
-
-Note: "Local Processing" does not apply during development and training phases,
-where cloud/remote processing may be used for Avatar-Aide simulation training.
--->
-
-- **Local Processing:** All processing happens locally *(exempt during development/training)*
-- **No Data Collection:** No external data transmission without explicit consent
-- **No Monetization:** User data never monetized
-- **Transparent:** Clear about what data exists and where
-
-> **⚠️ Production Requirements:** The above 4 principles are **non-negotiable** for production and end-user use. "Local Processing" may be relaxed during development and training phases only.
-
 ## 🏆 Success Criteria
 
 1. **Structure Complete:** Repository organized exactly as specified
@@ -256,24 +130,6 @@ where cloud/remote processing may be used for Avatar-Aide simulation training.
 6. **Fusion Validated:** Resulting Advocate demonstrates both empathy and expertise
 7. **Community Ready:** Code is documented well enough for contributors
 
-## 🤝 Contributing
-
-This project follows "Nothing About Us Without Us" principles. We welcome contributions from:
-- Neurodivergent developers and researchers
-- ADHD specialists and therapists
-- AI/ML researchers interested in experiential learning
-- Anyone committed to authentic representation
-
-Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workflow and documentation standards in this README.
-
-## 📚 Documentation
-
-- [Architecture Overview](docs/architecture.md)
-- [Quick Start Guide](QUICKSTART.md)
-- [TOI-OTOI Integration](TOI-OTOI-INTEGRATION.md)
-- [Implementation Summary](docs/implementation_summary.md)
-- [Cloudflare Setup Guide](docs/cloudflare/CLOUDFLARE_SETUP.md)
-
 ## 📞 Contact
 
 **Founder:** Joshua W. Dorsey, Sr. (ADHD cognitive profile)
@@ -282,17 +138,6 @@ Formal `CONTRIBUTING.md` guidance is being drafted; for now, follow the CI workf
 - Values authentic neurodivergent representation
 - **Email:** neuro.edge24@gmail.com
 - **Website:** [neuroliftsolutions.com](https://neuroliftsolutions.com)
-
-## 📄 License
-
-[License TBD - Open Source]
-
-## 🎯 Current Status
-
-**Development Phase:** Fusion & AI Model Layer (Phases 5–6); Godot 4.7.2 migration and the Fusion ↔ Godot runtime connection remain in progress.
-**Last Updated:** September 2026  
-**Next Milestone:** Expand remaining 16 Avatar-Aide pairs → real-world testing with neurodivergent community  
-**Spec:** [`docs/specs/advocate-model-fusion-spec.md`](docs/specs/advocate-model-fusion-spec.md) + [`docs/research/Trajectory Distillation for Behavioral AI Fusion.md`](docs/research/Trajectory%20Distillation%20for%20Behavioral%20AI%20Fusion.md)
 
 ---
 

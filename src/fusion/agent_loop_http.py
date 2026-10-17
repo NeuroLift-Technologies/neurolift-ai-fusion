@@ -58,6 +58,8 @@ def _fallback_decide(observation: Mapping[str, Any]) -> dict[str, Any]:
                 "observedTick": observation["tick"],
                 "verb": "approach",
                 "targetId": entity["id"],
+                "tokenIds": [],
+                "promptText": "Fallback decision",
             }
     return {
         "protocolVersion": PROTOCOL_VERSION,
@@ -66,17 +68,36 @@ def _fallback_decide(observation: Mapping[str, Any]) -> dict[str, Any]:
         "agentId": observation["agentId"],
         "observedTick": observation["tick"],
         "verb": "wait",
+        "tokenIds": [],
+        "promptText": "Fallback decision",
     }
 
 
 def build_decision_source() -> Callable[[Mapping[str, Any]], Mapping[str, Any]]:
-    """GGUF model when FUSION_GGUF_MODEL is set, else the fallback."""
+    """GGUF model when FUSION_GGUF_MODEL is set, else the fallback.
+    
+    Also supports a seed-based decision source for training days when
+    FUSION_DECISION_SOURCE_SEED is set.
+    """
     model_path = os.environ.get("FUSION_GGUF_MODEL", "").strip()
-    if not model_path:
-        return _fallback_decide
-    from .gguf_agent_decision import LlamaCppAgentLoopDecision
-
-    return LlamaCppAgentLoopDecision(model_path)
+    seed_value = os.environ.get("FUSION_DECISION_SOURCE_SEED", "").strip()
+    
+    # Seed-based decision source for training days
+    if seed_value:
+        try:
+            seed = int(seed_value)
+            from .transformers_agent_decision import TransformersAgentLoopDecision
+            return TransformersAgentLoopDecision(model_path, seed=seed)
+        except ValueError:
+            pass  # Fall through to other sources
+    
+    # GGUF model
+    if model_path:
+        from .gguf_agent_decision import LlamaCppAgentLoopDecision
+        return LlamaCppAgentLoopDecision(model_path)
+    
+    # Fallback
+    return _fallback_decide
 
 
 def create_app(
@@ -84,7 +105,13 @@ def create_app(
 ) -> FastAPI:
     """Build the FastAPI app. Tests inject their own decide; production uses env."""
     app = FastAPI(title="nlt.agent-loop.v1 fusion endpoint", version=PROTOCOL_VERSION)
-    loop = FusionAgentLoop(decide if decide is not None else build_decision_source())
+    
+    # For production, use the build_decision_source which respects environment variables
+    # For testing, inject the provided decide function
+    if decide is None:
+        loop = FusionAgentLoop(build_decision_source())
+    else:
+        loop = FusionAgentLoop(decide)
 
     in_flight: set[str] = set()
 

@@ -54,6 +54,8 @@ _INTENT_KEYS = frozenset(
         "observedTick",
         "verb",
         "targetId",
+        "tokenIds",  # New: token IDs for day logging
+        "promptText",  # New: prompt text for debugging
     }
 )
 _RESULT_KEYS = frozenset(
@@ -186,7 +188,7 @@ def validate_intent(
     validate_perception(observation)
     intent = _object(message, "intent")
     intent_keys = frozenset(intent)
-    if intent_keys not in {_INTENT_KEYS, _INTENT_KEYS - {"targetId"}}:
+    if intent_keys not in {_INTENT_KEYS, _INTENT_KEYS - {"targetId"}, _INTENT_KEYS - {"targetId", "tokenIds"}, _INTENT_KEYS - {"targetId", "promptText"}, _INTENT_KEYS - {"targetId", "tokenIds", "promptText"}}:
         raise AgentLoopProtocolError("intent has missing or unknown fields")
     if (
         intent["protocolVersion"] != PROTOCOL_VERSION
@@ -219,6 +221,17 @@ def validate_intent(
             raise AgentLoopProtocolError(
                 f"intent target '{target_id}' was not in the observation"
             )
+    
+    # Validate tokenIds and promptText if present
+    if "tokenIds" in intent:
+        token_ids = intent["tokenIds"]
+        if not isinstance(token_ids, list) or not all(isinstance(id, int) for id in token_ids):
+            raise AgentLoopProtocolError("intent tokenIds must be a list of integers")
+    
+    if "promptText" in intent:
+        prompt_text = intent["promptText"]
+        if not isinstance(prompt_text, str) or not prompt_text.strip():
+            raise AgentLoopProtocolError("intent promptText must be a non-empty string")
 
 
 def validate_result(
