@@ -188,7 +188,15 @@ def validate_intent(
     validate_perception(observation)
     intent = _object(message, "intent")
     intent_keys = frozenset(intent)
-    if intent_keys not in {_INTENT_KEYS, _INTENT_KEYS - {"targetId"}, _INTENT_KEYS - {"targetId", "tokenIds"}, _INTENT_KEYS - {"targetId", "promptText"}, _INTENT_KEYS - {"targetId", "tokenIds", "promptText"}}:
+    if intent_keys not in {
+        _INTENT_KEYS,
+        _INTENT_KEYS - {"targetId"},
+        _INTENT_KEYS - {"targetId", "tokenIds"},
+        _INTENT_KEYS - {"targetId", "promptText"},
+        _INTENT_KEYS - {"targetId", "tokenIds", "promptText"},
+        # targetId may appear without the optional tokenIds/promptText enrichments
+        _INTENT_KEYS - {"tokenIds", "promptText"},
+    }:
         raise AgentLoopProtocolError("intent has missing or unknown fields")
     if (
         intent["protocolVersion"] != PROTOCOL_VERSION
