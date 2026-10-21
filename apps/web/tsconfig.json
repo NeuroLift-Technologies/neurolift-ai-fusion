@@ -16,6 +16,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "noUncheckedSideEffectImports": false,
     "plugins": [
       {
         "name": "next"
@@ -26,7 +27,6 @@
         "./*"
       ]
     },
-    "baseUrl": ".",
     "target": "ES2017"
   },
   "include": [
