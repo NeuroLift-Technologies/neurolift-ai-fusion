@@ -33,16 +33,21 @@ jobs:
         with:
           node-version: "20"
 
+      # --prefix . treats apps/web as its own project rather than as a member of the npm workspace:
+      # the install resolves only apps/web (apps/mobile's dependencies do not), from
+      # apps/web/package-lock.json, as Vercel does (apps/web/vercel.json); and the steps below run
+      # the tools it installed. Without it, npx resolves from the workspace root and fetches an
+      # unrelated "tsc" package.
       - name: Install dependencies
-        run: npm install
+        run: npm install --prefix .
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm exec --prefix . -- tsc --noEmit
 
       - name: Lint
-        run: npm run lint -- --max-warnings=0
+        run: npm run lint --prefix . -- --max-warnings=0
 
       - name: Build
-        run: npm run build
+        run: npm run build --prefix .
         env:
           NEXT_PUBLIC_API_URL: http://localhost:8000

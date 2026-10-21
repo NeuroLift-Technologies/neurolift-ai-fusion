@@ -105,6 +105,15 @@ def test_gguf_adapter_emits_grounded_approach_intent(observation):
                     "required": ["verb", "targetId"],
                     "additionalProperties": False,
                 },
+                {
+                    "type": "object",
+                    "properties": {
+                        "verb": {"const": "use"},
+                        "targetId": {"enum": ["desk_1"]},
+                    },
+                    "required": ["verb", "targetId"],
+                    "additionalProperties": False,
+                },
             ]
         },
     }
@@ -121,6 +130,46 @@ def test_gguf_adapter_emits_wait_intent(observation):
 
     assert intent["verb"] == "wait"
     assert "targetId" not in intent
+
+
+def test_gguf_adapter_emits_use_on_a_door(observation):
+    observation["visibleEntities"].append(
+        {
+            "id": "door_3_office",
+            "kind": "place",
+            "position": {"x": 6.0, "y": 0.0, "z": 2.0},
+            "affordances": ["use", "approach", "look_at"],
+            "occupied": False,
+        }
+    )
+    model = FakeLlama('{"verb":"use","targetId":"door_3_office"}')
+    adapter = LlamaCppAgentLoopDecision("unused-injected-model.gguf", model=model)
+
+    intent = FusionAgentLoop(adapter).handle_observation(observation)
+
+    assert intent["verb"] == "use"
+    assert intent["targetId"] == "door_3_office"
+    schemas = model.kwargs["response_format"]["schema"]["oneOf"]
+    use_schema = next(s for s in schemas if s["properties"]["verb"] == {"const": "use"})
+    assert use_schema["properties"]["targetId"] == {"enum": ["desk_1", "door_3_office"]}
+
+
+def test_gguf_schema_leaves_out_occupied_seats_but_still_allows_looking(observation):
+    observation["visibleEntities"][0] = {
+        "id": "desk_chair_1",
+        "kind": "object",
+        "position": {"x": 2.0, "y": 0.0, "z": 2.0},
+        "affordances": ["sit", "approach", "look_at"],
+        "occupied": True,
+    }
+    model = FakeLlama('{"verb":"look_at","targetId":"desk_chair_1"}')
+    adapter = LlamaCppAgentLoopDecision("unused-injected-model.gguf", model=model)
+
+    intent = adapter(observation)
+
+    assert intent["verb"] == "look_at"
+    verbs = [s["properties"]["verb"]["const"] for s in model.kwargs["response_format"]["schema"]["oneOf"]]
+    assert verbs == ["wait", "approach", "look_at"]
 
 
 def test_gguf_adapter_serializes_shared_model_inference(observation):
@@ -141,6 +190,8 @@ def test_gguf_adapter_serializes_shared_model_inference(observation):
         "not json",
         '{"verb":"wait","verb":"approach","targetId":"desk_1"}',
         '{"verb":"teleport"}',
+        '{"verb":"sit","targetId":"desk_1"}',
+        '{"verb":"communicate","targetId":"desk_1"}',
         '{"verb":"wait","targetId":"desk_1"}',
         '{"verb":"approach","targetId":"hidden"}',
         '{"verb":"approach","targetId":"desk_1","position":{"x":9}}',
@@ -180,6 +231,6 @@ def test_local_qwen_gguf_smoke(observation):
     adapter = LlamaCppAgentLoopDecision(Path(model_path), context_size=2048, threads=2)
     intent = FusionAgentLoop(adapter).handle_observation(observation)
 
-    assert intent["verb"] in {"approach", "wait"}
-    if intent["verb"] == "approach":
+    assert intent["verb"] in {"approach", "use", "wait"}
+    if intent["verb"] != "wait":
         assert intent["targetId"] == "desk_1"
