@@ -135,9 +135,41 @@ def test_adapter_emits_wait_without_target(observation):
 
 
 @pytest.mark.parametrize(
+    ("affordances", "verb"),
+    [
+        (["approach", "use", "look_at"], "use"),
+        (["sit", "approach", "look_at"], "sit"),
+        (["sit", "rest", "approach", "look_at"], "rest"),
+        (["approach", "use", "look_at"], "look_at"),
+    ],
+)
+def test_adapter_emits_interaction_verbs_the_target_affords(observation, affordances, verb):
+    observation["visibleEntities"][0]["affordances"] = affordances
+    adapter, _, _ = make_decision(f'{{"verb":"{verb}","targetId":"desk_1"}}')
+
+    intent = FusionAgentLoop(adapter).handle_observation(observation)
+
+    assert (intent["verb"], intent["targetId"]) == (verb, "desk_1")
+
+
+def test_adapter_rejects_an_occupied_seat_but_not_looking_at_it(observation):
+    observation["visibleEntities"][0]["affordances"] = ["sit", "approach", "look_at"]
+    observation["visibleEntities"][0]["occupied"] = True
+
+    sit, _, _ = make_decision('{"verb":"sit","targetId":"desk_1"}')
+    with pytest.raises(AgentLoopModelOutputError):
+        sit(observation)
+
+    look, _, _ = make_decision('{"verb":"look_at","targetId":"desk_1"}')
+    assert look(observation)["verb"] == "look_at"
+
+
+@pytest.mark.parametrize(
     "response",
     [
         "not json",
+        '{"verb":"sit","targetId":"desk_1"}',
+        '{"verb":"communicate","targetId":"desk_1"}',
         '{"verb":"teleport"}',
         '{"verb":"wait","verb":"approach","targetId":"desk_1"}',
         '{"verb":"wait","targetId":"desk_1"}',
@@ -177,6 +209,6 @@ def test_local_qwen_model_smoke(observation):
     adapter = TransformersAgentLoopDecision(Path(model_path))
     intent = FusionAgentLoop(adapter).handle_observation(observation)
 
-    assert intent["verb"] in {"approach", "wait"}
-    if intent["verb"] == "approach":
+    assert intent["verb"] in {"approach", "use", "wait"}
+    if intent["verb"] != "wait":
         assert intent["targetId"] == "desk_1"

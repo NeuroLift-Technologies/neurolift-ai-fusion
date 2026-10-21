@@ -2,7 +2,8 @@
 
 `src.fusion.TransformersAgentLoopDecision` is an optional, local Hugging Face Transformers
 decision source for `FusionAgentLoop`. It loads a causal language model once from a local directory,
-then converts each validated physical observation into a semantic `approach` or `wait` intent. The
+then converts each validated physical observation into a semantic intent: `wait`, or one of
+`approach`, `use`, `sit`, `rest` and `look_at` on a visible entity that affords it. The
 adapter does not download model files, return physical coordinates, or mutate engine state. Its
 synchronous inference must run in a Fusion worker/service context, not a real-time simulation tick.
 
@@ -98,8 +99,12 @@ flags are passed explicitly by CI and by `scripts/run_clearance_tests.py` rather
 `pytest.ini` addopts; see `pytest.ini` for the 40% gate.
 
 The GGUF adapter defaults to a 2048-token context, two CPU threads, and no GPU layers to keep the
-first run bounded. It constrains model output to `wait` or `approach` with a visible entity that
-advertises the `approach` affordance, then validates the result against the perception. Its
+first run bounded. It constrains model output to `wait`, or to a verb and target pair the perception
+allows: the target is visible, lists the verb among its affordances, and (for `use`, `sit` and
+`rest`) is not marked occupied. `use` on a door or an exit is how the world engine moves an avatar
+between scenes. `communicate` is not offered to the models; it needs a dialogue payload v1 does not
+carry. Both adapters share these rules, the prompt and the parser (`src/fusion/agent_loop_choices.py`),
+then validate the result against the perception. Its
 real-model test is marked `slow` and skipped unless the environment variable is set. The other
 tests use a fake llama.cpp object and require neither the native runtime nor the model file. Both
 model paths reject malformed output, unsupported verbs, and ungrounded targets; neither silently

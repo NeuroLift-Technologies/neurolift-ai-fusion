@@ -1,0 +1,46 @@
+{
+  "handoff_record": {
+    "session_id": "claude-code-session_01EgGEhrw22wYLc4rvhmCFnQ",
+    "agent_name": "Claude (Anthropic) via Claude Code session",
+    "date": "2026-10-21T20:55:00+00:00",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "claude/pensive-shannon-x9on97",
+    "work_completed": [
+      "Both local model decision sources (llama.cpp/GGUF and Transformers) now let the model choose wait, or approach / use / sit / rest / look_at on a visible entity that lists that verb among its affordances. use, sit and rest are not offered on an entity marked occupied. Before, the prompt, the GGUF schema and both parsers allowed only wait and approach, so the world engine's door transitions (use on a door/exit) and furniture interactions (AGENT-LOOP-002 there) could never be chosen. That is why Joshua's first real-ML run only walked around the world.",
+      "New src/fusion/agent_loop_choices.py holds what the two adapters share: the system prompt, grounded_choices (verb -> target ids allowed by one perception), decision_schemas (the GGUF oneOf schema), and parse_decision (rejects anything outside those pairs, raising the caller's error type).",
+      "Tests: new tests/test_fusion/test_agent_loop_choices.py; GGUF and Transformers tests cover use on a door, sit/rest/look_at, occupied seats, and verbs the target does not afford. The slow real-model smoke tests accept the new verbs.",
+      "docs/agent-loop-model-adapter.md describes the widened output."
+    ],
+    "work_in_progress": [
+      "The real-model run on Joshua's dev PC (Qwen via GGUF or Transformers against the Godot loop) to see whether the model now picks doors and furniture."
+    ],
+    "blockers": [],
+    "decisions_made": [
+      "Joshua, 2026-10-21: widen the model's verbs so the AGENT-LOOP-002 actions can be chosen.",
+      "communicate is not offered to the models: v1 carries no dialogue payload, and the world engine does not execute it yet.",
+      "The model-free fallback (_fallback_decide) is unchanged. It stays the deterministic control condition: the first free entity it can approach, else wait."
+    ],
+    "decisions_pending": [],
+    "escalations": [],
+    "next_agent_notes": "The world engine side (nlt-world-engine) also changed for the same run: wait there now holds the avatar still instead of wandering, so a model choosing wait is visible as standing. A small model may still favour approach; prompt tuning or few-shot examples are the next lever if it never picks use on a door. Door and exit ids from the engine look like door_<n>_<home|office|shop|school> and exit_<scene>.",
+    "files_modified": [
+      "src/fusion/agent_loop_choices.py",
+      "src/fusion/gguf_agent_decision.py",
+      "src/fusion/transformers_agent_decision.py",
+      "tests/test_fusion/test_agent_loop_choices.py",
+      "tests/test_fusion/test_gguf_agent_decision.py",
+      "tests/test_fusion/test_transformers_agent_decision.py",
+      "docs/agent-loop-model-adapter.md",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/CLAUDE-2026-10-21-agent-loop-model-verbs.json",
+      "docs/agent-log/handoffs/CLAUDE-2026-10-21-agent-loop-model-verbs-handoff.json"
+    ],
+    "tests_run": [
+      "pytest tests/test_fusion: 82 passed, 2 skipped (the real-model smoke tests; was 63 passed before).",
+      "mypy on the three changed source files: no issues.",
+      "flake8 (CI's settings) on the changed files: clean."
+    ],
+    "tests_passing": true
+  }
+}
