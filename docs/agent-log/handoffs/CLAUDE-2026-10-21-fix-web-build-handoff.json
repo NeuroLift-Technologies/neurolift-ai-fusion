@@ -1,0 +1,44 @@
+{
+  "handoff_record": {
+    "session_id": "claude-code-session_01EgGEhrw22wYLc4rvhmCFnQ",
+    "agent_name": "Claude (Anthropic) via Claude Code session",
+    "date": "2026-10-21T21:15:39+00:00",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "branch": "claude/fix-web-build",
+    "work_completed": [
+      "Diagnosed the failing Vercel preview deployment (and the matching GitHub 'Web — Build & Type Check' job), red on main since #123. Three independent causes, each reproduced locally.",
+      "1. The workspace install fails (ERESOLVE): apps/mobile pins react-native-safe-area-context 4.10.1 while its expo-router ~57 needs >= 5.4.0. Vercel's project root is apps/web, but npm resolves the whole workspace, so mobile's conflict killed every web deploy. New apps/web/vercel.json installs with 'npm install --prefix .', which installs apps/web on its own from apps/web/package-lock.json. web.yml installs the same way.",
+      "2. Dependabot #123 moved tailwindcss ^3.4.4 -> ^4.3.3 (a major version, not listed in its PR table). Tailwind 4 needs @tailwindcss/postcss and CSS changes, so next build failed. Restored ^3.4.4.",
+      "3. Dependabot #123 also bumped postcss to ^8.5.29, contradicting the security override 'postcss@8.4.31': '8.5.14' (ERESOLVE with autoprefixer). The override now reads '$postcss', so Next's nested copy follows the direct dependency and the two cannot drift again.",
+      "Type check (only web.yml runs it; the Vercel build ignores type errors): removed the deprecated tsconfig baseUrl (paths are already relative under moduleResolution bundler) and set noUncheckedSideEffectImports false, so the side-effect import of globals.css type-checks under TypeScript 5.9.",
+      "apps/web/package-lock.json regenerated with the standalone install."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Tailwind stays on 3.x: the 4.x migration PR (#124) was closed, so the major bump was not intended.",
+      "The web deploy no longer depends on apps/mobile resolving. The mobile dependency set itself is left alone: it mixes Expo SDKs (expo ~56, expo-router/expo-constants ~57, SDK-51-era react-native-screens and reanimated), and choosing an SDK is Joshua's call."
+    ],
+    "decisions_pending": [
+      "Joshua: which Expo SDK apps/mobile should be on. Until it resolves, a root 'npm install' (and anything that runs one: turbo, mobile.yml, root lockfile refresh) still fails with ERESOLVE.",
+      "Joshua: the 'Workers Builds: neurolift-ai-fusion' check also fails, instantly with no build step. Its log is only in the Cloudflare dashboard, so the cause is unknown here."
+    ],
+    "escalations": [],
+    "next_agent_notes": "Verified from a clean install in apps/web, the web.yml sequence: npm install --prefix . -> tsc --noEmit (exit 0) -> npm run lint -- --max-warnings=0 (clean) -> npm run build (compiled, 10/10 static pages). Before: npm install failed ERESOLVE on apps/mobile. With only that fixed, it failed ERESOLVE on the postcss override, and then next build failed on Tailwind 4's PostCSS plugin. The repo-root vercel.json ('npm install --prefix=../..') is not read by a project whose Root Directory is apps/web; it was left as is.",
+    "files_modified": [
+      "apps/web/vercel.json",
+      "apps/web/package.json",
+      "apps/web/package-lock.json",
+      "apps/web/tsconfig.json",
+      ".github/workflows/web.yml",
+      "docs/active-threads.md",
+      "docs/agent-log/handoffs/CLAUDE-2026-10-21-fix-web-build-handoff.json"
+    ],
+    "tests_run": [
+      "Web build sequence as in next_agent_notes, from a clean apps/web install (Node 22)."
+    ],
+    "tests_passing": true,
+    "pr_url": ""
+  }
+}

@@ -33,8 +33,11 @@ jobs:
         with:
           node-version: "20"
 
+      # --prefix . installs apps/web on its own, from apps/web/package-lock.json, rather than
+      # resolving the whole npm workspace (apps/mobile included). Vercel installs the same way
+      # (apps/web/vercel.json).
       - name: Install dependencies
-        run: npm install
+        run: npm install --prefix .
 
       - name: Type check
         run: npx tsc --noEmit
