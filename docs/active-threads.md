@@ -22,6 +22,7 @@
 | TH-022 | Cross-repo governance alignment: upgrade OTOI v1.0.0→v1.0.3, add REVIEW.md, fix persona count (19→20), sync with nlt-world-engine + nlt-adhd | Joshua W. Dorsey, Sr. | Hermes Agent | hermes/th-022-governance-alignment-v2 | 🟡 In Progress | 2026-09-12T20:48:37-04:00 |
 | TH-023 | Add local model adapters and loopback HTTP endpoint for the Godot agent loop ([PR #119](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/119)) | Joshua W. Dorsey, Sr. | Copilot CLI | feat/agent-loop-http-gguf-20261008 | 🟡 PR review pending | 2026-10-08 |
 | TH-024 | Link the web homepage (hero, new World Engine section, footer) to the NLT World Engine site at `neurolift-technologies.github.io/nlt-world-engine/` | Joshua W. Dorsey, Sr. | Claude Code | claude/serene-faraday-78ify3 | 🟡 In Progress | 2026-10-17 |
+| TH-025 | Let the local agent-loop models choose use / sit / rest / look_at, not only wait and approach (the world engine's AGENT-LOOP-002 doors and furniture) | Joshua W. Dorsey, Sr. | Claude Code | claude/pensive-shannon-x9on97 | 🟡 PR review pending | 2026-10-21 |
 
 
 ---

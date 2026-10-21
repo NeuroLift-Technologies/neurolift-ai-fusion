@@ -1,0 +1,22 @@
+{
+  "agent_registration": {
+    "agent_name": "Claude (Anthropic) via Claude Code session",
+    "platform": "Claude Code",
+    "version": "not recorded",
+    "session_id": "claude-code-session_01EgGEhrw22wYLc4rvhmCFnQ",
+    "entry_date": "2026-10-21",
+    "entry_point": "Joshua's first real-ML run of the nlt-world-engine agent loop: the avatar only walked around the world. Traced to this repo's model prompt and parser allowing only wait and approach.",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "working_repo": "NeuroLift-Technologies/neurolift-ai-fusion",
+    "working_branch": "claude/pensive-shannon-x9on97",
+    "capabilities_self_reported": [
+      "Python and pytest changes to the agent-loop decision sources",
+      "Cross-repo context from the nlt-world-engine side of the nlt.agent-loop.v1 contract"
+    ],
+    "known_limitations": [
+      "No local Qwen model here: the slow real-model tests are skipped; the real-model run is Joshua's"
+    ],
+    "preferred_handoff_format": "Structured JSON handoff plus the PR description"
+  }
+}
