@@ -12,7 +12,8 @@
       "2. Dependabot #123 moved tailwindcss ^3.4.4 -> ^4.3.3 (a major version, not listed in its PR table). Tailwind 4 needs @tailwindcss/postcss and CSS changes, so next build failed. Restored ^3.4.4.",
       "3. Dependabot #123 also bumped postcss to ^8.5.29, contradicting the security override 'postcss@8.4.31': '8.5.14' (ERESOLVE with autoprefixer). The override now reads '$postcss', so Next's nested copy follows the direct dependency and the two cannot drift again.",
       "Type check (only web.yml runs it; the Vercel build ignores type errors): removed the deprecated tsconfig baseUrl (paths are already relative under moduleResolution bundler) and set noUncheckedSideEffectImports false, so the side-effect import of globals.css type-checks under TypeScript 5.9.",
-      "apps/web/package-lock.json regenerated with the standalone install."
+      "apps/web/package-lock.json regenerated with the standalone install.",
+      "web.yml's own steps also ran outside apps/web: on CI's npm 10.8.2, 'npx tsc' resolved from the workspace root and fetched an unrelated 'tsc' package. Type check, lint and build now run with --prefix . like the install ('npm exec --prefix . -- tsc --noEmit', 'npm run lint --prefix .', 'npm run build --prefix .'). The whole sequence passes with npm 10.8.2 from a clean install."
     ],
     "work_in_progress": [],
     "blockers": [],
@@ -39,6 +40,6 @@
       "Web build sequence as in next_agent_notes, from a clean apps/web install (Node 22)."
     ],
     "tests_passing": true,
-    "pr_url": ""
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/127"
   }
 }
