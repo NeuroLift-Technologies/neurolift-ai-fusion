@@ -172,7 +172,7 @@ const WE_HUD = (function () {
     return (
       <div className={`we-card we-fleet ${compact ? 'compact' : ''}`}>
         <div className="we-card-head">
-          <span className="we-card-title">AVATAR FLEET · 19</span>
+          <span className="we-card-title">AVATAR FLEET · {avatars.length}</span>
           <span className="we-card-sub">{avatars.filter(a => a.scenarioId).length} in scenario</span>
         </div>
         <div className="we-fleet-grid">

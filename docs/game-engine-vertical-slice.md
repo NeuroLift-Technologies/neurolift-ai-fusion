@@ -77,7 +77,7 @@ This spec is grounded in the cloned repo, Drive docs, Notion pages, and the user
 
 - `Avatar -> Aide -> Advocate Architecture (Canonical)`
 - `AI Avatar Simulation Framework - Real-World Testing Environment`
-- `19 Advocates System - Complete Specification`
+- `19 Advocates System - Complete Specification` (Notion page title; predates the 20-pair README roster, which is now canonical)
 - `NeuroLift AI Fusion - Repository Project`
 - `PROPRIETARY: AI-Fusion Framework - Revolutionary Neurodivergent AI Training`
 
@@ -326,14 +326,38 @@ A pair is not ready for fusion until the Avatar and Aide both satisfy measurable
 
 ---
 
-## 19-Pair System Alignment
+## 20-Pair System Alignment
 
-The first slice should use `StayAlert`, but the engine must be built so the same loop can support all 19 Avatar-Aide pairs.
+The first slice should use `StayAlert`, but the engine must be built so the same loop can support all 20 Avatar-Aide pairs.
 
-Canonical set for implementation planning:
+Canonical set for implementation planning (the README roster; 14 Executive Function, 6 Non-Executive Function):
 
-| # | Advocate Track | Target Challenge |
+| # | Pair | Target Challenge |
 |---|---|---|
+| 1 | StayAlert | Sustained attention |
+| 2 | ImpulseGuard | Impulsivity control |
+| 3 | FocusFlow | Hyperfocus management |
+| 4 | Timely | Time blindness |
+| 5 | MemoryMate | Working memory |
+| 6 | MoodEase | Emotional regulation |
+| 7 | TaskKickstart | Task initiation |
+| 8 | CalmCore | Low frustration tolerance |
+| 9 | Planner Pro | Prioritization and planning |
+| 10 | SmoothSwitch | Transition difficulties |
+| 11 | AwareMate | Self-monitoring |
+| 12 | SteadyMind | Poor impulse control |
+| 13 | FocusRecharge | Effortful focus fatigue |
+| 14 | EffortAlign | Effort vs. productivity perception |
+| 15 | StressShield | Stress sensitivity |
+| 16 | SensoryBalance | Sensory sensitivity |
+| 17 | SocialSync | Social challenges |
+| 18 | SensorySeeker | Sensory-seeking behavior |
+| 19 | ConfidenceCoach | Self-esteem and identity |
+| 20 | RSDShield | Rejection sensitivity dysphoria |
+
+Names and order come from the top-level `README.md`, which is canonical. Older Repo, Drive, and Notion sources use overlapping or superseded labels; where they disagree with the README, the README wins.
+
+---|---|---|
 | 1 | FocusFlow / StayAlert | Sustained attention and focus |
 | 2 | WorkingMemory / MemoryMate | Working memory and recall |
 | 3 | TaskSwitch / SmoothSwitch | Cognitive flexibility and transitions |
@@ -458,7 +482,7 @@ Expected output: file tree plus minimal type definitions, no large implementatio
 
 ### Gemini
 
-Task: Compare the 19-pair taxonomy in this spec against the executive-function research corpus and recommend the cleanest canonical naming map for product, code, and docs.
+Task: Compare the 20-pair roster in the top-level `README.md` ("The 20 Avatar-Aide-Advocate Pairs") against the executive-function research corpus and recommend the cleanest canonical naming map for product, code, and docs.
 
 Expected output: naming map, duplicate/overlap notes, and recommended final labels.
 

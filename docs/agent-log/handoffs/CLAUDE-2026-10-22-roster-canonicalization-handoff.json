@@ -1,0 +1,65 @@
+{
+  "handoff_record": {
+    "session_id": "claude-2026-10-22-roster-canonicalization",
+    "agent_name": "Claude (Claude Code, Sonnet 5.5)",
+    "date": "2026-10-22",
+    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "repo": "NeuroLift-Technologies/neurolift-ai-fusion (plus sibling repo nlt-fusion, same branch name)",
+    "branch": "agent/claude-roster-canonicalization-20",
+    "approval": "Joshua W. Dorsey, Sr. decision of 2026-10-22: the README roster is canonical (20 pairs, 14 Executive Function + 6 Non-Executive Function); every other source changes to match. Intent log: docs/agent-log/intent/2026-10-22-roster-canonicalization-20-pairs.md",
+    "work_completed": [
+      "prototypes/world-engine/data.js: replaced the 19-avatar roster with the 20 README entries in README order (14 EF + 6 non-EF). Rebuilt AVATARS and AIDES; STRATEGIES unchanged (all 17 existing flavor keys reused). Contract verified by loading the file in Node: 20 avatars, 20 aides, unique ids and tags, no orphan or missing aides, every flavor is a STRATEGIES key, all 11 scenarios and 6 NPCs route to valid rooms.",
+      "Fusion count and roster fixes: prototypes/world-engine/README.md, docs/architecture.md, docs/game-engine-vertical-slice.md (heading, intro, the 19-row 'Canonical set' table replaced with the README's 20, Gemini research prompt pointed at the README), IMPLEMENTATION-COMPLETE.md.",
+      "Directly coupled fixes not listed in the brief: prototypes/world-engine/hud.jsx ('AVATAR FLEET' badge was hardcoded 19, now avatars.length), docs/specs/world-engine-prototype-schema.md (roster table and prose), BUILD-SUMMARY.md ('19+' -> '20+').",
+      "nlt-fusion: ONBOARDING.md (20 = 14 + 6, README names), web/index.html, web/nlt-world-engine.html, world-engine-godot/RENDERER-PLAN.md (incl. 'track 7 of 19 (SelfMonitor / AwareMate)' -> 'pair 11 of 20 (AwareMate)'), ART-PIPELINE.md, assets/characters/PIPELINE-PROBE.md, ARCHITECTURE.md, DEPLOYMENT.md (heading, UE container row, and the 'docker compose ... 19 services' line)."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Worked from origin/main in new git worktrees, not from pr-125. pr-125 is behind main: it still carries 19-pair strings in apps/web and a shorter README (roster at lines 99-121, not 156-178). The brief's 'already aligned' claim for apps/web is true on main only.",
+      "Roster ids are snake_case of the README names (planner_pro, rsd_shield, ...). stay_alert and task_kickstart keep their ids to match src/avatars/adhd_traits/.",
+      "Reused existing flavor keys rather than adding new ones: SteadyMind -> impulse (trait 'Habit-Loop Control' to distinguish it from ImpulseGuard), RSDShield -> emotion. No sim.jsx change was needed.",
+      "game-engine-vertical-slice.md line 80 is a Notion page title ('19 Advocates System - Complete Specification'). It cannot be renamed from here, so it is kept and annotated as superseded by the README roster.",
+      "DEPLOYMENT.md UE container row: updated to 20 rather than marked retired (open item 4 for Josh).",
+      "No push, PR, merge, or deployment performed."
+    ],
+    "decisions_pending": [
+      "Josh: web/index.html and web/nlt-world-engine.html in nlt-fusion are deployed to GitHub Pages by .github/workflows/static.yml on push to main touching web/**. Merging this branch publishes the text change. Confirm that is wanted.",
+      "Josh: the 18 non-Python avatars, their traits, blurbs and aide pairings in data.js are design proposals authored from the README descriptions. Review wanted.",
+      "Josh: DEPLOYMENT.md UE containers: keep updated count, or mark the section retired?",
+      "Josh: edit the claude.ai Project instructions (19 Advocates list with RejectShield, 'the 19 Advocates') and the Project description ('19 AI personas'); decide whether to annotate or leave the dated snapshot docs (Executive Summary v2.0, claude_main_to_nlt_handoff.md)."
+    ],
+    "escalations": [],
+    "next_agent_notes": "Two repos, one branch name each. fusion worktree: C:/Users/joshd/nlt-repos/fusion-roster-wt. nlt-fusion worktree: C:/Users/joshd/nlt-repos/nlt-fusion-roster-wt (its origin remote points at NeuroLift-Technologies/nlt-world-engine). Both are committed locally and unpushed. Remaining 19 mentions left on purpose: docs/active-threads.md TH-016, docs/ai-agent-docs/handoffs/chatgpt-init-review.md, docs/agent-log/**, archive/, _archive/, nlt-fusion docs/escalations/2026-10-02-godot-art-pipeline.md. Found but NOT in the brief and left untouched: nlt-fusion docs/DESIGN-ADDENDUM-BABYLON-VIEWER.md line 94 ('19-avatar fleet' in a v1 scope list) and nlt-fusion docs/world-engine/DESIGN.md line 90 (matched the scan; not inspected). apps/web has no 19-pair strings on main. The pr-125 branch still has them; rebasing pr-125 onto main would pick up the aligned versions.",
+    "files_modified": [
+      "neurolift-ai-fusion: prototypes/world-engine/data.js",
+      "neurolift-ai-fusion: prototypes/world-engine/hud.jsx",
+      "neurolift-ai-fusion: prototypes/world-engine/README.md",
+      "neurolift-ai-fusion: docs/architecture.md",
+      "neurolift-ai-fusion: docs/game-engine-vertical-slice.md",
+      "neurolift-ai-fusion: docs/specs/world-engine-prototype-schema.md",
+      "neurolift-ai-fusion: IMPLEMENTATION-COMPLETE.md",
+      "neurolift-ai-fusion: BUILD-SUMMARY.md",
+      "neurolift-ai-fusion: docs/agent-log/intent/2026-10-22-roster-canonicalization-20-pairs.md (new)",
+      "neurolift-ai-fusion: docs/agent-log/handoffs/CLAUDE-2026-10-22-roster-canonicalization-handoff.json (new)",
+      "nlt-fusion: ONBOARDING.md",
+      "nlt-fusion: ARCHITECTURE.md",
+      "nlt-fusion: DEPLOYMENT.md",
+      "nlt-fusion: web/index.html",
+      "nlt-fusion: web/nlt-world-engine.html",
+      "nlt-fusion: world-engine-godot/RENDERER-PLAN.md",
+      "nlt-fusion: world-engine-godot/ART-PIPELINE.md",
+      "nlt-fusion: world-engine-godot/assets/characters/PIPELINE-PROBE.md"
+    ],
+    "tests_run": [
+      "Node load of prototypes/world-engine/data.js with a stub window: contract checks listed above all passed.",
+      "git grep for leftover '19' pair references in both repos (excluding archive, _archive, agent-log): only the intentionally preserved items above remain."
+    ],
+    "tests_passing": true,
+    "not_verified": [
+      "The prototype was not opened in a browser; hud.jsx and the new avatars were not rendered.",
+      "validate-governance.sh was not run."
+    ],
+    "pr_url": ""
+  }
+}

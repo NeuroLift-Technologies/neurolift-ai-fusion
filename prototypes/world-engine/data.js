@@ -1,10 +1,12 @@
 // World Engine — static data: avatars, aides, scenarios, world map.
 //
-// Roster: 19 ADHD-trait avatars. IDs use clean snake_case that matches
-// the Python repo convention (src/avatars/adhd_traits/*). The first two
-// (stay_alert, task_kickstart) align directly with existing Avatar
-// implementations; the remaining 17 are design proposals for the full
-// roster. See docs/specs/world-engine-prototype-schema.md.
+// Roster: 20 ADHD-trait avatars (14 Executive Function, 6 Non-Executive
+// Function) — the canonical roster in the top-level README ("The 20
+// Avatar-Aide-Advocate Pairs"), per Joshua W. Dorsey, Sr.'s 2026-10-22
+// decision. IDs use snake_case matching the Python repo convention
+// (src/avatars/adhd_traits/*). stay_alert and task_kickstart align directly
+// with existing Avatar implementations; the other 18 are design proposals.
+// See docs/specs/world-engine-prototype-schema.md.
 //
 // Contract:
 //   - every avatar.id must have a matching entry in AIDES
@@ -13,67 +15,73 @@
 
 window.WE_DATA = (function () {
   const AVATARS = [
-    { id: 'stay_alert',      name: 'StayAlert',      trait: 'Sustained Attention',     tag: 'SA', hue: 200, flavor: 'attention',
+    // ===== Executive Function (14) =====
+    { id: 'stay_alert',       name: 'StayAlert',       trait: 'Sustained Attention',       tag: 'SA', hue: 200, flavor: 'attention',
       blurb: 'Drifts off long tasks. Vulnerable to hyperfocus.' },
-    { id: 'task_kickstart',  name: 'TaskKickstart',  trait: 'Task Initiation',         tag: 'TK', hue:  36, flavor: 'initiation',
-      blurb: 'Knows what to do — can\'t start.' },
-    { id: 'focus_flow',      name: 'FocusFlow',      trait: 'Hyperfocus / Switching',  tag: 'FF', hue: 168, flavor: 'focus',
-      blurb: 'Tunnel vision. Forgets to switch.' },
-    { id: 'memory_mate',     name: 'MemoryMate',     trait: 'Working Memory',          tag: 'MM', hue: 268, flavor: 'memory',
-      blurb: 'Loses the thread mid-sentence.' },
-    { id: 'time_keeper',     name: 'TimeKeeper',     trait: 'Time Perception',         tag: 'TM', hue: 220, flavor: 'time',
-      blurb: 'Now and not-now. No in-between.' },
-    { id: 'prioritize_it',   name: 'PrioritizeIt',   trait: 'Prioritization',          tag: 'PR', hue:  84, flavor: 'planning',
-      blurb: 'All ideas, no rank order.' },
-    { id: 'emo_steady',      name: 'EmoSteady',      trait: 'Emotional Regulation',    tag: 'ES', hue:  14, flavor: 'emotion',
-      blurb: 'Feels everything at full volume.' },
-    { id: 'impulse_guard',   name: 'ImpulseGuard',   trait: 'Impulse Control',         tag: 'IG', hue: 348, flavor: 'impulse',
+    { id: 'impulse_guard',    name: 'ImpulseGuard',    trait: 'Impulsivity Control',       tag: 'IG', hue: 348, flavor: 'impulse',
       blurb: 'Knows the stop sign, ignores it.' },
-    { id: 'social_cue',      name: 'SocialCue',      trait: 'Social Cues',             tag: 'SC', hue: 318, flavor: 'social',
-      blurb: 'Loses the social thread quickly.' },
-    { id: 'transition_ease', name: 'TransitionEase', trait: 'Task Switching',          tag: 'TE', hue: 290, flavor: 'transition',
+    { id: 'focus_flow',       name: 'FocusFlow',       trait: 'Hyperfocus Management',     tag: 'FF', hue: 168, flavor: 'focus',
+      blurb: 'Tunnel vision. Forgets to switch.' },
+    { id: 'timely',           name: 'Timely',          trait: 'Time Blindness',            tag: 'TM', hue: 220, flavor: 'time',
+      blurb: 'Now and not-now. No in-between.' },
+    { id: 'memory_mate',      name: 'MemoryMate',      trait: 'Working Memory',            tag: 'MM', hue: 268, flavor: 'memory',
+      blurb: 'Loses the thread mid-sentence.' },
+    { id: 'mood_ease',        name: 'MoodEase',        trait: 'Emotional Regulation',      tag: 'ME', hue:  14, flavor: 'emotion',
+      blurb: 'Feels everything at full volume.' },
+    { id: 'task_kickstart',   name: 'TaskKickstart',   trait: 'Task Initiation',           tag: 'TK', hue:  36, flavor: 'initiation',
+      blurb: 'Knows what to do — can\'t start.' },
+    { id: 'calm_core',        name: 'CalmCore',        trait: 'Frustration Tolerance',     tag: 'CC', hue:   4, flavor: 'frustration',
+      blurb: 'One snag and the whole task feels broken.' },
+    { id: 'planner_pro',      name: 'Planner Pro',     trait: 'Prioritization & Planning', tag: 'PP', hue:  84, flavor: 'planning',
+      blurb: 'All ideas, no rank order.' },
+    { id: 'smooth_switch',    name: 'SmoothSwitch',    trait: 'Transition Difficulty',     tag: 'SW', hue: 290, flavor: 'transition',
       blurb: 'Sticky between contexts.' },
-    { id: 'organize_well',   name: 'OrganizeWell',   trait: 'Organization',            tag: 'OW', hue: 188, flavor: 'planning',
-      blurb: 'Visual zones blur fast.' },
-    { id: 'follow_through',  name: 'FollowThrough',  trait: 'Task Completion',         tag: 'FT', hue: 138, flavor: 'initiation',
-      blurb: 'Starts strong, fades at the finish.' },
-    { id: 'listen_in',       name: 'ListenIn',       trait: 'Active Listening',        tag: 'LI', hue:  48, flavor: 'monitor',
-      blurb: 'Mind walks during conversations.' },
-    { id: 'fidget_flow',     name: 'FidgetFlow',     trait: 'Physical Restlessness',   tag: 'FX', hue: 322, flavor: 'sensory',
-      blurb: 'Needs motion to think.' },
-    { id: 'restore_calm',    name: 'RestoreCalm',    trait: 'Stress Recovery',         tag: 'RC', hue: 142, flavor: 'stress',
-      blurb: 'Spikes early, recovers slow.' },
-    { id: 'boundary_set',    name: 'BoundarySet',    trait: 'Boundary Setting',        tag: 'BS', hue:  24, flavor: 'social',
-      blurb: 'Says yes when meaning no.' },
-    { id: 'plan_ahead',      name: 'PlanAhead',      trait: 'Forward Planning',        tag: 'PA', hue: 186, flavor: 'planning',
-      blurb: 'Future-blind under load.' },
-    { id: 'self_monitor',    name: 'SelfMonitor',    trait: 'Self-Awareness',          tag: 'SM', hue: 280, flavor: 'monitor',
+    { id: 'aware_mate',       name: 'AwareMate',       trait: 'Self-Monitoring',           tag: 'AM', hue: 280, flavor: 'monitor',
       blurb: 'Can\'t tell if it\'s working.' },
-    { id: 'motivate_me',     name: 'MotivateMe',     trait: 'Motivation',              tag: 'MV', hue:  52, flavor: 'effort',
-      blurb: 'Why-power is low. Reward feels distant.' },
+    { id: 'steady_mind',      name: 'SteadyMind',      trait: 'Habit-Loop Control',        tag: 'SM', hue: 330, flavor: 'impulse',
+      blurb: 'The reach for the phone happens before the thought.' },
+    { id: 'focus_recharge',   name: 'FocusRecharge',   trait: 'Focus Fatigue',             tag: 'FR', hue: 108, flavor: 'fatigue',
+      blurb: 'Effortful focus drains the tank fast.' },
+    { id: 'effort_align',     name: 'EffortAlign',     trait: 'Effort vs. Output',         tag: 'EA', hue:  52, flavor: 'effort',
+      blurb: 'Works hard, feels like nothing got done.' },
+
+    // ===== Non-Executive Function (6) =====
+    { id: 'stress_shield',    name: 'StressShield',    trait: 'Stress Sensitivity',        tag: 'SS', hue: 142, flavor: 'stress',
+      blurb: 'Spikes early, recovers slow.' },
+    { id: 'sensory_balance',  name: 'SensoryBalance',  trait: 'Sensory Sensitivity',       tag: 'SB', hue: 188, flavor: 'sensory',
+      blurb: 'Every light and sound arrives at full strength.' },
+    { id: 'social_sync',      name: 'SocialSync',      trait: 'Social Challenges',         tag: 'SY', hue: 318, flavor: 'social',
+      blurb: 'Loses the social thread quickly.' },
+    { id: 'sensory_seeker',   name: 'SensorySeeker',   trait: 'Sensory Seeking',           tag: 'SK', hue:  24, flavor: 'sensory',
+      blurb: 'Needs motion to think.' },
+    { id: 'confidence_coach', name: 'ConfidenceCoach', trait: 'Self-Esteem & Identity',    tag: 'CO', hue: 240, flavor: 'identity',
+      blurb: 'Years of "try harder" wrote the inner narrator.' },
+    { id: 'rsd_shield',       name: 'RSDShield',       trait: 'Rejection Sensitivity',     tag: 'RS', hue: 340, flavor: 'emotion',
+      blurb: 'Reads a neutral reply as a door closing.' },
   ];
 
   // Aides paired 1:1 with each avatar by trait expertise.
   const AIDES = {
-    stay_alert:      { name: 'Dr. Vance',    style: 'supportive skill-building', focus: 'pomodoro · anchoring · mental-fatigue mgmt' },
-    task_kickstart:  { name: 'Coach Reyes',  style: 'gentle activation',         focus: 'two-minute starts · ladder steps · momentum' },
-    focus_flow:      { name: 'Coach Mei',    style: 'gentle boundary',           focus: 'externally-paced exits · transition rituals' },
-    memory_mate:     { name: 'Dr. Liang',    style: 'scaffolded',                focus: 'external memory · chunking · loop-backs' },
-    time_keeper:     { name: 'Coach Patel',  style: 'time-anchored',             focus: 'visible clocks · time-blocking · before/after' },
-    prioritize_it:   { name: 'Coach Olsen',  style: 'task scaffolding',          focus: 'Eisenhower sort · MIT method · one-thing rule' },
-    emo_steady:      { name: 'Dr. Aronson',  style: 'DBT-informed',              focus: 'name-the-wave · grounding · co-regulation' },
-    impulse_guard:   { name: 'Dr. Okafor',   style: 'CBT-flavored',              focus: 'pause-name-choose · response delay · cues' },
-    social_cue:      { name: 'Coach Brand',  style: 'social skills',             focus: 'thread-tracking · cue-cards · graceful exits' },
-    transition_ease: { name: 'Dr. Holst',    style: 'transition coaching',       focus: 'warning windows · soft cuts · landing pads' },
-    organize_well:   { name: 'Coach Olsen',  style: 'environmental design',      focus: 'container method · visual zones · single-touch' },
-    follow_through:  { name: 'Coach Reyes',  style: 'completion ritual',         focus: 'finish-before-new · done lists · last-mile' },
-    listen_in:       { name: 'Coach Brand',  style: 'metacognitive',             focus: 'active recap · note-anchors · question prompts' },
-    fidget_flow:     { name: 'Coach Mei',    style: 'stim channeling',           focus: 'movement breaks · stim objects · stand-desk' },
-    restore_calm:    { name: 'Dr. Aronson',  style: 'arousal regulation',        focus: 'down-regulation · sensory reset · walk breaks' },
-    boundary_set:    { name: 'Dr. Okafor',   style: 'assertion training',        focus: 'script rehearsal · pre-approved no · time-bound yes' },
-    plan_ahead:      { name: 'Coach Olsen',  style: 'forward planning',          focus: 'tomorrow lists · calendar blocks · if-then plans' },
-    self_monitor:    { name: 'Coach Brand',  style: 'metacognitive',             focus: 'check-in chimes · mood logs · 5-min retros' },
-    motivate_me:     { name: 'Dr. Vance',    style: 'energy management',         focus: 'reward stacking · why-anchor · body-double' },
+    stay_alert:       { name: 'Dr. Vance',    style: 'supportive skill-building', focus: 'pomodoro · anchoring · body-doubling' },
+    impulse_guard:    { name: 'Dr. Okafor',   style: 'CBT-flavored',              focus: 'pause-name-choose · response delay · cues' },
+    focus_flow:       { name: 'Coach Mei',    style: 'gentle boundary',           focus: 'externally-paced exits · transition rituals' },
+    timely:           { name: 'Coach Patel',  style: 'time-anchored',             focus: 'visible clocks · time-blocking · estimate-then-measure' },
+    memory_mate:      { name: 'Dr. Liang',    style: 'scaffolded',                focus: 'external memory · chunking · loop-backs' },
+    mood_ease:        { name: 'Dr. Aronson',  style: 'DBT-informed',              focus: 'name-the-wave · grounding · co-regulation' },
+    task_kickstart:   { name: 'Coach Reyes',  style: 'gentle activation',         focus: 'two-minute starts · ladder steps · momentum' },
+    calm_core:        { name: 'Dr. Holst',    style: 'distress tolerance',        focus: 'breath-down · reframe · graduated difficulty' },
+    planner_pro:      { name: 'Coach Olsen',  style: 'task scaffolding',          focus: 'Eisenhower sort · MIT method · minimum viable plan' },
+    smooth_switch:    { name: 'Dr. Holst',    style: 'transition coaching',       focus: 'warning windows · soft cuts · landing pads' },
+    aware_mate:       { name: 'Coach Brand',  style: 'metacognitive',             focus: 'check-in chimes · mood logs · 5-min retros' },
+    steady_mind:      { name: 'Dr. Okafor',   style: 'habit-loop interruption',   focus: 'cue swap · environment design · delay training' },
+    focus_recharge:   { name: 'Coach Mei',    style: 'energy management',         focus: 'energy mapping · strategic rest · load shedding' },
+    effort_align:     { name: 'Coach Olsen',  style: 'effort calibration',        focus: 'estimate vs actual · done-is-better · effort budget' },
+    stress_shield:    { name: 'Dr. Aronson',  style: 'arousal regulation',        focus: 'down-regulation · somatic grounding · worry windows' },
+    sensory_balance:  { name: 'Coach Mei',    style: 'sensory design',            focus: 'sensory audit · noise management · break scheduling' },
+    social_sync:      { name: 'Coach Brand',  style: 'social skills',             focus: 'thread-tracking · cue-cards · graceful exits' },
+    sensory_seeker:   { name: 'Coach Reyes',  style: 'stim channeling',           focus: 'movement breaks · stim objects · novelty in routine' },
+    confidence_coach: { name: 'Dr. Vance',    style: 'strengths-based',           focus: 'evidence journal · values check-in · narrative reframing' },
+    rsd_shield:       { name: 'Dr. Aronson',  style: 'reappraisal training',      focus: 'pause-and-label · reality-testing scripts · self-soothing' },
   };
 
   // Scenarios — IDs and metadata mirror src/simulation/environment/scenarios.py.

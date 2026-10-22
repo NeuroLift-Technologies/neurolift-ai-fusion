@@ -19,7 +19,7 @@ The page boots React 18 + Babel from a CDN and loads the `.jsx` files in-browser
 | File | Role |
 |---|---|
 | `index.html` | Entry point, CDN loaders, script order |
-| `data.js` | Static data — 19 avatars, paired aides, 11 scenarios, 5 rooms, NPCs, strategies, event vocabulary |
+| `data.js` | Static data — 20 avatars, paired aides, 11 scenarios, 5 rooms, NPCs, strategies, event vocabulary |
 | `app.jsx` | Top-level composition, layout, theme/zoom/pan, tweaks panel mount |
 | `sim.jsx` | Tick loop, avatar runtime state, event emission, flavor-bias tables |
 | `world-view.jsx` | Isometric CSS/SVG renderer (32×16 tile diamond, rooms, props, avatars, NPCs) |
@@ -30,19 +30,13 @@ The page boots React 18 + Babel from a CDN and loads the `.jsx` files in-browser
 
 ## Roster
 
-19 ADHD-trait avatars. IDs use snake_case matching the Python repo convention (`src/avatars/adhd_traits/`). The first two map directly to existing Python implementations (`stay_alert`, `task_kickstart`); the remaining 17 are design proposals.
+20 ADHD-trait avatars (14 Executive Function, 6 Non-Executive Function), matching the canonical roster in the top-level `README.md` ("The 20 Avatar-Aide-Advocate Pairs"). IDs use snake_case matching the Python repo convention (`src/avatars/adhd_traits/`). The first two (`stay_alert`, `task_kickstart`) map directly to existing Python implementations; the remaining 18 are design proposals.
 
 Full table in `docs/specs/world-engine-prototype-schema.md#canonical-roster`.
 
-### Roster corrections applied to source
+### Roster history
 
-The two zip drafts shipped conflicting rosters. This directory uses the cleaner-named roster with three fixes:
-
-- `transition` → `transition_ease` (consistency with other ids)
-- `follow_thru` → `follow_through` (full word)
-- `Physical Restless.` → `Physical Restlessness` (no truncation)
-
-The richer schema (blurb, flavor, tag) came from `engine/data.js`. The `_drafts/world-engine.jsx` original is preserved unchanged for reference.
+The original 19-avatar roster (merged from two conflicting zip drafts) was replaced on 2026-10-22 with the README's 20-pair roster, per Joshua W. Dorsey, Sr.'s decision that the README is canonical. Only `stay_alert`, `task_kickstart`, `focus_flow`, `memory_mate` and `impulse_guard` survived by name; the rest were renamed or replaced, and the paired aides were rebuilt to match. The richer schema (blurb, flavor, tag) is unchanged. The `_drafts/world-engine.jsx` original is preserved unchanged for reference.
 
 ## What's deliberately NOT here
 

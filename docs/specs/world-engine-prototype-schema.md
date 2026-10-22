@@ -35,7 +35,7 @@ The prototype assumes (and the data file is validated against) these cross-refer
 
 ## Avatar
 
-The 19-avatar roster. The first two ids (`stay_alert`, `task_kickstart`) align directly with the Python implementations in `src/avatars/adhd_traits/`; the remaining 17 are design proposals.
+The 20-avatar roster (14 Executive Function, 6 Non-Executive Function), matching the canonical roster in the top-level `README.md`. The ids `stay_alert` and `task_kickstart` align directly with the Python implementations in `src/avatars/adhd_traits/`; the remaining 18 are design proposals.
 
 ```ts
 type Avatar = {
@@ -74,24 +74,27 @@ type FlavorBias = {
 | # | id | trait | flavor |
 |---|---|---|---|
 | 1 | `stay_alert` | Sustained Attention | attention |
-| 2 | `task_kickstart` | Task Initiation | initiation |
-| 3 | `focus_flow` | Hyperfocus / Switching | focus |
-| 4 | `memory_mate` | Working Memory | memory |
-| 5 | `time_keeper` | Time Perception | time |
-| 6 | `prioritize_it` | Prioritization | planning |
-| 7 | `emo_steady` | Emotional Regulation | emotion |
-| 8 | `impulse_guard` | Impulse Control | impulse |
-| 9 | `social_cue` | Social Cues | social |
-| 10 | `transition_ease` | Task Switching | transition |
-| 11 | `organize_well` | Organization | planning |
-| 12 | `follow_through` | Task Completion | initiation |
-| 13 | `listen_in` | Active Listening | monitor |
-| 14 | `fidget_flow` | Physical Restlessness | sensory |
-| 15 | `restore_calm` | Stress Recovery | stress |
-| 16 | `boundary_set` | Boundary Setting | social |
-| 17 | `plan_ahead` | Forward Planning | planning |
-| 18 | `self_monitor` | Self-Awareness | monitor |
-| 19 | `motivate_me` | Motivation | effort |
+| 2 | `impulse_guard` | Impulsivity Control | impulse |
+| 3 | `focus_flow` | Hyperfocus Management | focus |
+| 4 | `timely` | Time Blindness | time |
+| 5 | `memory_mate` | Working Memory | memory |
+| 6 | `mood_ease` | Emotional Regulation | emotion |
+| 7 | `task_kickstart` | Task Initiation | initiation |
+| 8 | `calm_core` | Frustration Tolerance | frustration |
+| 9 | `planner_pro` | Prioritization & Planning | planning |
+| 10 | `smooth_switch` | Transition Difficulty | transition |
+| 11 | `aware_mate` | Self-Monitoring | monitor |
+| 12 | `steady_mind` | Habit-Loop Control | impulse |
+| 13 | `focus_recharge` | Focus Fatigue | fatigue |
+| 14 | `effort_align` | Effort vs. Output | effort |
+| 15 | `stress_shield` | Stress Sensitivity | stress |
+| 16 | `sensory_balance` | Sensory Sensitivity | sensory |
+| 17 | `social_sync` | Social Challenges | social |
+| 18 | `sensory_seeker` | Sensory Seeking | sensory |
+| 19 | `confidence_coach` | Self-Esteem & Identity | identity |
+| 20 | `rsd_shield` | Rejection Sensitivity | emotion |
+
+Rows 1-14 are Executive Function; rows 15-20 are Non-Executive Function.
 
 ---
 

@@ -340,7 +340,7 @@ When Supabase is available:
 - Comprehensive indexing
 - Row-Level Security
 - Audit trail support
-- Scalable for 19+ Avatar-Aide pairs
+- Scalable for 20+ Avatar-Aide pairs
 
 ---
 
