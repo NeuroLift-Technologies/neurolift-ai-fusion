@@ -39,6 +39,7 @@
       "neurolift-ai-fusion: docs/game-engine-vertical-slice.md",
       "neurolift-ai-fusion: docs/specs/world-engine-prototype-schema.md",
       "neurolift-ai-fusion: IMPLEMENTATION-COMPLETE.md",
+      "neurolift-ai-fusion: docs/active-threads.md (added TH-027)",
       "neurolift-ai-fusion: BUILD-SUMMARY.md",
       "neurolift-ai-fusion: docs/agent-log/intent/2026-10-22-roster-canonicalization-20-pairs.md (new)",
       "neurolift-ai-fusion: docs/agent-log/handoffs/CLAUDE-2026-10-22-roster-canonicalization-handoff.json (new)",
@@ -60,6 +61,6 @@
       "The prototype was not opened in a browser; hud.jsx and the new avatars were not rendered.",
       "validate-governance.sh was not run."
     ],
-    "pr_url": ""
+    "pr_url": "https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/130; https://github.com/NeuroLift-Technologies/nlt-world-engine/pull/116"
   }
 }

@@ -357,29 +357,6 @@ Canonical set for implementation planning (the README roster; 14 Executive Funct
 
 Names and order come from the top-level `README.md`, which is canonical. Older Repo, Drive, and Notion sources use overlapping or superseded labels; where they disagree with the README, the README wins.
 
----|---|---|
-| 1 | FocusFlow / StayAlert | Sustained attention and focus |
-| 2 | WorkingMemory / MemoryMate | Working memory and recall |
-| 3 | TaskSwitch / SmoothSwitch | Cognitive flexibility and transitions |
-| 4 | PlannerPro | Planning and prioritization |
-| 5 | Inhibition / ImpulseGuard | Inhibitory control |
-| 6 | Timely | Time awareness and scheduling |
-| 7 | SelfMonitor / AwareMate | Self-monitoring and metacognition |
-| 8 | InitiationEngine / TaskKickstart | Task initiation |
-| 9 | Persistence / FocusRecharge | Sustained effort and fatigue |
-| 10 | Organization | Organization and systems maintenance |
-| 11 | ProblemSolver | Problem-solving and reasoning |
-| 12 | GoalKeeper | Goal management |
-| 13 | FlexiThink | Cognitive flexibility and adaptation |
-| 14 | SpeedControl | Processing speed regulation |
-| 15 | ErrorCheck | Error monitoring and correction |
-| 16 | ResponseSelect / SteadyMind | Response selection and decision-making |
-| 17 | EmotionFlow / MoodEase | Emotional self-regulation |
-| 18 | SensoryBalance | Sensory processing regulation |
-| 19 | SocialSync | Social-emotional processing |
-
-Naming should be normalized before broad implementation. Existing repo, Drive, and Notion sources use overlapping names. The product model is stable even where labels differ.
-
 ---
 
 ## Implementation Boundaries

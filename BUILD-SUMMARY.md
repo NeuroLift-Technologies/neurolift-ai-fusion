@@ -251,7 +251,7 @@ The system will:
 - Training loop functional
 
 ✅ **Ready for Expansion:**
-- 17 additional Avatar-Aide pairs can be added
+- 18 additional Avatar-Aide pairs can be added
 - Scenario library can be expanded
 - Coaching strategies extensible
 - NPC system ready for integration
@@ -359,7 +359,7 @@ The system will:
 🎉 **PHASE 1 COMPLETE AND VALIDATED**
 
 Ready for:
-- Phase 2 expansion (17 more Avatar-Aide pairs)
+- Phase 2 expansion (18 more Avatar-Aide pairs)
 - Production deployment
 - Research validation
 - Community integration

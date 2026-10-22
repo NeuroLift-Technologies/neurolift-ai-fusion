@@ -30,7 +30,7 @@ The page boots React 18 + Babel from a CDN and loads the `.jsx` files in-browser
 
 ## Roster
 
-20 ADHD-trait avatars (14 Executive Function, 6 Non-Executive Function), matching the canonical roster in the top-level `README.md` ("The 20 Avatar-Aide-Advocate Pairs"). IDs use snake_case matching the Python repo convention (`src/avatars/adhd_traits/`). The first two (`stay_alert`, `task_kickstart`) map directly to existing Python implementations; the remaining 18 are design proposals.
+20 ADHD-trait avatars (14 Executive Function, 6 Non-Executive Function), matching the canonical roster in the top-level `README.md` ("The 20 Avatar-Aide-Advocate Pairs"). IDs use snake_case matching the Python repo convention (`src/avatars/adhd_traits/`). The two implemented avatars (`stay_alert`, `task_kickstart`) map directly to existing Python implementations; the remaining 18 are design proposals.
 
 Full table in `docs/specs/world-engine-prototype-schema.md#canonical-roster`.
 

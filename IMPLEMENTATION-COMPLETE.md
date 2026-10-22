@@ -288,7 +288,7 @@ When Supabase is available:
 ## Next Steps & Future Work
 
 ### Phase 2: Expansion (Recommended)
-1. **Implement remaining 17 Avatar-Aide pairs**
+1. **Implement remaining 18 Avatar-Aide pairs**
    - ImpulseGuard (impulse control)
    - FocusFlow (hyperfocus management)
    - Timely (time blindness)
