@@ -24,6 +24,7 @@
 | TH-024 | Link the web homepage (hero, new World Engine section, footer) to the NLT World Engine site at `neurolift-technologies.github.io/nlt-world-engine/` | Joshua W. Dorsey, Sr. | Claude Code | claude/serene-faraday-78ify3 | 🟡 In Progress | 2026-10-17 |
 | TH-025 | Let the local agent-loop models choose use / sit / rest / look_at, not only wait and approach (the world engine's AGENT-LOOP-002 doors and furniture) | Joshua W. Dorsey, Sr. | Claude Code | claude/pensive-shannon-x9on97 | ✅ Merged ([#126](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/126)) | 2026-10-21T20:55:00+00:00 |
 | TH-026 | Fix the web build / Vercel preview deploy, red since #123 (workspace ERESOLVE from apps/mobile, Tailwind 4 major bump, postcss override conflict) | Joshua W. Dorsey, Sr. | Claude Code | claude/fix-web-build | 🟡 Fix on main via #126; this PR adds its records ([#127](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/127)) | 2026-10-21T21:15:39+00:00 |
+| TH-027 | Make the README 20-pair roster canonical across neurolift-ai-fusion and nlt-fusion ([PR #130](https://github.com/NeuroLift-Technologies/neurolift-ai-fusion/pull/130), [nlt-world-engine#116](https://github.com/NeuroLift-Technologies/nlt-world-engine/pull/116)); pending Josh: review of the 18 proposed avatars/aides, Pages deploy on merge, DEPLOYMENT.md UE row, claude.ai Project text | Joshua W. Dorsey, Sr. | Claude Code | agent/claude-roster-canonicalization-20 | 🟡 In Review | 2026-10-22 |
 
 
 ---
