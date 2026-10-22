@@ -912,7 +912,7 @@ export const PAIRS: AvatarAidePair[] = [
     id: 20,
     avatarName: 'RSDShield',
     aideName: 'RejectionResilienceCoach',
-    advocateName: 'ResilienceAdvocate',
+    advocateName: 'RejectionAdvocate',
     trait: 'Rejection Sensitivity Dysphoria',
     category: 'non-executive-function',
     iconName: 'Shield',
