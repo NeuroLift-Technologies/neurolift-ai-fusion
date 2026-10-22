@@ -677,7 +677,7 @@ export const PAIRS: AvatarAidePair[] = [
     ],
   },
 
-  // ===== NON-EXECUTIVE FUNCTION PAIRS (5) =====
+  // ===== NON-EXECUTIVE FUNCTION PAIRS (6) =====
   {
     id: 15,
     avatarName: 'StressShield',
@@ -906,6 +906,52 @@ export const PAIRS: AvatarAidePair[] = [
       { label: 'Imposter Episodes', value: 12, description: 'Weekly imposter events' },
       { label: 'Self-Talk Positivity', value: 22, description: '% positive self-statements' },
       { label: 'Strengths Recognition', value: 28, description: '% of successes acknowledged' },
+    ],
+  },
+  {
+    id: 20,
+    avatarName: 'RSDShield',
+    aideName: 'RejectionResilienceCoach',
+    advocateName: 'RejectionAdvocate',
+    trait: 'Rejection Sensitivity Dysphoria',
+    category: 'non-executive-function',
+    iconName: 'Shield',
+    color: '#E11D48',
+    colorClass: 'text-rose-600',
+    bgClass: 'bg-rose-600/10',
+    borderClass: 'border-rose-600/30',
+    shortDescription:
+      'Intense emotional pain from perceived rejection or criticism, often triggering anticipatory avoidance and sharp mood crashes.',
+    avatarStruggles: [
+      'Perceives criticism or rejection where none was intended',
+      'Overwhelming emotional pain within seconds of a perceived slight',
+      'Avoids opportunities to prevent possible rejection',
+      'People-pleasing and difficulty setting boundaries',
+      'Days-long recovery after a minor negative interaction',
+    ],
+    aideExpertise: [
+      'Pause-and-label techniques for rejection spikes',
+      'Cognitive reappraisal of ambiguous feedback',
+      'Reality-testing scripts before reacting',
+      'Self-soothing and nervous-system regulation',
+      'Graduated exposure to feedback and risk',
+    ],
+    advocateStrength:
+      'Knows how a single comment can flood the body with pain, and can help others separate perceived rejection from real rejection.',
+    exampleScenario:
+      'A manager says \'Can we talk later?\' The Avatar is certain they are being fired and spends the afternoon unable to work.',
+    scenarios: [
+      'Ambiguous message from a manager',
+      'Mild critical feedback in a code review',
+      'Avoiding an invitation to prevent being turned down',
+    ],
+    status: 'concept',
+    empathyLevel: 'theoretical',
+    readinessScore: 0.01,
+    keyMetrics: [
+      { label: 'Rejection Spikes', value: 9, description: 'Weekly perceived-rejection events' },
+      { label: 'Recovery Time', value: 36, description: 'Hours to emotional baseline' },
+      { label: 'Avoidance Rate', value: 45, description: '% of opportunities avoided' },
     ],
   },
 ];

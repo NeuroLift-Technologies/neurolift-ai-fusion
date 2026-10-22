@@ -30,7 +30,7 @@ type StatusFilter = "all" | "runtime-aligned" | "design-proposal";
 type DomainFilter = "all" | PairDomain;
 
 const statusFilters: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "All 19" },
+  { value: "all", label: `All ${avatarAidePairs.length}` },
   { value: "runtime-aligned", label: "Runtime-aligned" },
   { value: "design-proposal", label: "Design proposals" },
 ];
@@ -133,7 +133,7 @@ export default function AvatarAidePairsPage() {
           </div>
           <div className={styles.rosterSummary} aria-label="Roster implementation summary">
             <div>
-              <strong>19</strong>
+              <strong>{avatarAidePairs.length}</strong>
               <span>paired concepts</span>
             </div>
             <div>
@@ -200,7 +200,7 @@ export default function AvatarAidePairsPage() {
               <h2 id="atlas-heading">Pair constellation</h2>
             </div>
             <p aria-live="polite">
-              {filteredPairs.length.toString().padStart(2, "0")} / 19 visible
+              {filteredPairs.length.toString().padStart(2, "0")} / {avatarAidePairs.length} visible
             </p>
           </div>
 

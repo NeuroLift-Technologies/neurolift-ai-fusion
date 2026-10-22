@@ -229,6 +229,9 @@
 }
 .section-divider {
   position: relative;
+  /* The animated ::before/::after lines slide ±100% of their own width;
+     clip them so they never widen the page (flickering horizontal scrollbar). */
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;

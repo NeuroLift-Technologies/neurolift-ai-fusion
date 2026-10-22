@@ -817,12 +817,12 @@ export function PairsGrid({ onSelectPair, onOpenCompare, onFavoriteToast, onExpo
       id="pairs"
       className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30"
       style={{ background: 'radial-gradient(ellipse at top center, rgba(243,128,32,0.03) 0%, transparent 50%)' }}
-      aria-label="The 19 Avatar-Aide-Advocate pairs"
+      aria-label="The 20 Avatar-Aide-Advocate pairs"
     >
       <div className="mx-auto w-full max-w-7xl">
       {/* ── Section header ──────────────────────────────────── */}
       <div className="mb-10 text-center">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">The 19 Pairs</h2>
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">The 20 Pairs</h2>
         <p className="mt-3 text-base text-muted-foreground sm:text-lg">
           Each pair addresses a unique dimension of the ADHD experience
         </p>

@@ -13,7 +13,7 @@ export function OnboardingToast() {
     const timer = setTimeout(() => {
       toast("Welcome to NeuroLift AI Fusion! 🧠", {
         description:
-          "Explore the 19 Avatar-Aide pairs, try the Fusion Simulator, or press ? for keyboard shortcuts.",
+          "Explore the 20 Avatar-Aide pairs, try the Fusion Simulator, or press ? for keyboard shortcuts.",
         duration: 8000,
         action: {
           label: "Dismiss",

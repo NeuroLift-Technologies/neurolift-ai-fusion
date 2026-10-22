@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NeuroLift AI Fusion — Avatar-Aide-Advocate Visualization",
   description:
-    "Interactive visualization of the 19 Avatar-Aide-Advocate pairs. AI avatars with ADHD traits experience authentic struggles, coached by expert aides, fusing into empathetic advocates.",
+    "Interactive visualization of the 20 Avatar-Aide-Advocate pairs. AI avatars with ADHD traits experience authentic struggles, coached by expert aides, fusing into empathetic advocates.",
   keywords: [
     "NeuroLift",
     "ADHD",
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Joshua W. Dorsey, Sr." }],
   openGraph: {
-    title: "NeuroLift AI Fusion — 19 Avatar-Aide-Advocate Pairs",
+    title: "NeuroLift AI Fusion — 20 Avatar-Aide-Advocate Pairs",
     description:
-      "Explore the 19 AI pairs that train through authentic ADHD experience. Interactive visualization of the fusion pipeline.",
+      "Explore the 20 AI pairs that train through authentic ADHD experience. Interactive visualization of the fusion pipeline.",
     siteName: "NeuroLift AI Fusion",
     type: "website",
   },
