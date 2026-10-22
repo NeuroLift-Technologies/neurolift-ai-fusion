@@ -412,7 +412,7 @@ function MiniRadialGauge({ pct, inView }: { pct: number; inView: boolean }) {
 
 // ─── Main component ──────────────────────────────────────────────
 /**
- * Stats overview for the 19 pairs, followed by the site footer with branding
+ * Stats overview for the 20 pairs, followed by the site footer with branding
  * and outbound links (World Engine, GitHub, website, email).
  */
 export default function StatsFooter() {
@@ -449,7 +449,7 @@ export default function StatsFooter() {
 
   const d = useMemo(() => computeDerivedStats(), []);
 
-  // Treemap data: all 19 pairs sorted by readiness descending
+  // Treemap data: all 20 pairs sorted by readiness descending
   const treemapData = useMemo(
     () =>
       [...PAIRS]
@@ -906,7 +906,7 @@ export default function StatsFooter() {
 
           {/* About paragraph */}
           <p className="mt-6 text-center text-xs leading-relaxed text-muted-foreground/60">
-            An interactive visualization of 19 Avatar-Aide-Advocate fusion pairs for ADHD experiential learning AI training.
+            An interactive visualization of 20 Avatar-Aide-Advocate fusion pairs for ADHD experiential learning AI training.
           </p>
 
           {/* Built With tech stack badges */}

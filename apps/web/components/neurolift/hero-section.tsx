@@ -265,7 +265,7 @@ export function HeroSection() {
             }}
           >
             <span className="flex items-center gap-2">
-              Explore All 19 Pairs
+              Explore All 20 Pairs
               <ArrowRight className="h-4 w-4" />
             </span>
           </button>
